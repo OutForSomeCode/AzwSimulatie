@@ -50,13 +50,7 @@ public class SimulationController extends Controller {
          * voor verschillende commando's. Zeker omdat je deze code maar één
          * keer nodig hebt.
          */
-        view.onViewClose(new Command(){
-        
-            @Override
-            public void execute() {
-                t.removeView(view);
-            }
-        });
+        view.onViewClose(() -> t.removeView(view));
 
         /*
          * Dit stukje code zorgt ervoor dat wanneer een nieuwe view verbinding maakt, deze view één

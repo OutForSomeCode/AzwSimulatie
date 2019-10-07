@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-
+require('./OrbitControls');
 // import OrbitControls from './OrbitControls';
 
 function parseCommand (input = '') {
@@ -10,17 +10,17 @@ var socket;
 
 window.onload = function () {
   var camera, scene, renderer;
-  // var cameraControls;
+  var cameraControls;
 
   var worldObjects = {};
 
   function init () {
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
-    // cameraControls = new OrbitControls(camera);
+    cameraControls = new THREE.OrbitControls(camera);
     camera.position.z = 15;
     camera.position.y = 5;
     camera.position.x = 15;
-    // cameraControls.update();
+    cameraControls.update();
     scene = new THREE.Scene();
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -54,7 +54,7 @@ window.onload = function () {
 
   function animate () {
     requestAnimationFrame(animate);
-    // cameraControls.update();
+    cameraControls.update();
     renderer.render(scene, camera);
   }
 
@@ -63,7 +63,7 @@ window.onload = function () {
    * de server geconfigureerd hebben als connectiepunt (/connectToSimulation). Op de socket wordt een .onmessage
    * functie geregistreerd waarmee binnenkomende berichten worden afgehandeld.
    */
-  socket = new WebSocket('ws://' + window.location.hostname + ':' + window.location.port + '/connectToSimulation');
+  socket = new WebSocket('ws://' + window.location.hostname + ':8081/connectToSimulation');
   socket.onmessage = function (event) {
     // Hier wordt het commando dat vanuit de server wordt gegeven uit elkaar gehaald
     var command = parseCommand(event.data);

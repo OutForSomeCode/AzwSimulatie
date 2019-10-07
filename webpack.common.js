@@ -9,22 +9,8 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
-        loader: 'eslint-loader',
-        exclude: /node_modules/,
-        enforce: 'pre',
-        options: {
-          // formatter: require('eslint-friendly-formatter'),
-          cache: true,
-          emitWarning: true
-        }
-      },
-      {
-        test: /\.js$/,
         loader: 'babel-loader',
-        include: [
-          path.resolve(__dirname, 'webapp'),
-          path.resolve(__dirname, 'node_modules/webpack-dev-server/client')
-        ],
+        exclude: /node_modules/,
         options: {
           presets: ['@babel/preset-env'],
           plugins: ['@babel/plugin-transform-runtime']
@@ -35,7 +21,7 @@ module.exports = {
         loader: 'url-loader',
         options: {
           limit: 10000,
-          name: path.resolve(__dirname, 'assets', 'textures/[name].[hash:7].[ext]')
+          name: path.resolve(__dirname, 'assets', 'textures', '[name].[hash:7].[ext]')
         }
       },
       {
@@ -43,7 +29,7 @@ module.exports = {
         loader: 'url-loader',
         options: {
           limit: 10000,
-          name: path.resolve(__dirname, 'assets', 'media/[name].[hash:7].[ext]')
+          name: path.resolve(__dirname, 'assets', 'media', '/[name].[hash:7].[ext]')
         }
       },
       {
@@ -51,7 +37,7 @@ module.exports = {
         loader: 'url-loader',
         options: {
           limit: 10000,
-          name: path.resolve(__dirname, 'assets', 'fonts/[name].[hash:7].[ext]')
+          name: path.resolve(__dirname, 'assets', 'fonts', '[name].[hash:7].[ext]')
         }
       },
       {
@@ -86,12 +72,13 @@ module.exports = {
       { from: 'assets', to: 'assets' },
     ])
   ],
-  entry: './webapp/SimulationView.js',
+  entry: './webapp/main.js',
   output: {
     filename: 'SimulationView.js',
     // src\main\resources\static
-    path: path.resolve(__dirname, 'src', 'main', 'resources', 'static')
+    path: path.resolve(__dirname, 'build')
   },
+
   node: {
     // prevent webpack from injecting useless setImmediate polyfill because Vue
     // source contains it (although only uses it if it's native).

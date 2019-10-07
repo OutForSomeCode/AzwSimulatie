@@ -25,33 +25,33 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
  * Dit is de hoofdklasse van de applicatie. De app werkt met Spring, een Java
  * framework welke handig is, bijvoorbeeld om een simpele server te schrijven.
  * De main methode zet de app in werking en er wordt een nieuw object gemaakt
- * van de class App. Dit gedeelte handeld Spring voor je af.
+ * van de class WebSever. Dit gedeelte handeld Spring voor je af.
  */
 @Configuration
 @EnableAutoConfiguration
 @EnableWebSocket
-public class App extends SpringBootServletInitializer implements WebSocketConfigurer {
+public class WebSever extends SpringBootServletInitializer implements WebSocketConfigurer {
 
     /*
      * De main methode regelt het starten van de Spring applicatie. Dit gebeurd
-     * middels SpringApplication.run(). Deze zorgt ervoor dat onze App gerund
-     * wordt. Dit kan doordat de class App de class SpringBootServletInitializer
+     * middels SpringApplication.run(). Deze zorgt ervoor dat onze WebSever gerund
+     * wordt. Dit kan doordat de class WebSever de class SpringBootServletInitializer
      * extend. Dit is een class van Spring welke een server voor ons maakt.
-     * De App class is daardoor dus een server.
+     * De WebSever class is daardoor dus een server.
      */
     public static void main(String[] args) {
-        SpringApplication.run(App.class, args);
+        SpringApplication.run(WebSever.class, args);
     }
-    
-    //De App is de applicatie en heeft de controller voor de simulatie in zich
+
+    //De WebSever is de applicatie en heeft de controller voor de simulatie in zich
     private Controller controller;
 
    /*
     * De constructor wordt uitgevoerd wanneer de app wordt opgebouwd. Je zult alleen
-    * geen new App() tegenkomen. Dit doet Spring namelijk al voor je bij
+    * geen new WebSever() tegenkomen. Dit doet Spring namelijk al voor je bij
     * SpringApplication.run().
     */
-    public App() {
+    public WebSever() {
         this.controller = new SimulationController(new World());
         this.controller.start();
     }
@@ -62,11 +62,11 @@ public class App extends SpringBootServletInitializer implements WebSocketConfig
      */
     @Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-		return application.sources(App.class);
+		return application.sources(WebSever.class);
 	}
 
     /*
-     * Deze methode moet worden geïmplementeerd omdat de class App de interface
+     * Deze methode moet worden geïmplementeerd omdat de class WebSever de interface
      * WebSocketConfigurer implementeerd. Deze interface maakt het mogelijk
      * om zogenaamde WebSocketHandlers te registreren in het systeem. Dit
      * zijn onderdelen in de software die binnenkomende websocket verbindingen
