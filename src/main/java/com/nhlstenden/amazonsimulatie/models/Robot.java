@@ -40,7 +40,7 @@ class Robot implements Object3D, Updatable {
     if (x < 15) {
       this.x += 0.1;
     } else {
-      this.z += 0.1;
+      this.x = 0;
     }
 
     return true;

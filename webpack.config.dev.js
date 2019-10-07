@@ -1,5 +1,5 @@
 const Path = require('path');
-const Webpack = require('webpack');
+const webpack = require('webpack');
 const merge = require('webpack-merge');
 const common = require('./webpack.common.js');
 
@@ -10,10 +10,12 @@ module.exports = merge(common, {
     chunkFilename: 'js/[name].chunk.js'
   },
   devServer: {
-    inline: true
+    inline: true,
+    hot: true
   },
   plugins: [
-    new Webpack.DefinePlugin({
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('development')
     })
   ]
