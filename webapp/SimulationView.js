@@ -1,7 +1,8 @@
 import * as THREE from 'three';
-import OrbitControls from './OrbitControls';
 
-function parseCommand(input = "") {
+// import OrbitControls from './OrbitControls';
+
+function parseCommand (input = '') {
   return JSON.parse(input);
 }
 
@@ -9,17 +10,17 @@ var socket;
 
 window.onload = function () {
   var camera, scene, renderer;
-  var cameraControls;
+  // var cameraControls;
 
   var worldObjects = {};
 
-  function init() {
+  function init () {
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
-    cameraControls = new OrbitControls(camera);
+    // cameraControls = new OrbitControls(camera);
     camera.position.z = 15;
     camera.position.y = 5;
     camera.position.x = 15;
-    cameraControls.update();
+    // cameraControls.update();
     scene = new THREE.Scene();
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -30,7 +31,10 @@ window.onload = function () {
     window.addEventListener('resize', onWindowResize, false);
 
     var geometry = new THREE.PlaneGeometry(30, 30, 32);
-    var material = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
+    var material = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      side: THREE.DoubleSide
+    });
     var plane = new THREE.Mesh(geometry, material);
     plane.rotation.x = Math.PI / 2.0;
     plane.position.x = 15;
@@ -42,15 +46,15 @@ window.onload = function () {
     scene.add(light);
   }
 
-  function onWindowResize() {
+  function onWindowResize () {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
-  function animate() {
+  function animate () {
     requestAnimationFrame(animate);
-    cameraControls.update();
+    // cameraControls.update();
     renderer.render(scene, camera);
   }
 
@@ -59,26 +63,44 @@ window.onload = function () {
    * de server geconfigureerd hebben als connectiepunt (/connectToSimulation). Op de socket wordt een .onmessage
    * functie geregistreerd waarmee binnenkomende berichten worden afgehandeld.
    */
-  socket = new WebSocket("ws://" + window.location.hostname + ":" + window.location.port + "/connectToSimulation");
+  socket = new WebSocket('ws://' + window.location.hostname + ':' + window.location.port + '/connectToSimulation');
   socket.onmessage = function (event) {
-    //Hier wordt het commando dat vanuit de server wordt gegeven uit elkaar gehaald
+    // Hier wordt het commando dat vanuit de server wordt gegeven uit elkaar gehaald
     var command = parseCommand(event.data);
 
-    //Wanneer het commando is "object_update", dan wordt deze code uitgevoerd. Bekijk ook de servercode om dit goed te begrijpen.
-    if (command.command == "object_update") {
-      //Wanneer het object dat moet worden geupdate nog niet bestaat (komt niet voor in de lijst met worldObjects op de client),
-      //dan wordt het 3D model eerst aangemaakt in de 3D wereld.
+    // Wanneer het commando is "object_update", dan wordt deze code uitgevoerd. Bekijk ook de servercode om dit goed te begrijpen.
+    if (command.command === 'object_update') {
+      // Wanneer het object dat moet worden geupdate nog niet bestaat (komt niet voor in de lijst met worldObjects op de client),
+      // dan wordt het 3D model eerst aangemaakt in de 3D wereld.
       if (Object.keys(worldObjects).indexOf(command.parameters.uuid) < 0) {
-        //Wanneer het object een robot is, wordt de code hieronder uitgevoerd.
-        if (command.parameters.type == "robot") {
+        // Wanneer het object een robot is, wordt de code hieronder uitgevoerd.
+        if (command.parameters.type === 'robot') {
           var geometry = new THREE.BoxGeometry(0.9, 0.3, 0.9);
           var cubeMaterials = [
-            new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("textures/robot_side.png"), side: THREE.DoubleSide }), //LEFT
-            new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("textures/robot_side.png"), side: THREE.DoubleSide }), //RIGHT
-            new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("textures/robot_top.png"), side: THREE.DoubleSide }), //TOP
-            new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("textures/robot_bottom.png"), side: THREE.DoubleSide }), //BOTTOM
-            new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("textures/robot_front.png"), side: THREE.DoubleSide }), //FRONT
-            new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("textures/robot_front.png"), side: THREE.DoubleSide }), //BACK
+            new THREE.MeshBasicMaterial({
+              map: new THREE.TextureLoader().load('assets/textures/robot_side.png'),
+              side: THREE.DoubleSide
+            }), // LEFT
+            new THREE.MeshBasicMaterial({
+              map: new THREE.TextureLoader().load('assets/textures/robot_side.png'),
+              side: THREE.DoubleSide
+            }), // RIGHT
+            new THREE.MeshBasicMaterial({
+              map: new THREE.TextureLoader().load('assets/textures/robot_top.png'),
+              side: THREE.DoubleSide
+            }), // TOP
+            new THREE.MeshBasicMaterial({
+              map: new THREE.TextureLoader().load('assets/textures/robot_bottom.png'),
+              side: THREE.DoubleSide
+            }), // BOTTOM
+            new THREE.MeshBasicMaterial({
+              map: new THREE.TextureLoader().load('assets/textures/robot_front.png'),
+              side: THREE.DoubleSide
+            }), // FRONT
+            new THREE.MeshBasicMaterial({
+              map: new THREE.TextureLoader().load('assets/textures/robot_front.png'),
+              side: THREE.DoubleSide
+            }) // BACK
           ];
           var material = new THREE.MeshFaceMaterial(cubeMaterials);
           var robot = new THREE.Mesh(geometry, material);
