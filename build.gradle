@@ -18,7 +18,7 @@ configurations {
 
 dependencies {
   compile 'org.springframework.boot:spring-boot-starter-websocket:1.0.2.RELEASE'
-  compile 'org.springframework.boot:spring-boot-starter-actuator:1.0.2.RELEASE'
+  compile 'org.springframework.boot:spring-boot-starter-actuator:2.1.9.RELEASE'
   developmentOnly "org.springframework.boot:spring-boot-devtools"
   testCompile 'org.springframework.boot:spring-boot-starter-test:1.0.2.RELEASE'
   testCompile 'junit:junit:4.12'
