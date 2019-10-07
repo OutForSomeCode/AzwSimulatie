@@ -8,6 +8,7 @@ import com.nhlstenden.amazonsimulatie.models.Object3D;
  * Ze de andere classes voor meer uitleg.
  */
 public interface View {
-    void update(String event, Object3D data);
-    void onViewClose(Command command);
+  void update(String event, Object3D data);
+
+  void onViewClose(Command command);
 }

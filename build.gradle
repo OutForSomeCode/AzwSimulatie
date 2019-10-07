@@ -1,11 +1,17 @@
-plugins {
-  id 'java'
-}
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
 
 repositories {
-  mavenLocal()
-  maven {
-    url = 'http://repo.maven.apache.org/maven2'
+  mavenCentral()
+}
+
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath("org.springframework.boot:spring-boot-gradle-plugin:2.1.9.RELEASE")
   }
 }
 
@@ -17,10 +23,9 @@ configurations {
 }
 
 dependencies {
-  compile 'org.springframework.boot:spring-boot-starter-websocket:2.1.9.RELEASE'
-  compile 'org.springframework.boot:spring-boot-starter-actuator:2.1.9.RELEASE'
+  compile("org.springframework.boot:spring-boot-starter-websocket")
   developmentOnly "org.springframework.boot:spring-boot-devtools"
-  testCompile 'org.springframework.boot:spring-boot-starter-test:2.1.9.RELEASE'
+  testCompile 'org.springframework.boot:spring-boot-starter-test'
   testCompile 'junit:junit:4.12'
   testCompile 'org.mockito:mockito-core:3.1.0'
   testCompile 'org.hamcrest:hamcrest-library:1.3'

@@ -8,5 +8,5 @@ package com.nhlstenden.amazonsimulatie.models;
  * wereld update.
  */
 interface Updatable {
-    boolean update();
+  boolean update();
 }

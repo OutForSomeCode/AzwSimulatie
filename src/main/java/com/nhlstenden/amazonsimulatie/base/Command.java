@@ -5,5 +5,5 @@ package com.nhlstenden.amazonsimulatie.base;
  * één methode nodig, namelijk de execute methode.
  */
 public interface Command {
-    void execute();
+  void execute();
 }

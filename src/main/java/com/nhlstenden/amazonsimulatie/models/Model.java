@@ -10,19 +10,21 @@ import java.util.List;
  * alle models.
  */
 public interface Model {
-    /*
-     * Models kunnen commando's geven aan de view, bijvoorbeeld om te updaten.
-     * Hier is zo'n commando weergegeven als statische waarde, omdat deze gelijk
-     * is voor alle models.
-     */
-    static final String UPDATE_COMMAND = "object_update";
+  /*
+   * Models kunnen commando's geven aan de view, bijvoorbeeld om te updaten.
+   * Hier is zo'n commando weergegeven als statische waarde, omdat deze gelijk
+   * is voor alle models.
+   */
+  static final String UPDATE_COMMAND = "object_update";
 
-    /*
-     * Alle models moeten kunnen updaten en een observer kunnen toevoegen.
-     * Wanneer een class dit implementeerd, is het binnen deze software
-     * genoeg om een model te zijn.
-     */
-    void update();
-    void addObserver(PropertyChangeListener pcl);
-    List<Object3D> getWorldObjectsAsList();
+  /*
+   * Alle models moeten kunnen updaten en een observer kunnen toevoegen.
+   * Wanneer een class dit implementeerd, is het binnen deze software
+   * genoeg om een model te zijn.
+   */
+  void update();
+
+  void addObserver(PropertyChangeListener pcl);
+
+  List<Object3D> getWorldObjectsAsList();
 }
