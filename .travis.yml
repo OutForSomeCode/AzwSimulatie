@@ -1,0 +1,10 @@
+dist: bionic
+
+matrix:
+  include:
+    - name: Java
+      language: java
+
+    - name: JavaScript
+      language: node_js
+      node_js: lts/*
