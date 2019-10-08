@@ -1,15 +1,7 @@
-import {
-  BoxGeometry,
-  DoubleSide,
-  Group,
-  Mesh,
-  MeshBasicMaterial,
-  Scene,
-  TextureLoader
-} from "three";
+import {BoxGeometry, DoubleSide, Group, Mesh, MeshBasicMaterial, Scene, TextureLoader} from "three";
 
 class SocketService {
-  private worldObjects: object = {};
+  private worldObjects: Array<Group> = [];
   private scene: Scene;
   private socket: WebSocket;
 
@@ -49,10 +41,17 @@ class SocketService {
     };
     this.socket.onclose = e => {
       console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
+      this.Cleanup();
       setTimeout(() => {
         this.connect();
       }, 1000);
     };
+  }
+
+  Cleanup() {
+    for (let e in this.worldObjects) {
+      this.scene.remove(this.worldObjects[e])
+    }
   }
 
   UpdateObject(command) {
@@ -96,7 +95,6 @@ class SocketService {
 
         this.scene.add(group);
         this.worldObjects[command.parameters.uuid] = group;
-        console.log(command.parameters.uuid);
       }
     }
   }

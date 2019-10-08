@@ -2,7 +2,7 @@ import {SocketService} from './SocketService';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import {
   AmbientLight,
-  DoubleSide,
+  DoubleSide, Group,
   Mesh,
   MeshBasicMaterial,
   PerspectiveCamera,
@@ -19,7 +19,7 @@ let scene: Scene;
 let renderer: WebGLRenderer;
 
 let cameraControls: OrbitControls;
-const worldObjects = {};
+let worldObjects: Array<Group> = [];
 let socketService: SocketService;
 
 window.onload = () => {
