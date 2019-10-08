@@ -1,6 +1,16 @@
-import * as THREE from 'three';
 import { SocketService } from './SocketService';
-require('./OrbitControls');
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import {
+  AmbientLight, DoubleSide,
+  Mesh,
+  MeshBasicMaterial,
+  PerspectiveCamera,
+  PlaneGeometry,
+  Scene,
+  SphereGeometry,
+  TextureLoader,
+  WebGLRenderer
+} from 'three';
 
 var camera, scene, renderer;
 var cameraControls;
@@ -9,38 +19,41 @@ var socketService;
 
 window.onload = function () {
   function init () {
-    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
-    cameraControls = new THREE.OrbitControls(camera);
+    camera = new PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
+    cameraControls = new OrbitControls(camera);
     camera.position.z = 15;
     camera.position.y = 5;
     camera.position.x = 15;
     cameraControls.update();
-    scene = new THREE.Scene();
+    scene = new Scene();
 
-    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer = new WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight + 5);
     document.body.appendChild(renderer.domElement);
 
     window.addEventListener('resize', onWindowResize, false);
 
-    var sphericalSkyboxGeometry = new THREE.SphereGeometry(900, 32, 32);
-    var sphericalSkyboxMaterial = new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('assets/textures/yellow_field_2k.jpg'), side: THREE.DoubleSide });
-    var sphericalSkybox = new THREE.Mesh(sphericalSkyboxGeometry, sphericalSkyboxMaterial);
+    var sphericalSkyboxGeometry = new SphereGeometry(900, 32, 32);
+    var sphericalSkyboxMaterial = new MeshBasicMaterial({
+      map: new TextureLoader().load('assets/textures/yellow_field_2k.jpg'),
+      side: DoubleSide
+    });
+    var sphericalSkybox = new Mesh(sphericalSkyboxGeometry, sphericalSkyboxMaterial);
     scene.add(sphericalSkybox);
 
-    var geometry = new THREE.PlaneGeometry(30, 30, 32);
-    var material = new THREE.MeshBasicMaterial({
+    var geometry = new PlaneGeometry(30, 30, 32);
+    var material = new MeshBasicMaterial({
       color: 0xf75b23,
-      side: THREE.DoubleSide
+      side: DoubleSide
     });
-    var plane = new THREE.Mesh(geometry, material);
+    var plane = new Mesh(geometry, material);
     plane.rotation.x = Math.PI / 2.0;
     plane.position.x = 15;
     plane.position.z = 15;
     scene.add(plane);
 
-    var light = new THREE.AmbientLight(0x404040);
+    var light = new AmbientLight(0x404040);
     light.intensity = 4;
     scene.add(light);
 

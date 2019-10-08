@@ -8,16 +8,8 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js$/,
-        loader: 'babel-loader',
-        exclude: /node_modules/,
-        options: {
-          presets: ['@babel/preset-env'],
-          plugins: [
-            '@babel/plugin-transform-runtime',
-            '@babel/plugin-proposal-class-properties'
-          ]
-        }
+        test: /\.tsx?$/,
+        loader: "ts-loader"
       },
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
@@ -59,6 +51,9 @@ module.exports = {
       }
     ]
   },
+  resolve: {
+    extensions: ['.ts', '.tsx', '.js', '.jsx']
+  },
   plugins: [
     new webpack.ProgressPlugin(),
     new FriendlyErrorsWebpackPlugin(),
@@ -72,7 +67,7 @@ module.exports = {
       { from: 'assets', to: 'assets' },
     ])
   ],
-  entry: './webapp/main.js',
+  entry: './webapp/main.ts',
   output: {
     filename: 'SimulationView.js',
     // src\main\resources\static

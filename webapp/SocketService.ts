@@ -1,12 +1,16 @@
-import * as THREE from 'three';
+import {BoxGeometry, DoubleSide, Group, Mesh, MeshBasicMaterial, TextureLoader} from "three";
 
 class SocketService {
-  constructor (w, s) {
+  worldObjects = {};
+  scene;
+  socket;
+
+  constructor(w, s) {
     this.worldObjects = w;
     this.scene = s;
   }
 
-  connect () {
+  connect() {
     /*
    * Hier wordt de socketcommunicatie geregeld. Er wordt een nieuwe websocket aangemaakt voor het webadres dat we in
    * de server geconfigureerd hebben als connectiepunt (/connectToSimulation). Op de socket wordt een .onmessage
@@ -43,44 +47,43 @@ class SocketService {
     };
   }
 
-  UpdateObject (command) {
+  UpdateObject(command) {
     // Wanneer het object dat moet worden geupdate nog niet bestaat (komt niet voor in de lijst met worldObjects op de client),
     // dan wordt het 3D model eerst aangemaakt in de 3D wereld.
     if (Object.keys(this.worldObjects).indexOf(command.parameters.uuid) < 0) {
       // Wanneer het object een robot is, wordt de code hieronder uitgevoerd.
       if (command.parameters.type === 'robot') {
-        var geometry = new THREE.BoxGeometry(0.9, 0.3, 0.9);
+        var geometry = new BoxGeometry(0.9, 0.3, 0.9);
         var cubeMaterials = [
-          new THREE.MeshBasicMaterial({
-            map: new THREE.TextureLoader().load('assets/textures/robot_side.png'),
-            side: THREE.DoubleSide
+          new MeshBasicMaterial({
+            map: new TextureLoader().load('assets/textures/robot_side.png'),
+            side: DoubleSide
           }), // LEFT
-          new THREE.MeshBasicMaterial({
-            map: new THREE.TextureLoader().load('assets/textures/robot_side.png'),
-            side: THREE.DoubleSide
+          new MeshBasicMaterial({
+            map: new TextureLoader().load('assets/textures/robot_side.png'),
+            side: DoubleSide
           }), // RIGHT
-          new THREE.MeshBasicMaterial({
-            map: new THREE.TextureLoader().load('assets/textures/robot_top.png'),
-            side: THREE.DoubleSide
+          new MeshBasicMaterial({
+            map: new TextureLoader().load('assets/textures/robot_top.png'),
+            side: DoubleSide
           }), // TOP
-          new THREE.MeshBasicMaterial({
-            map: new THREE.TextureLoader().load('assets/textures/robot_bottom.png'),
-            side: THREE.DoubleSide
+          new MeshBasicMaterial({
+            map: new TextureLoader().load('assets/textures/robot_bottom.png'),
+            side: DoubleSide
           }), // BOTTOM
-          new THREE.MeshBasicMaterial({
-            map: new THREE.TextureLoader().load('assets/textures/robot_front.png'),
-            side: THREE.DoubleSide
+          new MeshBasicMaterial({
+            map: new TextureLoader().load('assets/textures/robot_front.png'),
+            side: DoubleSide
           }), // FRONT
-          new THREE.MeshBasicMaterial({
-            map: new THREE.TextureLoader().load('assets/textures/robot_front.png'),
-            side: THREE.DoubleSide
+          new MeshBasicMaterial({
+            map: new TextureLoader().load('assets/textures/robot_front.png'),
+            side: DoubleSide
           }) // BACK
         ];
-        var material = new THREE.MeshFaceMaterial(cubeMaterials);
-        var robot = new THREE.Mesh(geometry, material);
+        var robot = new Mesh(geometry, cubeMaterials);
         robot.position.y = 0.15;
 
-        var group = new THREE.Group();
+        var group = new Group();
         group.add(robot);
 
         this.scene.add(group);
@@ -90,4 +93,5 @@ class SocketService {
     }
   }
 }
-export { SocketService };
+
+export {SocketService};
