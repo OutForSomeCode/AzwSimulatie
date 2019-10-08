@@ -37,12 +37,20 @@ class Robot implements Object3D, Updatable {
    */
   @Override
   public boolean update() {
-    if (x < 15) {
+    if(x <= 15)
+    {
       this.x += 0.1;
-    } else {
-      this.x = 0;
     }
-
+    else {
+      this.z += 0.1;
+      if(this.z >=15){
+        this.x -= 0.1;
+        if(this.x >=0 )
+        {
+          this.z -=0.1;
+        }
+      }
+    }
     return true;
   }
 
