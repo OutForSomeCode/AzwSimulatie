@@ -13,7 +13,7 @@ module.exports = merge(common, {
   },
   plugins: [
     new Webpack.DefinePlugin({
-      'WEBSOCKETHOST': JSON.stringify('ws://vps693792.ovh.net:8081/connectToSimulation'),
+      'WEBSOCKETHOST': JSON.stringify('wss://sim.a-random-vps.cf/connectToSimulation'),
       'process.env.NODE_ENV': JSON.stringify('production')
     }),
     new Webpack.optimize.ModuleConcatenationPlugin(),
