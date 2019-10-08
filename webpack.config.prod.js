@@ -6,7 +6,6 @@ const common = require('./webpack.common.js');
 module.exports = merge(common, {
   mode: 'production',
   devtool: 'source-map',
-  stats: 'errors-only',
   bail: true,
   output: {
     filename: 'js/[name].[chunkhash:8].js',
@@ -14,6 +13,7 @@ module.exports = merge(common, {
   },
   plugins: [
     new Webpack.DefinePlugin({
+      'WEBSOCKETHOST': JSON.stringify('ws://vps693792.ovh.net:8081/connectToSimulation'),
       'process.env.NODE_ENV': JSON.stringify('production')
     }),
     new Webpack.optimize.ModuleConcatenationPlugin(),

@@ -1,24 +1,17 @@
-import {
-  BoxGeometry,
-  DoubleSide,
-  Group,
-  Mesh,
-  MeshBasicMaterial,
-  Scene,
-  TextureLoader
-} from "three";
 import {WorldObjectManger} from "./WorldObjectManager";
+// @ts-ignore Word geinject vanuit webpack
+const whost = WEBSOCKETHOST;
 
 class SocketService {
   private socket: WebSocket;
 
+  /*
+    * Hier wordt de socketcommunicatie geregeld. Er wordt een nieuwe websocket aangemaakt voor het webadres dat we in
+    * de server geconfigureerd hebben als connectiepunt (/connectToSimulation). Op de socket wordt een .onmessage
+    * functie geregistreerd waarmee binnenkomende berichten worden afgehandeld.
+    */
   connect() {
-    /*
-   * Hier wordt de socketcommunicatie geregeld. Er wordt een nieuwe websocket aangemaakt voor het webadres dat we in
-   * de server geconfigureerd hebben als connectiepunt (/connectToSimulation). Op de socket wordt een .onmessage
-   * functie geregistreerd waarmee binnenkomende berichten worden afgehandeld.
-   */
-    this.socket = new WebSocket('ws://' + window.location.hostname + ':8081/connectToSimulation');
+    this.socket = new WebSocket(whost);
     this.socket.onmessage = (event) => {
       // Hier wordt het commando dat vanuit de server wordt gegeven uit elkaar gehaald
       var command = JSON.parse(event.data);
