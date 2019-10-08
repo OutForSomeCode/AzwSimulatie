@@ -1,11 +1,19 @@
-import {BoxGeometry, DoubleSide, Group, Mesh, MeshBasicMaterial, TextureLoader} from "three";
+import {
+  BoxGeometry,
+  DoubleSide,
+  Group,
+  Mesh,
+  MeshBasicMaterial,
+  Scene,
+  TextureLoader
+} from "three";
 
 class SocketService {
-  worldObjects = {};
-  scene;
-  socket;
+  private worldObjects: object = {};
+  private scene: Scene;
+  private socket: WebSocket;
 
-  constructor(w, s) {
+  constructor(w, s: Scene) {
     this.worldObjects = w;
     this.scene = s;
   }
