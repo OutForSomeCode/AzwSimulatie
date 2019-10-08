@@ -27,8 +27,8 @@ class SocketService {
       }
 
       /*
-         * Deze code wordt elke update uitgevoerd. Het update alle positiegegevens van het 3D object.
-         */
+       * Deze code wordt elke update uitgevoerd. Het update alle positiegegevens van het 3D object.
+       */
       var object = this.worldObjects[command.parameters.uuid];
 
       object.position.x = command.parameters.x;
