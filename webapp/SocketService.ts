@@ -7,7 +7,7 @@ import {
   Scene,
   TextureLoader
 } from "three";
-import {Objectmanger} from "./WorldObjectManager";
+import {WorldObjectManger} from "./WorldObjectManager";
 
 class SocketService {
   private socket: WebSocket;
@@ -25,12 +25,14 @@ class SocketService {
 
       // Wanneer het commando is "object_update", dan wordt deze code uitgevoerd. Bekijk ook de servercode om dit goed te begrijpen.
       if (command.command === 'object_update') {
-        Objectmanger.getInstance().UpdateObject(command);
+        WorldObjectManger.getInstance().updateObject(command);
       }
+      WorldObjectManger.getInstance().updateWorldPosition(command);
+
     };
     this.socket.onclose = e => {
       console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
-      this.Cleanup();
+      WorldObjectManger.getInstance().CleanupAll();
       setTimeout(() => {
         this.connect();
       }, 1000);
