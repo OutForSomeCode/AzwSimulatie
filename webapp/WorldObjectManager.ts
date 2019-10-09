@@ -14,7 +14,6 @@ import {
 class WorldObjectManger {
   private worldObjects: Array<Group> = [];
   private scene = new Scene();
-  private static instance: WorldObjectManger;
 
   public initWorld() {
     const sphericalSkyboxGeometry = new SphereGeometry(900, 32, 32);
@@ -118,15 +117,6 @@ class WorldObjectManger {
     }
   }
 
-  static getInstance(): WorldObjectManger {
-    if (!WorldObjectManger.instance) {
-      WorldObjectManger.instance = new WorldObjectManger();
-    }
-    return WorldObjectManger.instance;
-  }
-
-  private constructor() {
-  }
 }
 
 export {WorldObjectManger}

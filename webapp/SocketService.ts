@@ -4,6 +4,11 @@ const whost = WEBSOCKETHOST;
 
 class SocketService {
   private socket: WebSocket;
+  private _worldObjectManger: WorldObjectManger;
+
+  constructor(w){
+    this._worldObjectManger = w ; // making use of Object injection 
+  }
 
   /*
     * Hier wordt de socketcommunicatie geregeld. Er wordt een nieuwe websocket aangemaakt voor het webadres dat we in
@@ -18,20 +23,19 @@ class SocketService {
 
       // Wanneer het commando is "object_update", dan wordt deze code uitgevoerd. Bekijk ook de servercode om dit goed te begrijpen.
       if (command.command === 'object_update') {
-        WorldObjectManger.getInstance().updateObject(command);
+        this._worldObjectManger.updateObject(command);
       }
-      WorldObjectManger.getInstance().updateWorldPosition(command);
+      this._worldObjectManger.updateWorldPosition(command);
 
     };
     this.socket.onclose = e => {
       console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
-      WorldObjectManger.getInstance().CleanupAll();
+      this._worldObjectManger.CleanupAll();
       setTimeout(() => {
         this.connect();
       }, 1000);
     };
   }
-
 
 }
 

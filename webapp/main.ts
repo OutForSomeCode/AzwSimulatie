@@ -20,7 +20,8 @@ let camera: PerspectiveCamera;
 let renderer: WebGLRenderer;
 
 let cameraControls: OrbitControls;
-let socketService: SocketService;
+let _socketService: SocketService;
+let _worldObjectManger:  WorldObjectManger;
 
 function init() {
   camera = new PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
@@ -36,10 +37,10 @@ function init() {
   document.body.appendChild(renderer.domElement);
 
   window.addEventListener('resize', onWindowResize, false);
-
-  WorldObjectManger.getInstance().initWorld();
-  socketService = new SocketService();
-  socketService.connect();
+  _worldObjectManger = new WorldObjectManger();
+  _worldObjectManger.initWorld();
+  _socketService = new SocketService(_worldObjectManger);
+  _socketService.connect();
 
   frameStep();
 }
@@ -53,7 +54,7 @@ function onWindowResize() {
 function frameStep() {
   requestAnimationFrame(frameStep);
   cameraControls.update();
-  renderer.render(WorldObjectManger.getInstance().getScene(), camera);
+  renderer.render(_worldObjectManger.getScene(), camera);
 }
 
 window.onload = init;
