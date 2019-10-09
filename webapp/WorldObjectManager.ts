@@ -15,6 +15,10 @@ import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 class WorldObjectManger {
   private worldObjects: Array<Group> = [];
   private scene = new Scene();
+  private gltfLoader = new GLTFLoader();
+  private loader = new GLTFLoader();
+
+
 
   public initWorld() {
     const sphericalSkyboxGeometry = new SphereGeometry(900, 32, 32);
@@ -35,12 +39,24 @@ class WorldObjectManger {
     plane.position.x = 15;
     plane.position.z = 15;
     this.scene.add(plane);
+    
+    const url = 'assets/models/Warehousepart1.gltf';
+    this.gltfLoader.load(url,(gltf) => {
+      this.addscene(gltf)
+    });
+
+
+
+
 
     const light = new AmbientLight(0x404040);
     light.intensity = 4;
     this.scene.add(light);
   }
 
+  private addscene(gltf){
+    this.scene.add( gltf.scene );
+  }
   public getWorldObjects(): Array<Group> {
     return this.worldObjects;
   }
@@ -55,11 +71,8 @@ class WorldObjectManger {
     if (Object.keys(this.worldObjects).indexOf(command.parameters.uuid) < 0) {
       // Wanneer het object een robot is, wordt de code hieronder uitgevoerd.
       if (command.parameters.type === 'robot') {
-        this.makeRobot(command)
+        //this.makeRobot(command)
         this.makeRack(command)
-      }
-      if(command.parameter.type == 'rack') {
-          this.makeRack(command)
       }
     }
     /*
@@ -117,21 +130,28 @@ class WorldObjectManger {
   }
   public makeRack(command): void{
 
-    const gltfLoader = new GLTFLoader();
     const url = 'assets/models/Rack.gltf';
-    gltfLoader.load(url,(gltf) => {
-      const rack = gltf.scene;
-      rack.position.y = 0.15;
-      rack.position.x = 15;
-      rack.position.z = 15;
-      const group = new Group();
-      this.scene.add(rack);
-      this.worldObjects[command.parameter.uuid] = group;
+    this.gltfLoader.load(url,(gltf) => {
+     this.dmake(gltf,command)
     });
 
 
   }
-
+  private dmake(gltf,command) {
+    const rack = gltf.scene;
+    rack.position.y = 0.15;
+    rack.position.x = 15;
+    rack.position.z = 15;
+    const group = new Group();
+    this.scene.add(rack);
+    this.worldObjects[command.parameters.uuid] = group;
+  }
+  public makeWarehouse(command): void {
+      const url = 'assets/models/Warehousepart1.gltf';
+      this.gltfLoader.load(url,(gltf) => {
+        this.dmake(gltf,command)
+      });
+  }
 
   CleanupAll(): void {
     for (let e in this.worldObjects) {
