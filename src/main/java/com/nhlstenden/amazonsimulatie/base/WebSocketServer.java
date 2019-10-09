@@ -15,6 +15,7 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
+import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
@@ -83,7 +84,7 @@ public class WebSocketServer extends SpringBootServletInitializer implements Web
    * websocket waar deze WebSocketHandler voor is geregistreerd (zie registerWebSocketHandlers),
    * dan wordt de methode afterConnectionEstablished aangeroepen.
    */
-  private class DefaultWebSocketHandler extends TextWebSocketHandler {
+  private class DefaultWebSocketHandler extends BinaryWebSocketHandler {
     /*
      * Binnen deze methode wordt, wanneer een nieuwe websocket connectie wordt gemaakt met
      * de server, een nieuwe view aangemaakt voor die connectie. De view is een

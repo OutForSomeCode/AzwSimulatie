@@ -47,7 +47,8 @@ class Robot implements Object3D, Updatable {
         this.x -= 0.1;
         if(this.x >=0 )
         {
-          this.z -=0.1;
+          this.x = 0;
+          this.z = 0;
         }
       }
     }

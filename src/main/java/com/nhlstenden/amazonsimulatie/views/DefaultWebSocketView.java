@@ -1,11 +1,11 @@
 package com.nhlstenden.amazonsimulatie.views;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhlstenden.amazonsimulatie.base.Command;
 import com.nhlstenden.amazonsimulatie.models.Object3D;
-import org.springframework.web.socket.TextMessage;
+import org.msgpack.jackson.dataformat.MessagePackFactory;
+import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.WebSocketSession;
-
-import java.io.IOException;
 
 /*
  * Deze class is de standaard websocketview. De class is een andere variant
@@ -18,9 +18,11 @@ import java.io.IOException;
 public class DefaultWebSocketView implements View {
   private WebSocketSession sesion;
   private Command onClose;
+  private ObjectMapper objectMapper;
 
   public DefaultWebSocketView(WebSocketSession sesion) {
     this.sesion = sesion;
+    this.objectMapper= new ObjectMapper(new MessagePackFactory());
   }
 
   /*
@@ -33,15 +35,18 @@ public class DefaultWebSocketView implements View {
   public void update(String event, Object3D data) {
     try {
       if (this.sesion.isOpen()) {
-        this.sesion.sendMessage(new TextMessage("{"
-          + surroundString("command") + ": " + surroundString(event) + ","
-          + surroundString("parameters") + ": " + jsonifyObject3D(data)
-          + "}"));
+        this.sesion.sendMessage(
+          new BinaryMessage(
+            objectMapper.writeValueAsBytes(
+              new packData(event, data)
+            )
+          )
+        );
       } else {
         this.onClose.execute();
       }
 
-    } catch (IOException e) {
+    } catch (Exception e) {
       this.onClose.execute();
     }
   }
@@ -51,24 +56,13 @@ public class DefaultWebSocketView implements View {
     onClose = command;
   }
 
-  /*
-   * Deze methode maakt van een Object3D object een JSON pakketje om verstuurd te worden
-   * naar de client.
-   */
-  private String jsonifyObject3D(Object3D object) {
-    return "{"
-      + surroundString("uuid") + ":" + surroundString(object.getUUID()) + ","
-      + surroundString("type") + ":" + surroundString(object.getType()) + ","
-      + surroundString("x") + ":" + object.getX() + ","
-      + surroundString("y") + ":" + object.getY() + ","
-      + surroundString("z") + ":" + object.getZ() + ","
-      + surroundString("rotationX") + ":" + object.getRotationX() + ","
-      + surroundString("rotationY") + ":" + object.getRotationY() + ","
-      + surroundString("rotationZ") + ":" + object.getRotationZ()
-      + "}";
-  }
+  static class packData{
+    public String command;
+    public Object3D parameters;
 
-  private String surroundString(String s) {
-    return "\"" + s + "\"";
+    public packData(String c, Object3D d) {
+      command = c;
+      parameters = d;
+    }
   }
 }

@@ -57,13 +57,13 @@ class WorldObjectManger {
         this.makeRobot(command)
       }
     }
-  }
-
-  public updateWorldPosition(command): void{
     /*
-    * Deze code wordt elke update uitgevoerd. Het update alle positiegegevens van het 3D object.
-    */
+   * Deze code wordt elke update uitgevoerd. Het update alle positiegegevens van het 3D object.
+   */
     const object = this.worldObjects[command.parameters.uuid];
+
+    if(object == null)
+      return;
 
     object.position.x = command.parameters.x;
     object.position.y = command.parameters.y;
