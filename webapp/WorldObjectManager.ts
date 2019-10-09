@@ -10,6 +10,7 @@ import {
   SphereGeometry,
   TextureLoader
 } from "three";
+import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 
 class WorldObjectManger {
   private worldObjects: Array<Group> = [];
@@ -55,6 +56,10 @@ class WorldObjectManger {
       // Wanneer het object een robot is, wordt de code hieronder uitgevoerd.
       if (command.parameters.type === 'robot') {
         this.makeRobot(command)
+        this.makeRack(command)
+      }
+      if(command.parameter.type == 'rack') {
+          this.makeRack(command)
       }
     }
     /*
@@ -110,6 +115,23 @@ class WorldObjectManger {
     this.scene.add(group);
     this.worldObjects[command.parameters.uuid] = group;
   }
+  public makeRack(command): void{
+
+    const gltfLoader = new GLTFLoader();
+    const url = 'assets/models/Rack.gltf';
+    gltfLoader.load(url,(gltf) => {
+      const rack = gltf.scene;
+      rack.position.y = 0.15;
+      rack.position.x = 15;
+      rack.position.z = 15;
+      const group = new Group();
+      this.scene.add(rack);
+      this.worldObjects[command.parameter.uuid] = group;
+    });
+
+
+  }
+
 
   CleanupAll(): void {
     for (let e in this.worldObjects) {
