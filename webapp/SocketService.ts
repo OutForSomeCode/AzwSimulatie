@@ -35,7 +35,7 @@ class SocketService {
       var dat = Buffer.from(e.data);
       const command = this.messagePack.decode(dat);
       //const data = decode(dat);
-      console.log(command);
+      //console.log(command);
 
       // Wanneer het commando is "object_update", dan wordt deze code uitgevoerd. Bekijk ook de servercode om dit goed te begrijpen.
       if (command.command === 'object_update') {
