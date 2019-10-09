@@ -71,8 +71,8 @@ class WorldObjectManger {
     if (Object.keys(this.worldObjects).indexOf(command.parameters.uuid) < 0) {
       // Wanneer het object een robot is, wordt de code hieronder uitgevoerd.
       if (command.parameters.type === 'robot') {
-        //this.makeRobot(command)
-        this.makeRack(command)
+        this.makeRobot(command)
+        //this.makeRack(command)
       }
     }
     /*
