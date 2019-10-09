@@ -18,6 +18,12 @@ class Robot implements Object3D, Updatable {
   private double rotationY = 0;
   private double rotationZ = 0;
 
+  public Robot(double x, double z){
+      this();
+      this.x = x;
+      this.z = z;
+  }
+
   public Robot() {
     this.uuid = UUID.randomUUID();
   }

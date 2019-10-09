@@ -20,6 +20,7 @@ public class World implements Model {
    * een lijst van Object3D onderdelen. Deze kunnen in principe alles zijn. (Robots, vrachrtwagens, etc)
    */
   private List<Object3D> worldObjects;
+  private Grid grid;
 
   /*
    * Dit onderdeel is nodig om veranderingen in het model te kunnen doorgeven aan de controller.
@@ -34,6 +35,8 @@ public class World implements Model {
   public World() {
     this.worldObjects = new ArrayList<>();
     this.worldObjects.add(new Robot());
+    grid = new Grid(1);
+    grid.createGrid(this.worldObjects);
   }
 
   /*
