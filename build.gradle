@@ -26,6 +26,8 @@ dependencies {
   compile 'org.msgpack:msgpack-core:0.8.18'
   compile 'org.msgpack:jackson-dataformat-msgpack:0.8.18'
   compile "org.springframework.boot:spring-boot-starter-websocket"
+  compile "org.springframework.boot:spring-boot-starter-web"
+  compile "org.springframework.boot:spring-boot-starter-actuator"
   developmentOnly "org.springframework.boot:spring-boot-devtools"
   testCompile 'org.springframework.boot:spring-boot-starter-test'
   testCompile 'junit:junit:4.12'

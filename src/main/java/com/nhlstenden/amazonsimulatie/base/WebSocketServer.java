@@ -1,6 +1,7 @@
 package com.nhlstenden.amazonsimulatie.base;
 
 import com.nhlstenden.amazonsimulatie.controllers.Controller;
+import com.nhlstenden.amazonsimulatie.controllers.RESTController;
 import com.nhlstenden.amazonsimulatie.controllers.SimulationController;
 import com.nhlstenden.amazonsimulatie.models.World;
 import com.nhlstenden.amazonsimulatie.views.WebAppView;
@@ -8,6 +9,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -28,6 +30,7 @@ import java.io.IOException;
  */
 @Configuration
 @EnableAutoConfiguration
+@ComponentScan(basePackageClasses = RESTController.class)
 @EnableWebSocket
 public class WebSocketServer extends SpringBootServletInitializer implements WebSocketConfigurer {
 
