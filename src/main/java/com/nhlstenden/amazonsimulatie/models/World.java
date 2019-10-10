@@ -38,7 +38,6 @@ public class World implements WorldModel {
       this.worldObjects.add(new Robot(5, i));
     }*/
     grid = new Grid(1);
-    grid.createGrid(this.worldObjects);
   }
 
   /*
