@@ -2,7 +2,6 @@ package com.nhlstenden.amazonsimulatie.views;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhlstenden.amazonsimulatie.base.Command;
-import com.nhlstenden.amazonsimulatie.models.Object3D;
 import org.msgpack.jackson.dataformat.MessagePackFactory;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -15,14 +14,12 @@ import org.springframework.web.socket.WebSocketSession;
  * serversystemen. In deze class wordt de WebSocketSession van de client opgeslagen,
  * waarmee de view class kan communiceren met de browser.
  */
-public class DefaultWebSocketView implements View {
+public class WebAppView implements View {
   private WebSocketSession sesion;
   private Command onClose;
-  private ObjectMapper objectMapper;
 
-  public DefaultWebSocketView(WebSocketSession sesion) {
+  public WebAppView(WebSocketSession sesion) {
     this.sesion = sesion;
-    this.objectMapper= new ObjectMapper(new MessagePackFactory());
   }
 
   /*
@@ -32,16 +29,10 @@ public class DefaultWebSocketView implements View {
    * wordt naar de browser verstuurd, welke de informatie weer afhandeld.
    */
   @Override
-  public void update(String event, Object3D data) {
+  public void update(BinaryMessage bin) {
     try {
       if (this.sesion.isOpen()) {
-        this.sesion.sendMessage(
-          new BinaryMessage(
-            objectMapper.writeValueAsBytes(
-              new packData(event, data)
-            )
-          )
-        );
+        this.sesion.sendMessage(bin);
       } else {
         this.onClose.execute();
       }
@@ -54,15 +45,5 @@ public class DefaultWebSocketView implements View {
   @Override
   public void onViewClose(Command command) {
     onClose = command;
-  }
-
-  static class packData{
-    public String command;
-    public Object3D parameters;
-
-    public packData(String c, Object3D d) {
-      command = c;
-      parameters = d;
-    }
   }
 }

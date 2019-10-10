@@ -11,7 +11,7 @@ import java.util.List;
  * de logica die van toepassing is op het domein dat de applicatie modelleerd, staat
  * in het model. Dit betekent dus de logica die het magazijn simuleert.
  */
-public class World implements Model {
+public class World implements WorldModel {
   /*
    * De wereld bestaat uit objecten, vandaar de naam worldObjects. Dit is een lijst
    * van alle objecten in de 3D wereld. Deze objecten zijn in deze voorbeeldcode alleen
@@ -26,7 +26,7 @@ public class World implements Model {
    * Dit onderdeel is nodig om veranderingen in het model te kunnen doorgeven aan de controller.
    * Het systeem werkt al as-is, dus dit hoeft niet aangepast te worden.
    */
-  PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+  private PropertyChangeSupport controlerObserver = new PropertyChangeSupport(this);
 
   /*
    * De wereld maakt een lege lijst voor worldObjects aan. Daarin wordt nu één robot gestopt.
@@ -34,7 +34,9 @@ public class World implements Model {
    */
   public World() {
     this.worldObjects = new ArrayList<>();
-    this.worldObjects.add(new Robot());
+    /*for (int i = 0; i < 25; i++) {
+      this.worldObjects.add(new Robot(5, i));
+    }*/
     grid = new Grid(1);
     grid.createGrid(this.worldObjects);
   }
@@ -53,7 +55,7 @@ public class World implements Model {
     for (Object3D object : this.worldObjects) {
       if (object instanceof Updatable) {
         if (((Updatable) object).update()) {
-          pcs.firePropertyChange(Model.UPDATE_COMMAND, null, new ProxyObject3D(object));
+          controlerObserver.firePropertyChange(WorldModel.UPDATE_COMMAND, null, new ProxyObject3D(object));
         }
       }
     }
@@ -64,7 +66,7 @@ public class World implements Model {
    */
   @Override
   public void addObserver(PropertyChangeListener pcl) {
-    pcs.addPropertyChangeListener(pcl);
+    controlerObserver.addPropertyChangeListener(pcl);
   }
 
   /*

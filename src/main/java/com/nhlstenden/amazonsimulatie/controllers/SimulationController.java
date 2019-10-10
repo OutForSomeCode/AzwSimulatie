@@ -1,6 +1,6 @@
 package com.nhlstenden.amazonsimulatie.controllers;
 
-import com.nhlstenden.amazonsimulatie.models.Model;
+import com.nhlstenden.amazonsimulatie.models.WorldModel;
 import com.nhlstenden.amazonsimulatie.models.Object3D;
 import com.nhlstenden.amazonsimulatie.views.View;
 
@@ -12,9 +12,8 @@ import java.beans.PropertyChangeEvent;
  * functionaliteit mee voor het managen van views en een model.
  */
 public class SimulationController extends Controller {
-
-  public SimulationController(Model model) {
-    super(model); //Met dit onderdeel roep je de constructor aan van de superclass (Controller)
+  public SimulationController(WorldModel worldModel) {
+    super(worldModel); //Met dit onderdeel roep je de constructor aan van de superclass (Controller)
   }
 
   /*
@@ -28,8 +27,8 @@ public class SimulationController extends Controller {
   @Override
   public void run() {
     while (true) {
-      this.getModel().update();
-
+      this.getWorldModel().update();
+      this.getQueue().flush(this.getViews());
       try {
         Thread.sleep(100);
       } catch (InterruptedException e) {
@@ -56,10 +55,13 @@ public class SimulationController extends Controller {
      * keer alle objecten krijgt toegestuurd, ook als deze objecten niet updaten. Zo voorkom je
      * dat de view alleen objecten ziet die worden geupdate (bijvoorbeeld bewegen).
      */
-    for (Object3D object : this.getModel().getWorldObjectsAsList()) {
-      view.update(Model.UPDATE_COMMAND, object);
+    for (Object3D object : this.getWorldModel().getWorldObjectsAsList()) {
+      //view.update(Model.UPDATE_COMMAND, object);
+      this.getQueue().addCommandToQueue(WorldModel.UPDATE_COMMAND, object);
     }
+    this.getQueue().flush(view);
   }
+
 
   /*
    * Deze methode wordt aangeroepen wanneer er een update van het model binnenkomt. Zo'n "event"
@@ -68,13 +70,7 @@ public class SimulationController extends Controller {
    */
   @Override
   public void propertyChange(PropertyChangeEvent evt) {
-    for (int i = 0; i < this.getViews().size(); i++) {
-      View currentView = this.getViews().get(i);
-
-      if (currentView != null) {
-        currentView.update(evt.getPropertyName(), (Object3D) evt.getNewValue());
-      }
-    }
+    this.getQueue().addCommandToQueue(evt.getPropertyName(), evt.getNewValue());
   }
 
 }

@@ -10,9 +10,9 @@ class SocketService {
   private _worldObjectManger: WorldObjectManger;
   private messagePack;
 
-  constructor(w){
-    this._worldObjectManger = w ; // making use of Object injection
-    this.messagePack = MessagePack.initialize(2**20);
+  constructor(w) {
+    this._worldObjectManger = w; // making use of Object injection
+    this.messagePack = MessagePack.initialize(2 ** 20);
   }
 
   /*
@@ -31,16 +31,18 @@ class SocketService {
 
     this.socket.onmessage = e => {
       // Hier wordt het commando dat vanuit de server wordt gegeven uit elkaar gehaald
-      let command = this.messagePack.decode(Buffer.from(e.data));
+      let commands = this.messagePack.decode(Buffer.from(e.data));
       //const data = decode(dat);
-      //console.log(command);
-
-      // Wanneer het commando is "object_update", dan wordt deze code uitgevoerd. Bekijk ook de servercode om dit goed te begrijpen.
-      if (command.command === 'object_update') {
-        this._worldObjectManger.updateObject(command);
+      //console.log(commands);
+      for (let com of commands) {
+        //console.log(com);
+        // Wanneer het commando is "object_update", dan wordt deze code uitgevoerd. Bekijk ook de servercode om dit goed te begrijpen.
+        if (com.command === 'object_update') {
+          this._worldObjectManger.updateObject(com);
+        }
       }
+
       //this._worldObjectManger.updateWorldPosition(command);
-      command = null;
     };
     this.socket.onclose = e => {
       console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);

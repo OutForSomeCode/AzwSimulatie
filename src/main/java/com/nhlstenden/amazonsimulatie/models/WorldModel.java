@@ -9,7 +9,7 @@ import java.util.List;
  * Hiermee wordt bedoeld wat een model moet kunnen, of wat generiek is voor
  * alle models.
  */
-public interface Model {
+public interface WorldModel {
   /*
    * Models kunnen commando's geven aan de view, bijvoorbeeld om te updaten.
    * Hier is zo'n commando weergegeven als statische waarde, omdat deze gelijk

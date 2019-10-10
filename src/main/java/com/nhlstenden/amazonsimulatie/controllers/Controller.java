@@ -1,6 +1,6 @@
 package com.nhlstenden.amazonsimulatie.controllers;
 
-import com.nhlstenden.amazonsimulatie.models.Model;
+import com.nhlstenden.amazonsimulatie.models.WorldModel;
 import com.nhlstenden.amazonsimulatie.views.View;
 
 import java.beans.PropertyChangeListener;
@@ -18,16 +18,18 @@ import java.util.List;
  */
 public abstract class Controller implements Runnable, PropertyChangeListener {
   private List<View> views;
-  private Model model;
+  private WorldModel worldModel;
+  private Queue queue;
 
-  public Controller(Model model) {
-    this(model, new ArrayList<View>());
+  public Controller(WorldModel worldModel) {
+    this(worldModel, new ArrayList<View>());
   }
 
-  public Controller(Model model, List<View> views) {
-    this.model = model;
-    this.model.addObserver(this); //Automatisch wordt deze controller toegevoegd aan het model om updates te ontvangen.
+  public Controller(WorldModel worldModel, List<View> views) {
+    this.worldModel = worldModel;
+    this.worldModel.addObserver(this); //Automatisch wordt deze controller toegevoegd aan het model om updates te ontvangen.
     this.views = new ArrayList<>(views);
+    this.queue = new Queue();
   }
 
   public void addView(View view) {
@@ -59,8 +61,13 @@ public abstract class Controller implements Runnable, PropertyChangeListener {
    *
    * @return The internal model.
    */
-  protected Model getModel() {
-    return this.model;
+  protected WorldModel getWorldModel() {
+    return this.worldModel;
+  }
+
+
+  protected Queue getQueue() {
+    return this.queue;
   }
 
   /**

@@ -3,7 +3,7 @@ package com.nhlstenden.amazonsimulatie.base;
 import com.nhlstenden.amazonsimulatie.controllers.Controller;
 import com.nhlstenden.amazonsimulatie.controllers.SimulationController;
 import com.nhlstenden.amazonsimulatie.models.World;
-import com.nhlstenden.amazonsimulatie.views.DefaultWebSocketView;
+import com.nhlstenden.amazonsimulatie.views.WebAppView;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -16,7 +16,6 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.handler.BinaryWebSocketHandler;
-import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
 
@@ -44,7 +43,7 @@ public class WebSocketServer extends SpringBootServletInitializer implements Web
   }
 
   //De WebSocketServer is de applicatie en heeft de controller voor de simulatie in zich
-  private Controller controller;
+  private Controller simController;
 
   /*
    * De constructor wordt uitgevoerd wanneer de app wordt opgebouwd. Je zult alleen
@@ -52,8 +51,9 @@ public class WebSocketServer extends SpringBootServletInitializer implements Web
    * SpringApplication.run().
    */
   public WebSocketServer() {
-    this.controller = new SimulationController(new World());
-    this.controller.start();
+    World w = new World();
+    this.simController = new SimulationController(w);
+    this.simController.start();
   }
 
   /*
@@ -94,7 +94,7 @@ public class WebSocketServer extends SpringBootServletInitializer implements Web
      */
     @Override
     public void afterConnectionEstablished(WebSocketSession sesion) {
-      controller.addView(new DefaultWebSocketView(sesion));
+      simController.addView(new WebAppView(sesion));
     }
 
     /*
