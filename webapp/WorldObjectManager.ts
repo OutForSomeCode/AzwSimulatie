@@ -39,15 +39,11 @@ class WorldObjectManger {
     plane.position.x = 15;
     plane.position.z = 15;
     this.scene.add(plane);
-    
-    const url = 'assets/models/Warehousepart1.gltf';
+
+    /*const url = 'assets/models/Warehousepart1.gltf';
     this.gltfLoader.load(url,(gltf) => {
       this.addscene(gltf)
-    });
-
-
-
-
+    });*/
 
     const light = new AmbientLight(0x404040);
     light.intensity = 4;

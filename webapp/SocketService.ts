@@ -12,7 +12,7 @@ class SocketService {
 
   constructor(w){
     this._worldObjectManger = w ; // making use of Object injection
-    this.messagePack = MessagePack.initialize(2**30);
+    this.messagePack = MessagePack.initialize(2**20);
   }
 
   /*
@@ -31,9 +31,7 @@ class SocketService {
 
     this.socket.onmessage = e => {
       // Hier wordt het commando dat vanuit de server wordt gegeven uit elkaar gehaald
-
-      var dat = Buffer.from(e.data);
-      const command = this.messagePack.decode(dat);
+      let command = this.messagePack.decode(Buffer.from(e.data));
       //const data = decode(dat);
       //console.log(command);
 
@@ -42,7 +40,7 @@ class SocketService {
         this._worldObjectManger.updateObject(command);
       }
       //this._worldObjectManger.updateWorldPosition(command);
-
+      command = null;
     };
     this.socket.onclose = e => {
       console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
