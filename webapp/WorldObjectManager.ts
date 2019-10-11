@@ -1,7 +1,7 @@
 import {
   AmbientLight,
   BoxGeometry,
-  DoubleSide,
+  DoubleSide, GridHelper,
   Group,
   Mesh,
   MeshBasicMaterial,
@@ -44,6 +44,11 @@ class WorldObjectManger {
     this.gltfLoader.load(url,(gltf) => {
       this.addscene(gltf)
     });*/
+
+    var gridHelper = new GridHelper( 42,42 );
+    gridHelper.position.x = 21;
+    gridHelper.position.z = 21;
+    this.scene.add( gridHelper );
 
     const light = new AmbientLight(0x404040);
     light.intensity = 4;
