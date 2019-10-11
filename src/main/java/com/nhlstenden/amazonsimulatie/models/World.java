@@ -42,7 +42,7 @@ public class World implements WorldModel {
     grid = new Grid(1);
   }
 
-  public Robot findIdleRobot(){
+  public Robot findIdleRobot() {
     List<Robot> returnList = getRobots();
 
     for (Robot robot : returnList) {
@@ -53,15 +53,19 @@ public class World implements WorldModel {
   }
 
   public void addRobot() {
-    this.worldObjects.add(new Robot());
+    this.worldObjects.add(new Robot(grid));
   }
 
-  public List<Robot> getRobots(){
+  public void addRobot(int x, int y) {
+    this.worldObjects.add(new Robot(grid, x, y));
+  }
+
+  public List<Robot> getRobots() {
     List<Robot> returnList = new ArrayList<Robot>();
 
     for (Object3D object : this.worldObjects) {
       if (object instanceof Robot)
-        returnList.add((Robot)object);
+        returnList.add((Robot) object);
     }
     return returnList;
   }
@@ -84,6 +88,10 @@ public class World implements WorldModel {
         }
       }
     }
+  }
+
+  public Grid getGrid(){
+    return grid;
   }
 
   /*

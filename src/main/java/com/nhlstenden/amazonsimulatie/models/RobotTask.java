@@ -18,7 +18,7 @@ public class RobotTask {
     return task;
   }
 
-  private enum Task {
+  public enum Task {
     PICKUP,
     DROP
   }

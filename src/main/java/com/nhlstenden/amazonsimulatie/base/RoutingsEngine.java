@@ -10,9 +10,13 @@ public class RoutingsEngine {
   private Node start;
   private Node end;
   private Node current;
-  private Queue<Node> frontier = new LinkedList<Node>();
-  private Deque<Node> path = new LinkedList<Node>();
-  private HashMap<Node, Node> cameFrom = new HashMap<Node, Node>();
+  private Queue<Node> frontier = new LinkedList<>();
+  private Deque<Node> path = new LinkedList<>();
+  private HashMap<Node, Node> cameFrom = new HashMap<>();
+
+  public RoutingsEngine(Grid grid) {
+    this.grid = grid;
+  }
 
   public Deque<Node> generateRoute(Node start, Node end) {
     frontier.clear();
@@ -44,6 +48,8 @@ public class RoutingsEngine {
   private Deque<Node> getPath() {
     current = end;
     while (current != start) {
+      if(current == null)
+        break;
       path.addFirst(current);
       current = cameFrom.get(current);
     }

@@ -2,7 +2,10 @@ package com.nhlstenden.amazonsimulatie.models;
 
 import com.nhlstenden.amazonsimulatie.base.RoutingsEngine;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.UUID;
 
 /*
  * Deze class stelt een robot voor. Hij impelementeerd de class Object3D, omdat het ook een
@@ -12,9 +15,10 @@ import java.util.*;
 public class Robot implements Object3D, Updatable {
   private RoutingsEngine routingsEngine;
   private UUID uuid;
-  private ArrayList<RobotTask> taskQueue;
+  private ArrayList<RobotTask> taskQueue = new ArrayList<>();
   private RobotTask currentTask;
-  private Deque<Node> pathToTask;
+  private Deque<Node> pathToTask = new LinkedList<>();
+  ;
 
   private int x = 0;
   private int y = 0;
@@ -24,9 +28,15 @@ public class Robot implements Object3D, Updatable {
   private int rotationY = 0;
   private int rotationZ = 0;
 
-  public Robot() {
+  public Robot(Grid grid) {
     this.uuid = UUID.randomUUID();
-    routingsEngine = new RoutingsEngine();
+    routingsEngine = new RoutingsEngine(grid);
+  }
+
+  public Robot(Grid grid, int x, int y) {
+    this(grid);
+    this.x = x;
+    this.z = y;
   }
 
   public void assignTask(ArrayList<RobotTask> tasks) {
@@ -39,8 +49,8 @@ public class Robot implements Object3D, Updatable {
     pathToTask = routingsEngine.generateRoute(new Node(x, z), currentTask.getDestination());
   }
 
-  public boolean isBusy(){
-    return taskQueue.isEmpty();
+  public boolean isBusy() {
+    return !taskQueue.isEmpty();
   }
 
   /*
