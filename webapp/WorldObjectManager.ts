@@ -39,13 +39,11 @@ class WorldObjectManger {
     plane.position.x = 15;
     plane.position.z = 15;
     this.scene.add(plane);
+    this.makeWarehouse(4);
 
-    /*const url = 'assets/models/Warehousepart1.gltf';
-    this.gltfLoader.load(url,(gltf) => {
-      this.addscene(gltf)
-    });*/
 
-    var gridHelper = new GridHelper( 42,42 );
+
+    const gridHelper = new GridHelper( 42,42 );
     gridHelper.position.x = 21;
     gridHelper.position.z = 21;
     this.scene.add( gridHelper );
@@ -53,6 +51,34 @@ class WorldObjectManger {
     const light = new AmbientLight(0x404040);
     light.intensity = 4;
     this.scene.add(light);
+  }
+  private makeWarehouse(amountofmodules)
+  {
+    this.makeWarehousepart('assets/models/WarehouseEnd.gltf',5,0,0);
+    var whmx = 3.98;
+    var whlx= 3;
+    for(var i = 0; i < amountofmodules; i++)
+    {
+
+      this.makeWarehousepart('assets/models/WarehouseMid.gltf', whmx,0,0);
+      this.makeWarehousepart('assets/models/WarehouseMidLoading.gltf', whlx,0,0);
+      whmx +=3.98;
+      whlx +=3;
+    }
+      whmx -=5
+    this.makeWarehousepart('assets/models/WarehouseEnd.gltf',whmx,0,0,-1);
+
+  }
+  private  makeWarehousepart(url, x,y,z ,s=1)
+  {
+    this.gltfLoader.load(url,(gltf) => {
+      gltf.scene.position.x = x;
+      gltf.scene.position.y = y;
+      gltf.scene.position.z = z;
+      gltf.scene.scale.x = s;
+
+      this.addscene(gltf)
+    });
   }
 
   private addscene(gltf){
@@ -146,12 +172,6 @@ class WorldObjectManger {
     const group = new Group();
     this.scene.add(rack);
     this.worldObjects[command.parameters.uuid] = group;
-  }
-  public makeWarehouse(command): void {
-      const url = 'assets/models/Warehousepart1.gltf';
-      this.gltfLoader.load(url,(gltf) => {
-        this.dmake(gltf,command)
-      });
   }
 
   CleanupAll(): void {
