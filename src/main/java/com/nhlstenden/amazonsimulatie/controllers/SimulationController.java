@@ -1,5 +1,6 @@
 package com.nhlstenden.amazonsimulatie.controllers;
 
+import com.nhlstenden.amazonsimulatie.models.World;
 import com.nhlstenden.amazonsimulatie.models.WorldModel;
 import com.nhlstenden.amazonsimulatie.models.Object3D;
 import com.nhlstenden.amazonsimulatie.views.View;
@@ -12,8 +13,10 @@ import java.beans.PropertyChangeEvent;
  * functionaliteit mee voor het managen van views en een model.
  */
 public class SimulationController extends Controller {
-  public SimulationController(WorldModel worldModel) {
+  private WarehouseManager warehouseManager;
+  public SimulationController(World worldModel) {
     super(worldModel); //Met dit onderdeel roep je de constructor aan van de superclass (Controller)
+    this.warehouseManager = new WarehouseManager(worldModel);
   }
 
   /*
@@ -28,9 +31,10 @@ public class SimulationController extends Controller {
   public void run() {
     while (true) {
       this.getWorldModel().update();
+      this.warehouseManager.update();
       this.getQueue().flush(this.getViews());
       try {
-        Thread.sleep(100);
+        Thread.sleep(1000);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }

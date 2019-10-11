@@ -1,25 +1,46 @@
 package com.nhlstenden.amazonsimulatie.models;
 
-import java.util.UUID;
+import com.nhlstenden.amazonsimulatie.base.RoutingsEngine;
+
+import java.util.*;
 
 /*
  * Deze class stelt een robot voor. Hij impelementeerd de class Object3D, omdat het ook een
  * 3D object is. Ook implementeerd deze class de interface Updatable. Dit is omdat
  * een robot geupdate kan worden binnen de 3D wereld om zich zo voort te bewegen.
  */
-class Robot implements Object3D, Updatable {
+public class Robot implements Object3D, Updatable {
+  private RoutingsEngine routingsEngine;
   private UUID uuid;
+  private ArrayList<RobotTask> taskQueue;
+  private RobotTask currentTask;
+  private Deque<Node> pathToTask;
 
-  private double x = 0;
-  private double y = 0;
-  private double z = 0;
+  private int x = 0;
+  private int y = 0;
+  private int z = 0;
 
-  private double rotationX = 0;
-  private double rotationY = 0;
-  private double rotationZ = 0;
+  private int rotationX = 0;
+  private int rotationY = 0;
+  private int rotationZ = 0;
 
   public Robot() {
     this.uuid = UUID.randomUUID();
+    routingsEngine = new RoutingsEngine();
+  }
+
+  public void assignTask(ArrayList<RobotTask> tasks) {
+    taskQueue = tasks;
+    executeNextTask();
+  }
+
+  private void executeNextTask() {
+    currentTask = taskQueue.remove(0);
+    pathToTask = routingsEngine.generateRoute(new Node(x, z), currentTask.getDestination());
+  }
+
+  public boolean isBusy(){
+    return taskQueue.isEmpty();
   }
 
   /*
@@ -37,7 +58,16 @@ class Robot implements Object3D, Updatable {
    */
   @Override
   public boolean update() {
-    return true;
+    if (!pathToTask.isEmpty()) {
+      Node current = pathToTask.remove();
+      this.x = current.getGridX();
+      this.z = current.getGridY();
+      return true;
+    }
+    if (!taskQueue.isEmpty()) {
+      executeNextTask();
+    }
+    return false;
   }
 
   @Override

@@ -3,6 +3,7 @@ package com.nhlstenden.amazonsimulatie.base;
 import com.nhlstenden.amazonsimulatie.controllers.Controller;
 import com.nhlstenden.amazonsimulatie.controllers.RESTController;
 import com.nhlstenden.amazonsimulatie.controllers.SimulationController;
+import com.nhlstenden.amazonsimulatie.controllers.WarehouseManager;
 import com.nhlstenden.amazonsimulatie.models.World;
 import com.nhlstenden.amazonsimulatie.views.WebAppView;
 import org.springframework.boot.SpringApplication;
@@ -20,6 +21,7 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 
 import java.io.IOException;
+import java.io.PrintStream;
 
 
 /*
@@ -34,6 +36,19 @@ import java.io.IOException;
 @EnableWebSocket
 public class WebSocketServer extends SpringBootServletInitializer implements WebSocketConfigurer {
 
+  //De WebSocketServer is de applicatie en heeft de controller voor de simulatie in zich
+  private Controller simController;
+  /*
+   * De constructor wordt uitgevoerd wanneer de app wordt opgebouwd. Je zult alleen
+   * geen new WebSocketServer() tegenkomen. Dit doet Spring namelijk al voor je bij
+   * SpringApplication.run().
+   */
+  public WebSocketServer() {
+    World world = new World();
+    this.simController = new SimulationController(world);
+    this.simController.start();
+  }
+
   /*
    * De main methode regelt het starten van de Spring applicatie. Dit gebeurd
    * middels SpringApplication.run(). Deze zorgt ervoor dat onze WebSocketServer gerund
@@ -43,20 +58,6 @@ public class WebSocketServer extends SpringBootServletInitializer implements Web
    */
   public static void main(String[] args) {
     SpringApplication.run(WebSocketServer.class, args);
-  }
-
-  //De WebSocketServer is de applicatie en heeft de controller voor de simulatie in zich
-  private Controller simController;
-
-  /*
-   * De constructor wordt uitgevoerd wanneer de app wordt opgebouwd. Je zult alleen
-   * geen new WebSocketServer() tegenkomen. Dit doet Spring namelijk al voor je bij
-   * SpringApplication.run().
-   */
-  public WebSocketServer() {
-    World w = new World();
-    this.simController = new SimulationController(w);
-    this.simController.start();
   }
 
   /*

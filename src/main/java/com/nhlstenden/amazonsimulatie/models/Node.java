@@ -7,6 +7,10 @@ public class Node {
   private int gridZ;
   private Object3D occupation;
 
+  public Node(int x, int y) {
+    this(x,y,null);
+  }
+
   public Node(int x, int y, Object3D object) {
     gridX = x;
     gridZ = y;

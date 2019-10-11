@@ -13,6 +13,11 @@ import java.util.List;
  */
 public class World implements WorldModel {
   /*
+   * Dit onderdeel is nodig om veranderingen in het model te kunnen doorgeven aan de controller.
+   * Het systeem werkt al as-is, dus dit hoeft niet aangepast te worden.
+   */
+  PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+  /*
    * De wereld bestaat uit objecten, vandaar de naam worldObjects. Dit is een lijst
    * van alle objecten in de 3D wereld. Deze objecten zijn in deze voorbeeldcode alleen
    * nog robots. Er zijn ook nog meer andere objecten die ook in de wereld voor kunnen komen.
@@ -34,10 +39,31 @@ public class World implements WorldModel {
    */
   public World() {
     this.worldObjects = new ArrayList<>();
-    /*for (int i = 0; i < 25; i++) {
-      this.worldObjects.add(new Robot(5, i));
-    }*/
     grid = new Grid(1);
+  }
+
+  public Robot findIdleRobot(){
+    List<Robot> returnList = getRobots();
+
+    for (Robot robot : returnList) {
+      if (!robot.isBusy())
+        return robot;
+    }
+    return null;
+  }
+
+  public void addRobot() {
+    this.worldObjects.add(new Robot());
+  }
+
+  public List<Robot> getRobots(){
+    List<Robot> returnList = new ArrayList<Robot>();
+
+    for (Object3D object : this.worldObjects) {
+      if (object instanceof Robot)
+        returnList.add((Robot)object);
+    }
+    return returnList;
   }
 
   /*
