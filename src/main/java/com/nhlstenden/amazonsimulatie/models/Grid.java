@@ -15,7 +15,7 @@ public class Grid {
     {0, 1},
     {1, 0},
     {0, -1},
-    {-1, 1}
+    {-1, 0}
   };
 
   public Grid(int modules) {
