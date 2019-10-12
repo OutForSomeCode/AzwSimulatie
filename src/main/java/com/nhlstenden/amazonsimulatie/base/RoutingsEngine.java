@@ -27,7 +27,8 @@ public class RoutingsEngine {
     frontier.add(this.start);
     cameFrom.put(this.start, null);
     scanGrid();
-    return getPath();
+    getPath(end);
+    return path;
   }
 
   private void scanGrid() {
@@ -45,14 +46,10 @@ public class RoutingsEngine {
     }
   }
 
-  private Deque<Node> getPath() {
-    current = end;
-    while (current != start) {
-      if(current == null)
-        break;
-      path.addFirst(current);
-      current = cameFrom.get(current);
-    }
-    return path;
+  private void getPath(Node curr) {
+    if (curr == start || curr == null)
+      return;
+    path.addFirst(curr);
+    getPath(cameFrom.get(curr));
   }
 }
