@@ -11,7 +11,12 @@ public class Grid {
   private Node[][] grid;
   private Random r = new Random();
 
-  private final int[] checkints = {-1, 1};
+  private final int[][] checkints = {
+    {0, 1},
+    {1, 0},
+    {0, -1},
+    {-1, 1}
+  };
 
   public Grid(int modules) {
     //this.gridSizeY = (6 * modules);
@@ -30,13 +35,11 @@ public class Grid {
 
   public List<Node> getNeighbours(Node node) {
     List<Node> neighbours = new ArrayList<>();
-    for (int x : checkints) {
-      for (int y : checkints) {
-        int checkX = (node.getGridX() + x);
-        int checkY = (node.getGridY() + y);
-        if (checkX >= 0 && checkX < gridSizeX && checkY >= 0 && checkY < gridSizeY) {
-          neighbours.add(grid[checkX][checkY]);
-        }
+    for (int[] vec : checkints) {
+      int checkX = (node.getGridX() + vec[0]);
+      int checkY = (node.getGridY() + vec[1]);
+      if (checkX >= 0 && checkX < gridSizeX && checkY >= 0 && checkY < gridSizeY) {
+        neighbours.add(grid[checkX][checkY]);
       }
     }
     return neighbours;

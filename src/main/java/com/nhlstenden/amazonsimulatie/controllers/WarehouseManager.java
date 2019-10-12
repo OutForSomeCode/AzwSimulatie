@@ -14,7 +14,7 @@ public class WarehouseManager {
 
   public WarehouseManager(World world) {
     this.world = world;
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 25; i++) {
       world.addRobot(r.nextInt(5), r.nextInt(5));
     }
   }
