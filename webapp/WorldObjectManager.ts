@@ -1,11 +1,11 @@
 import {
   AmbientLight,
   BoxGeometry,
-  DoubleSide, GridHelper,
+  DoubleSide,
+  GridHelper,
   Group,
   Mesh,
   MeshBasicMaterial,
-  PlaneGeometry,
   Scene,
   SphereGeometry,
   TextureLoader
@@ -27,16 +27,17 @@ class WorldObjectManger {
     const sphericalSkybox = new Mesh(sphericalSkyboxGeometry, sphericalSkyboxMaterial);
     this.scene.add(sphericalSkybox);
 
-    const geometry = new PlaneGeometry(42, 42, 32);
-    const material = new MeshBasicMaterial({
-      color: 0xffffff,
-      side: DoubleSide
-    });
-    const plane = new Mesh(geometry, material);
-    plane.rotation.x = Math.PI / 2.0;
-    plane.position.x = 21;
-    plane.position.z = 21;
-    this.scene.add(plane);
+    /* const geometry = new PlaneGeometry(42, 42, 32);
+     const material = new MeshBasicMaterial({
+       color: 0xffffff,
+       side: DoubleSide
+     });
+     const plane = new Mesh(geometry, material);
+     plane.rotation.x = Math.PI / 2.0;
+     plane.position.x = 21;
+     plane.position.z = 21;
+     this.scene.add(plane);*/
+
     this.createWarehouse(4);
 
 
@@ -158,7 +159,15 @@ class WorldObjectManger {
     const url = 'assets/models/Rack.gltf';
     this.gltfLoader.load(url, (gltf) => {
       const rack = gltf.scene;
-      rack.position.y = 0.15;
+      //rack.position.y = 0.15;
+
+      /*rack.traverse(function (object) {
+        if (object instanceof Mesh)
+          object.material = new MeshBasicMaterial({
+            map: new TextureLoader().load('assets/textures/Rack_RackMat_BaseColor.jpg')
+          });
+      });*/
+
 
       const group = new Group();
       group.add(rack);
