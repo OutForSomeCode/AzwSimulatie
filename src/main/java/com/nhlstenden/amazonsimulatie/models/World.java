@@ -39,7 +39,7 @@ public class World implements WorldModel {
    */
   public World() {
     this.worldObjects = new ArrayList<>();
-    grid = new Grid(1);
+    grid = new Grid(2);
   }
 
   public Robot findIdleRobot() {
@@ -52,12 +52,15 @@ public class World implements WorldModel {
     return null;
   }
 
+  // remove?
   public void addRobot() {
     this.worldObjects.add(new Robot(grid));
   }
 
   public void addRobot(int x, int y) {
-    this.worldObjects.add(new Robot(grid, x, y));
+    if (x < grid.getGridSizeX() && y < grid.getGridSizeY()) {
+      this.worldObjects.add(new Robot(grid, x, y));
+    }
   }
 
   public List<Robot> getRobots() {
@@ -68,6 +71,20 @@ public class World implements WorldModel {
         returnList.add((Robot) object);
     }
     return returnList;
+  }
+
+  public void addRack(Rack.Type type, int x, int y) {
+    if (x < grid.getGridSizeX() && y < grid.getGridSizeY()) {
+      Rack rack = new Rack(type, grid, x, y);
+      grid.getNode(x, y).updateOccupation(rack);
+      this.worldObjects.add(rack);
+    }
+  }
+
+  public void removeRack(int x, int y) {
+    if (x < grid.getGridSizeX() && y < grid.getGridSizeY()) {
+      grid.getNode(x, y).updateOccupation(null);
+    }
   }
 
   /*
@@ -90,7 +107,7 @@ public class World implements WorldModel {
     }
   }
 
-  public Grid getGrid(){
+  public Grid getGrid() {
     return grid;
   }
 

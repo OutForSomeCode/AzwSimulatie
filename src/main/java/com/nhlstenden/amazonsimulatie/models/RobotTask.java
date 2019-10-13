@@ -5,6 +5,7 @@ import java.util.PrimitiveIterator;
 public class RobotTask {
   private Node destination;
   private Task task;
+
   public RobotTask(Node destination, Task task) {
     this.destination = destination;
     this.task = task;

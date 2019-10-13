@@ -16,8 +16,6 @@ class WorldObjectManger {
   private worldObjects: Array<Group> = [];
   private scene = new Scene();
   private gltfLoader = new GLTFLoader();
-  private loader = new GLTFLoader();
-
 
 
   public initWorld() {
@@ -29,61 +27,59 @@ class WorldObjectManger {
     const sphericalSkybox = new Mesh(sphericalSkyboxGeometry, sphericalSkyboxMaterial);
     this.scene.add(sphericalSkybox);
 
-    const geometry = new PlaneGeometry(30, 30, 32);
+    const geometry = new PlaneGeometry(42, 42, 32);
     const material = new MeshBasicMaterial({
-      color: 0xf75b23,
+      color: 0xffffff,
       side: DoubleSide
     });
     const plane = new Mesh(geometry, material);
     plane.rotation.x = Math.PI / 2.0;
-    plane.position.x = 15;
-    plane.position.z = 15;
+    plane.position.x = 21;
+    plane.position.z = 21;
     this.scene.add(plane);
-    this.makeWarehouse(4);
+    this.createWarehouse(4);
 
 
-
-    const gridHelper = new GridHelper( 42,42 );
+    const gridHelper = new GridHelper(42, 42);
     gridHelper.position.x = 21;
     gridHelper.position.z = 21;
-    this.scene.add( gridHelper );
+    this.scene.add(gridHelper);
 
     const light = new AmbientLight(0x404040);
     light.intensity = 4;
     this.scene.add(light);
   }
-  private makeWarehouse(amountofmodules)
-  {
-    this.makeWarehousepart('assets/models/WarehouseEnd.gltf',5,0,0);
-    var whmx = 3.98;
-    var whlx= 3;
-    for(var i = 0; i < amountofmodules; i++)
-    {
 
-      this.makeWarehousepart('assets/models/WarehouseMid.gltf', whmx,0,0);
-      this.makeWarehousepart('assets/models/WarehouseMidLoading.gltf', whlx,0,0);
-      whmx +=3.98;
-      whlx +=3;
-    }
-      whmx -=5
-    this.makeWarehousepart('assets/models/WarehouseEnd.gltf',whmx,0,0,-1);
-
-  }
-  private  makeWarehousepart(url, x,y,z ,s=1)
-  {
-    this.gltfLoader.load(url,(gltf) => {
+  private createWarehouseModule(url, x, y, z, s = 1) {
+    this.gltfLoader.load(url, (gltf) => {
       gltf.scene.position.x = x;
       gltf.scene.position.y = y;
       gltf.scene.position.z = z;
       gltf.scene.scale.x = s;
 
-      this.addscene(gltf)
+      this.addScene(gltf)
     });
   }
 
-  private addscene(gltf){
-    this.scene.add( gltf.scene );
+  private createWarehouse(numberOfModules) {
+    let warehousePositionX = 6.5;
+    const warehousePositionY = -0.1;
+    const warehousePositionZ = 5.5;
+    this.createWarehouseModule('assets/models/WarehouseEnd.gltf', warehousePositionX, warehousePositionY, warehousePositionZ, 1);
+    warehousePositionX -= 10;
+    if (numberOfModules != 0) {
+      for (let i = 0; i < numberOfModules; i++) {
+        //this.createWarehouseModule('assets/models/WarehouseMid.gltf', (startWarehouseX += 4), startWarehouseY, startWarehouseZ, 1);
+        this.createWarehouseModule('assets/models/WarehouseMidLoading.gltf', (warehousePositionX += 4), warehousePositionY, warehousePositionZ, 1);
+      }
+    }
+    this.createWarehouseModule('assets/models/WarehouseEnd.gltf', warehousePositionX += 4, warehousePositionY, warehousePositionZ, -1);
   }
+
+  private addScene(gltf) {
+    this.scene.add(gltf.scene);
+  }
+
   public getWorldObjects(): Array<Group> {
     return this.worldObjects;
   }
@@ -98,8 +94,10 @@ class WorldObjectManger {
     if (Object.keys(this.worldObjects).indexOf(command.parameters.uuid) < 0) {
       // Wanneer het object een robot is, wordt de code hieronder uitgevoerd.
       if (command.parameters.type === 'robot') {
-        this.makeRobot(command)
-        //this.makeRack(command)
+        this.createRobot(command);
+      }
+      if (command.parameters.type === 'rack') {
+        this.createRack(command);
       }
     }
     /*
@@ -107,7 +105,7 @@ class WorldObjectManger {
    */
     const object = this.worldObjects[command.parameters.uuid];
 
-    if(object == null)
+    if (object == null)
       return;
 
     object.position.x = command.parameters.x;
@@ -119,7 +117,7 @@ class WorldObjectManger {
     object.rotation.z = command.parameters.rotationZ;
   }
 
-  public makeRobot(command): void {
+  public createRobot(command): void {
     const geometry = new BoxGeometry(0.9, 0.3, 0.9);
     const cubeMaterials = [
       new MeshBasicMaterial({
@@ -155,23 +153,18 @@ class WorldObjectManger {
     this.scene.add(group);
     this.worldObjects[command.parameters.uuid] = group;
   }
-  public makeRack(command): void{
 
+  public createRack(command): void {
     const url = 'assets/models/Rack.gltf';
-    this.gltfLoader.load(url,(gltf) => {
-     this.dmake(gltf,command)
+    this.gltfLoader.load(url, (gltf) => {
+      const rack = gltf.scene;
+      rack.position.y = 0.15;
+
+      const group = new Group();
+      group.add(rack);
+      this.scene.add(group);
+      this.worldObjects[command.parameters.uuid] = group;
     });
-
-
-  }
-  private dmake(gltf,command) {
-    const rack = gltf.scene;
-    rack.position.y = 0.15;
-    rack.position.x = 15;
-    rack.position.z = 15;
-    const group = new Group();
-    this.scene.add(rack);
-    this.worldObjects[command.parameters.uuid] = group;
   }
 
   CleanupAll(): void {
@@ -179,7 +172,6 @@ class WorldObjectManger {
       this.scene.remove(this.worldObjects[e])
     }
   }
-
 }
 
 export {WorldObjectManger}

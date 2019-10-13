@@ -1,6 +1,6 @@
 package com.nhlstenden.amazonsimulatie.models;
 
-import com.nhlstenden.amazonsimulatie.base.RoutingsEngine;
+import com.nhlstenden.amazonsimulatie.base.RoutingEngine;
 
 import java.util.ArrayList;
 import java.util.Deque;
@@ -13,12 +13,11 @@ import java.util.UUID;
  * een robot geupdate kan worden binnen de 3D wereld om zich zo voort te bewegen.
  */
 public class Robot implements Object3D, Updatable {
-  private RoutingsEngine routingsEngine;
+  private RoutingEngine routingsEngine;
   private UUID uuid;
   private ArrayList<RobotTask> taskQueue = new ArrayList<>();
   private RobotTask currentTask;
   private Deque<Node> pathToTask = new LinkedList<>();
-  ;
 
   private int x = 0;
   private int y = 0;
@@ -30,7 +29,7 @@ public class Robot implements Object3D, Updatable {
 
   public Robot(Grid grid) {
     this.uuid = UUID.randomUUID();
-    routingsEngine = new RoutingsEngine(grid);
+    routingsEngine = new RoutingEngine(grid);
   }
 
   public Robot(Grid grid, int x, int y) {

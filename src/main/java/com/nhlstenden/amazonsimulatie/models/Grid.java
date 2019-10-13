@@ -4,22 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-//new Node(r.nextInt(5), r.nextInt(5)
 public class Grid {
-  private int gridSizeX = 42;
-  private int gridSizeY = 42;
-  private Node[][] grid;
-  private Random r = new Random();
-
-  private final int[][] checkints = {
+  private final int[][] checkInts = {
     {0, 1},
     {1, 0},
     {0, -1},
     {-1, 0}
   };
+  private int gridSizeX = 24;
+  private int gridSizeY;
+  private Node[][] grid;
+  private Random r = new Random();
 
   public Grid(int modules) {
-    //this.gridSizeY = (6 * modules);
+    this.gridSizeY = (6 * modules);
     createGrid();
   }
 
@@ -35,7 +33,7 @@ public class Grid {
 
   public List<Node> getNeighbours(Node node) {
     List<Node> neighbours = new ArrayList<>();
-    for (int[] vec : checkints) {
+    for (int[] vec : checkInts) {
       int checkX = (node.getGridX() + vec[0]);
       int checkY = (node.getGridY() + vec[1]);
       if (checkX >= 0 && checkX < gridSizeX && checkY >= 0 && checkY < gridSizeY) {
@@ -45,7 +43,22 @@ public class Grid {
     return neighbours;
   }
 
+  public int getGridSizeX() {
+    return gridSizeX;
+  }
+
+  public int getGridSizeY() {
+    return gridSizeY;
+  }
+
+  public Node getNode(int x, int y) {
+    return grid[x][y];
+  }
+
   public Node RandomNode() {
-    return grid[r.nextInt(gridSizeX)][r.nextInt(gridSizeY)];
+    Node random = grid[r.nextInt(gridSizeX)][r.nextInt(gridSizeY)];
+    if (random.getOccupation() == null)
+      return random;
+    return RandomNode();
   }
 }

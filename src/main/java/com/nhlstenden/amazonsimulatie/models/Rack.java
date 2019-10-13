@@ -3,14 +3,23 @@ package com.nhlstenden.amazonsimulatie.models;
 import java.util.UUID;
 
 public class Rack implements Object3D, Updatable {
-    private UUID uuid;
-    private String item;
-    //private String[] type = {"kaas", "doos", "boter"};
+  private UUID uuid;
+  private Type item;
+  private Grid grid;
 
-    public Rack(String type) {
-        this.uuid = uuid.randomUUID();
-        this.item = type;
-    }
+  private int x;
+  private int y;
+  private int z;
+
+  public Rack(Type type, Grid grid, int x, int y) {
+    this.uuid = uuid.randomUUID();
+    this.item = type;
+    this.grid = grid;
+    this.x = x;
+    this.z = y;
+  }
+
+
 
   @Override
   public String getUUID() {
@@ -24,17 +33,17 @@ public class Rack implements Object3D, Updatable {
 
   @Override
   public double getX() {
-    return 0;
+    return x;
   }
 
   @Override
   public double getY() {
-    return 0;
+    return y;
   }
 
   @Override
   public double getZ() {
-    return 0;
+    return z;
   }
 
   @Override
@@ -54,6 +63,13 @@ public class Rack implements Object3D, Updatable {
 
   @Override
   public boolean update() {
-    return false;
+    return true;
+  }
+
+  public enum Type {
+    KAAS,
+    DOOS,
+    BOTER,
+    DONUT
   }
 }

@@ -5,7 +5,7 @@ import com.nhlstenden.amazonsimulatie.models.Node;
 
 import java.util.*;
 
-public class RoutingsEngine {
+public class RoutingEngine {
   private Grid grid;
   private Node start;
   private Node end;
@@ -14,7 +14,7 @@ public class RoutingsEngine {
   private Deque<Node> path = new LinkedList<>();
   private HashMap<Node, Node> cameFrom = new HashMap<>();
 
-  public RoutingsEngine(Grid grid) {
+  public RoutingEngine(Grid grid) {
     this.grid = grid;
   }
 
@@ -27,7 +27,7 @@ public class RoutingsEngine {
     frontier.add(this.start);
     cameFrom.put(this.start, null);
     scanGrid();
-    getPath(end);
+    getPath(this.end);
     return path;
   }
 
@@ -39,17 +39,19 @@ public class RoutingsEngine {
       }
       for (Node next : grid.getNeighbours(current)) {
         if (!cameFrom.containsKey(next)) {
-          frontier.add(next);
-          cameFrom.put(next, current);
+          if (next.getOccupation() == null) {
+            frontier.add(next);
+            cameFrom.put(next, current);
+          }
         }
       }
     }
   }
 
-  private void getPath(Node curr) {
-    if (curr == start || curr == null)
+  private void getPath(Node current) {
+    if (current == start || current == null)
       return;
-    path.addFirst(curr);
-    getPath(cameFrom.get(curr));
+    path.addFirst(current);
+    getPath(cameFrom.get(current));
   }
 }
