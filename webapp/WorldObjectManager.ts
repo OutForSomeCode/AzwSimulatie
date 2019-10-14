@@ -1,24 +1,35 @@
 import {
   AmbientLight,
   BoxGeometry,
+  CubeTextureLoader,
   DoubleSide,
   GridHelper,
   Group,
   Mesh,
   MeshBasicMaterial,
+  MeshStandardMaterial,
   Scene,
   SphereGeometry,
   TextureLoader
 } from "three";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
+import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
 
 class WorldObjectManger {
   private worldObjects: Array<Group> = [];
   private scene = new Scene();
-  private gltfLoader = new GLTFLoader();
-
+  private objloader = new OBJLoader();
+  textureCube;
 
   public initWorld() {
+
+    var r = "https://threejs.org/examples/textures/cube/Bridge2/";
+    var urls = [r + "posx.jpg", r + "negx.jpg",
+      r + "posy.jpg", r + "negy.jpg",
+      r + "posz.jpg", r + "negz.jpg"];
+
+    this.textureCube = new CubeTextureLoader().load(urls);
+
     const sphericalSkyboxGeometry = new SphereGeometry(900, 32, 32);
     const sphericalSkyboxMaterial = new MeshBasicMaterial({
       map: new TextureLoader().load('assets/textures/lebombo_2k.jpg'),
@@ -53,19 +64,30 @@ class WorldObjectManger {
   private createWarehouse(numberOfModules) {
     if (numberOfModules != 0) {
       for (let i = 0; i < numberOfModules; i++) {
-        this.gltfLoader.load('assets/models/Warehouse.gltf', (gltf) => {
-          gltf.scene.rotation.y = Math.PI;
-          gltf.scene.position.x = 11.5;
-          gltf.scene.position.y = 0;
-          gltf.scene.position.z = 2.5 + (i * 6);
-          this.addScene(gltf)
+        this.objloader.load('assets/models/Warehouse.obj', obj => {
+          var textureCube = this.textureCube;
+          obj.rotation.y = Math.PI;
+          obj.position.x = 11.5;
+          obj.position.y = 0;
+          obj.position.z = 2.5 + (i * 6);
+          obj.traverse( child => {
+            if (child instanceof Mesh)
+              child.material = new MeshStandardMaterial({
+                map: new TextureLoader().load('assets/textures/Warehouse_Concrete_BaseColor.png'),
+                normalMap: new TextureLoader().load('assets/textures/Warehouse_Concrete_Normal.png'),
+                metalnessMap: new TextureLoader().load('assets/textures/Warehouse_Concrete_Metallic.png'),
+                roughnessMap: new TextureLoader().load('assets/textures/Warehouse_Concrete_Roughness.png'),
+                envMap: textureCube
+              });
+          });
+          this.addScene(obj)
         });
       }
     }
   }
 
-  private addScene(gltf) {
-    this.scene.add(gltf.scene);
+  private addScene(obj) {
+    this.scene.add(obj);
   }
 
   public getWorldObjects(): Array<Group> {
@@ -143,27 +165,33 @@ class WorldObjectManger {
   }
 
   public createRack(command): void {
-    const url = 'assets/models/Rack.gltf';
-    this.gltfLoader.load(url, (gltf) => {
-      const rack = gltf.scene;
-      //rack.position.y = 0.15;
+    var scene = this.scene;
+    var worldObjects = this.worldObjects;
+    var textureCube = this.textureCube;
 
-      /*rack.traverse(function (object) {
-        if (object instanceof Mesh)
-          object.material = new MeshBasicMaterial({
-            map: new TextureLoader().load('assets/textures/Rack_RackMat_BaseColor.jpg')
+    this.objloader.load('assets/models/Rack.obj', rack => {
+      rack.traverse(function (child) {
+        if (child instanceof Mesh)
+          child.material = new MeshStandardMaterial({
+            map: new TextureLoader().load('assets/textures/Rack_RackMat_BaseColor.png'),
+            normalMap: new TextureLoader().load('assets/textures/Rack_RackMat_Normal.png'),
+            metalnessMap: new TextureLoader().load('assets/textures/Rack_RackMat_Metallic.png'),
+            roughnessMap: new TextureLoader().load('assets/textures/Rack_RackMat_Roughness.png'),
+            envMap: textureCube
           });
-      });*/
-
+      });
 
       const group = new Group();
       group.add(rack);
       //initial spawn position of the racks
       group.position.y = -1000;
-      this.scene.add(group);
-      this.worldObjects[command.parameters.uuid] = group;
+      scene.add(group);
+      worldObjects[command.parameters.uuid] = group;
+
     });
+
   }
+
 
   CleanupAll(): void {
     for (let e in this.worldObjects) {
