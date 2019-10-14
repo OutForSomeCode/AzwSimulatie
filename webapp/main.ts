@@ -24,6 +24,13 @@ let _socketService: SocketService;
 let _worldObjectManger:  WorldObjectManger;
 
 function init() {
+  _worldObjectManger = new WorldObjectManger();
+  _worldObjectManger.loadModels(() => {
+    _worldObjectManger.initWorld();
+    _socketService = new SocketService(_worldObjectManger);
+    _socketService.connect();
+    frameStep();
+  });
   camera = new PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
   cameraControls = new OrbitControls(camera);
   camera.position.z = 15;
@@ -37,12 +44,8 @@ function init() {
   document.body.appendChild(renderer.domElement);
 
   window.addEventListener('resize', onWindowResize, false);
-  _worldObjectManger = new WorldObjectManger();
-  _worldObjectManger.initWorld();
-  _socketService = new SocketService(_worldObjectManger);
-  _socketService.connect();
 
-  frameStep();
+
 }
 
 function onWindowResize() {

@@ -12,23 +12,56 @@ import {
   SphereGeometry,
   TextureLoader
 } from "three";
-import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
 
 class WorldObjectManger {
   private worldObjects: Array<Group> = [];
+  private preloadedModels: Record<string, Group> = {};
+  private reqModels: Array<Array<string>> = [
+    ["Rack", "Rack_RackMat"],
+    ["Warehouse", "Warehouse_Concrete"]
+  ];
   private scene = new Scene();
   private objloader = new OBJLoader();
   textureCube;
 
-  public initWorld() {
 
-    var r = "https://threejs.org/examples/textures/cube/Bridge2/";
-    var urls = [r + "posx.jpg", r + "negx.jpg",
+  public loadModels(callback: () => void) {
+    const r = "https://threejs.org/examples/textures/cube/Bridge2/";
+    const urls = [r + "posx.jpg", r + "negx.jpg",
       r + "posy.jpg", r + "negy.jpg",
       r + "posz.jpg", r + "negz.jpg"];
 
     this.textureCube = new CubeTextureLoader().load(urls);
+
+    const promises = [];
+    this.reqModels.forEach(e => {
+      promises.push(this.objloaderLoad(e));
+    });
+    Promise.all(promises).then(callback);
+  }
+
+  private objloaderLoad(dat: Array<string>) {
+    return new Promise(resolve => {
+      this.objloader.load(`assets/models/${dat[0]}.obj`, obj => {
+        obj.traverse(m => {
+          if (m instanceof Mesh)
+            m.material = new MeshStandardMaterial({
+              map: new TextureLoader().load(`assets/textures/${dat[1]}_BaseColor.png`),
+              normalMap: new TextureLoader().load(`assets/textures/${dat[1]}_Normal.png`),
+              metalnessMap: new TextureLoader().load(`assets/textures/${dat[1]}_Metallic.png`),
+              roughnessMap: new TextureLoader().load(`assets/textures/${dat[1]}_Roughness.png`),
+              bumpMap: new TextureLoader().load(`assets/textures/${dat[1]}_Height.png`),
+              envMap: this.textureCube
+            });
+        });
+        this.preloadedModels[dat[0]] = obj;
+        resolve();
+      });
+    });
+  }
+
+  public initWorld() {
 
     const sphericalSkyboxGeometry = new SphereGeometry(900, 32, 32);
     const sphericalSkyboxMaterial = new MeshBasicMaterial({
@@ -37,17 +70,6 @@ class WorldObjectManger {
     });
     const sphericalSkybox = new Mesh(sphericalSkyboxGeometry, sphericalSkyboxMaterial);
     this.scene.add(sphericalSkybox);
-
-    /* const geometry = new PlaneGeometry(42, 42, 32);
-     const material = new MeshBasicMaterial({
-       color: 0xffffff,
-       side: DoubleSide
-     });
-     const plane = new Mesh(geometry, material);
-     plane.rotation.x = Math.PI / 2.0;
-     plane.position.x = 21;
-     plane.position.z = 21;
-     this.scene.add(plane);*/
 
     this.createWarehouse(4);
 
@@ -61,28 +83,18 @@ class WorldObjectManger {
     this.scene.add(light);
   }
 
+  private getModel(name: string) {
+    return this.preloadedModels[name].clone();
+  }
+
   private createWarehouse(numberOfModules) {
-    if (numberOfModules != 0) {
-      for (let i = 0; i < numberOfModules; i++) {
-        this.objloader.load('assets/models/Warehouse.obj', obj => {
-          var textureCube = this.textureCube;
-          obj.rotation.y = Math.PI;
-          obj.position.x = 11.5;
-          obj.position.y = 0;
-          obj.position.z = 2.5 + (i * 6);
-          obj.traverse( child => {
-            if (child instanceof Mesh)
-              child.material = new MeshStandardMaterial({
-                map: new TextureLoader().load('assets/textures/Warehouse_Concrete_BaseColor.png'),
-                normalMap: new TextureLoader().load('assets/textures/Warehouse_Concrete_Normal.png'),
-                metalnessMap: new TextureLoader().load('assets/textures/Warehouse_Concrete_Metallic.png'),
-                roughnessMap: new TextureLoader().load('assets/textures/Warehouse_Concrete_Roughness.png'),
-                envMap: textureCube
-              });
-          });
-          this.addScene(obj)
-        });
-      }
+    for (let i = 0; i < numberOfModules; i++) {
+      let obj = this.getModel("Warehouse");
+      obj.rotation.y = Math.PI;
+      obj.position.x = 11.5;
+      obj.position.y = 0;
+      obj.position.z = 2.5 + (i * 6);
+      this.addScene(obj)
     }
   }
 
@@ -165,31 +177,14 @@ class WorldObjectManger {
   }
 
   public createRack(command): void {
-    var scene = this.scene;
-    var worldObjects = this.worldObjects;
-    var textureCube = this.textureCube;
+    const scene = this.scene;
+    const worldObjects = this.worldObjects;
 
-    this.objloader.load('assets/models/Rack.obj', rack => {
-      rack.traverse(function (child) {
-        if (child instanceof Mesh)
-          child.material = new MeshStandardMaterial({
-            map: new TextureLoader().load('assets/textures/Rack_RackMat_BaseColor.png'),
-            normalMap: new TextureLoader().load('assets/textures/Rack_RackMat_Normal.png'),
-            metalnessMap: new TextureLoader().load('assets/textures/Rack_RackMat_Metallic.png'),
-            roughnessMap: new TextureLoader().load('assets/textures/Rack_RackMat_Roughness.png'),
-            envMap: textureCube
-          });
-      });
-
-      const group = new Group();
-      group.add(rack);
-      //initial spawn position of the racks
-      group.position.y = -1000;
-      scene.add(group);
-      worldObjects[command.parameters.uuid] = group;
-
-    });
-
+    let rack = this.getModel("Rack");
+    //initial spawn position of the racks
+    rack.position.y = -1000;
+    scene.add(rack);
+    worldObjects[command.parameters.uuid] = rack;
   }
 
 
