@@ -11,7 +11,7 @@ public class Grid {
     {0, -1},
     {-1, 0}
   };
-  private int gridSizeX = 24;
+  private int gridSizeX = 30;
   private int gridSizeY;
   private Node[][] grid;
   private Random r = new Random();

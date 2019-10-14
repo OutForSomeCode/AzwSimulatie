@@ -40,7 +40,6 @@ class WorldObjectManger {
 
     this.createWarehouse(4);
 
-
     const gridHelper = new GridHelper(42, 42);
     gridHelper.position.x = 21;
     gridHelper.position.z = 21;
@@ -51,30 +50,18 @@ class WorldObjectManger {
     this.scene.add(light);
   }
 
-  private createWarehouseModule(url, x, y, z, s = 1) {
-    this.gltfLoader.load(url, (gltf) => {
-      gltf.scene.position.x = x;
-      gltf.scene.position.y = y;
-      gltf.scene.position.z = z;
-      gltf.scene.scale.x = s;
-
-      this.addScene(gltf)
-    });
-  }
-
   private createWarehouse(numberOfModules) {
-    let warehousePositionX = 6.5;
-    const warehousePositionY = -0.1;
-    const warehousePositionZ = 5.5;
-    this.createWarehouseModule('assets/models/WarehouseEnd.gltf', warehousePositionX, warehousePositionY, warehousePositionZ, 1);
-    warehousePositionX -= 10;
     if (numberOfModules != 0) {
       for (let i = 0; i < numberOfModules; i++) {
-        //this.createWarehouseModule('assets/models/WarehouseMid.gltf', (startWarehouseX += 4), startWarehouseY, startWarehouseZ, 1);
-        this.createWarehouseModule('assets/models/WarehouseMidLoading.gltf', (warehousePositionX += 4), warehousePositionY, warehousePositionZ, 1);
+        this.gltfLoader.load('assets/models/Warehouse.gltf', (gltf) => {
+          gltf.scene.rotation.y = Math.PI;
+          gltf.scene.position.x = 11.5;
+          gltf.scene.position.y = 0;
+          gltf.scene.position.z = 2.5 + (i * 6);
+          this.addScene(gltf)
+        });
       }
     }
-    this.createWarehouseModule('assets/models/WarehouseEnd.gltf', warehousePositionX += 4, warehousePositionY, warehousePositionZ, -1);
   }
 
   private addScene(gltf) {
@@ -171,6 +158,8 @@ class WorldObjectManger {
 
       const group = new Group();
       group.add(rack);
+      //initial spawn position of the racks
+      group.position.y = -1000;
       this.scene.add(group);
       this.worldObjects[command.parameters.uuid] = group;
     });

@@ -1,5 +1,6 @@
 package com.nhlstenden.amazonsimulatie.models;
 
+import java.awt.image.renderable.ParameterBlock;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ public class World implements WorldModel {
    */
   public World() {
     this.worldObjects = new ArrayList<>();
-    grid = new Grid(2);
+    grid = new Grid(4);
   }
 
   public Robot findIdleRobot() {
@@ -50,11 +51,6 @@ public class World implements WorldModel {
         return robot;
     }
     return null;
-  }
-
-  // remove?
-  public void addRobot() {
-    this.worldObjects.add(new Robot(grid));
   }
 
   public void addRobot(int x, int y) {
@@ -84,6 +80,12 @@ public class World implements WorldModel {
   public void removeRack(int x, int y) {
     if (x < grid.getGridSizeX() && y < grid.getGridSizeY()) {
       grid.getNode(x, y).updateOccupation(null);
+    }
+  }
+
+  public void addWall(int x, int y) {
+    if (x < grid.getGridSizeX() && y < grid.getGridSizeY()) {
+      grid.getNode(x, y).updateOccupation(new Wall());
     }
   }
 
