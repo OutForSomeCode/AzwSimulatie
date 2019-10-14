@@ -21,7 +21,7 @@ class WorldObjectManger {
   public initWorld() {
     const sphericalSkyboxGeometry = new SphereGeometry(900, 32, 32);
     const sphericalSkyboxMaterial = new MeshBasicMaterial({
-      map: new TextureLoader().load('assets/textures/yellow_field_2k.jpg'),
+      map: new TextureLoader().load('assets/textures/lebombo_2k.jpg'),
       side: DoubleSide
     });
     const sphericalSkybox = new Mesh(sphericalSkyboxGeometry, sphericalSkyboxMaterial);
