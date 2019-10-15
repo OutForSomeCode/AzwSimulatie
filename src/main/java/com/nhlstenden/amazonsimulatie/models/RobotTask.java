@@ -21,6 +21,7 @@ public class RobotTask {
 
   public enum Task {
     PICKUP,
-    DROP
+    DROP,
+    PARK
   }
 }

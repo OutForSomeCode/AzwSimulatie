@@ -14,6 +14,7 @@ import java.beans.PropertyChangeEvent;
  */
 public class SimulationController extends Controller {
   private WarehouseManager warehouseManager;
+
   public SimulationController(World worldModel) {
     super(worldModel); //Met dit onderdeel roep je de constructor aan van de superclass (Controller)
     this.warehouseManager = new WarehouseManager(worldModel);
@@ -30,11 +31,11 @@ public class SimulationController extends Controller {
   @Override
   public void run() {
     while (true) {
-      this.getWorldModel().update();
       this.warehouseManager.update();
+      this.getWorldModel().update();
       this.getQueue().flush(this.getViews());
       try {
-        Thread.sleep(100);
+        Thread.sleep(50);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }

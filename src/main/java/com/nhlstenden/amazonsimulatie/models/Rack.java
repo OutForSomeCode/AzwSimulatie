@@ -2,24 +2,35 @@ package com.nhlstenden.amazonsimulatie.models;
 
 import java.util.UUID;
 
-public class Rack implements Object3D, Updatable {
+public class Rack implements Object3D, Updatable, Poolable {
   private UUID uuid;
-  private Type item;
+  private String item;
   private Grid grid;
+  private boolean fireUpdate;
+  private boolean inuse;
 
-  private int x;
-  private int y;
-  private int z;
+  public int x;
+  public int y;
+  int z;
 
-  public Rack(Type type, Grid grid, int x, int y) {
+  public Rack(String type, Grid grid) {
     this.uuid = uuid.randomUUID();
     this.item = type;
     this.grid = grid;
-    this.x = x;
-    this.z = y;
   }
 
-
+  public void updatePosition(int x, int y) {
+    inuse = true;
+    fireUpdate = true;
+    this.x = x;
+    this.y = y;
+    this.z = 0;
+  }
+  public void updatePosition(int z) {
+    inuse = true;
+    fireUpdate = true;
+    this.z = z;
+  }
 
   @Override
   public String getUUID() {
@@ -38,12 +49,12 @@ public class Rack implements Object3D, Updatable {
 
   @Override
   public double getY() {
-    return y;
+    return z;
   }
 
   @Override
   public double getZ() {
-    return z;
+    return y;
   }
 
   @Override
@@ -63,13 +74,22 @@ public class Rack implements Object3D, Updatable {
 
   @Override
   public boolean update() {
-    return true;
+    if (fireUpdate) {
+      fireUpdate = false;
+      return true;
+    }
+    return false;
   }
 
-  public enum Type {
-    KAAS,
-    DOOS,
-    BOTER,
-    DONUT
+  @Override
+  public boolean inUse() {
+    return inuse;
+  }
+
+  @Override
+  public void putInPool() {
+    inuse = false;
+    fireUpdate = true;
+    this.z = -10;
   }
 }

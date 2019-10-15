@@ -12,12 +12,14 @@ import java.util.UUID;
  * 3D object is. Ook implementeerd deze class de interface Updatable. Dit is omdat
  * een robot geupdate kan worden binnen de 3D wereld om zich zo voort te bewegen.
  */
-public class Robot implements Object3D, Updatable {
-  private RoutingEngine routingsEngine;
+public class Robot implements Object3D, Updatable, Poolable {
+  private RoutingEngine routingEngine;
   private UUID uuid;
+  private Grid grid;
   private ArrayList<RobotTask> taskQueue = new ArrayList<>();
   private RobotTask currentTask;
   private Deque<Node> pathToTask = new LinkedList<>();
+  private Rack rack;
 
   private int x = 0;
   private int y = 0;
@@ -29,13 +31,14 @@ public class Robot implements Object3D, Updatable {
 
   public Robot(Grid grid) {
     this.uuid = UUID.randomUUID();
-    routingsEngine = new RoutingEngine(grid);
+    this.grid = grid;
+    routingEngine = new RoutingEngine(grid);
   }
 
   public Robot(Grid grid, int x, int y) {
     this(grid);
     this.x = x;
-    this.z = y;
+    this.y = y;
   }
 
   public void assignTask(ArrayList<RobotTask> tasks) {
@@ -45,11 +48,7 @@ public class Robot implements Object3D, Updatable {
 
   private void executeNextTask() {
     currentTask = taskQueue.remove(0);
-    pathToTask = routingsEngine.generateRoute(new Node(x, z), currentTask.getDestination());
-  }
-
-  public boolean isBusy() {
-    return !taskQueue.isEmpty();
+    pathToTask = routingEngine.generateRoute(new Node(x, y), currentTask.getDestination());
   }
 
   /*
@@ -70,13 +69,41 @@ public class Robot implements Object3D, Updatable {
     if (!pathToTask.isEmpty()) {
       Node current = pathToTask.remove();
       this.x = current.getGridX();
-      this.z = current.getGridY();
+      this.y = current.getGridY();
+      if (current == currentTask.getDestination()) {
+        if (currentTask.getTask() == RobotTask.Task.PICKUP){
+          this.rack = (Rack) grid.getNode(x, y).getOccupation();
+          if(this.rack == null){
+            taskQueue.clear();
+            return true;
+          }
+
+          this.rack.updatePosition(-10);
+          grid.getNode(x, y).updateOccupation(null);
+        }
+        else if(currentTask.getTask() == RobotTask.Task.DROP){
+          if(this.rack == null){
+            taskQueue.clear();
+            return true;
+          }
+          this.rack.updatePosition(x, y);
+          grid.getNode(x, y).updateOccupation(this.rack);
+        }
+        // ipv new rack moet er een uit the obj pool komen.
+        // dit rack wordt nog niet zichtbaar, alleen de navigatie node is geupdate.
+      }
+
       return true;
     }
     if (!taskQueue.isEmpty()) {
       executeNextTask();
     }
     return false;
+  }
+
+  @Override
+  public boolean inUse() {
+    return !taskQueue.isEmpty();
   }
 
   @Override
@@ -102,12 +129,12 @@ public class Robot implements Object3D, Updatable {
 
   @Override
   public double getY() {
-    return this.y;
+    return this.z;
   }
 
   @Override
   public double getZ() {
-    return this.z;
+    return this.y;
   }
 
   @Override
@@ -123,5 +150,11 @@ public class Robot implements Object3D, Updatable {
   @Override
   public double getRotationZ() {
     return this.rotationZ;
+  }
+
+
+
+  @Override
+  public void putInPool() {
   }
 }

@@ -1,6 +1,5 @@
 package com.nhlstenden.amazonsimulatie.models;
 
-import java.awt.image.renderable.ParameterBlock;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
@@ -47,7 +46,7 @@ public class World implements WorldModel {
     List<Robot> returnList = getRobots();
 
     for (Robot robot : returnList) {
-      if (!robot.isBusy())
+      if (!robot.inUse())
         return robot;
     }
     return null;
@@ -60,7 +59,7 @@ public class World implements WorldModel {
   }
 
   public List<Robot> getRobots() {
-    List<Robot> returnList = new ArrayList<Robot>();
+    List<Robot> returnList = new ArrayList<>();
 
     for (Object3D object : this.worldObjects) {
       if (object instanceof Robot)
@@ -69,16 +68,52 @@ public class World implements WorldModel {
     return returnList;
   }
 
-  public void addRack(Rack.Type type, int x, int y) {
+  public List<Rack> getRacks() {
+    List<Rack> returnList = new ArrayList<>();
+
+    for (Object3D object : this.worldObjects) {
+      if (object instanceof Rack)
+        returnList.add((Rack) object);
+    }
+    return returnList;
+  }
+
+  public List<Rack> getUsedRacks() {
+    List<Rack> returnList = new ArrayList<>();
+
+    for (Object3D object : this.worldObjects) {
+      if (object instanceof Rack && ((Rack) object).inUse())
+        returnList.add((Rack) object);
+    }
+    return returnList;
+  }
+
+  public Rack findUnusedRack() {
+    List<Rack> returnList = getRacks();
+
+    for (Rack rack : returnList) {
+      if (!rack.inUse())
+        return rack;
+    }
+    return null;
+  }
+
+  public void addRack(String type, int x, int y) {
     if (x < grid.getGridSizeX() && y < grid.getGridSizeY()) {
-      Rack rack = new Rack(type, grid, x, y);
+      Rack rack = findUnusedRack();
+      if (rack == null) {
+        rack = new Rack(type, grid);
+        this.worldObjects.add(rack);
+      }
+      rack.updatePosition(x, y);
       grid.getNode(x, y).updateOccupation(rack);
-      this.worldObjects.add(rack);
     }
   }
 
   public void removeRack(int x, int y) {
     if (x < grid.getGridSizeX() && y < grid.getGridSizeY()) {
+      Rack r = (Rack) grid.getNode(x, y).getOccupation();
+      r.putInPool();
       grid.getNode(x, y).updateOccupation(null);
     }
   }
