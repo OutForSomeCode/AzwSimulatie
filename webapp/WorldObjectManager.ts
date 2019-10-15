@@ -19,7 +19,8 @@ class WorldObjectManger {
   private preloadedModels: Record<string, Group> = {};
   private reqModels: Array<Array<string>> = [
     ["Rack", "Rack_RackMat"],
-    ["Warehouse", "Warehouse_Concrete"]
+    ["Warehouse", "Warehouse_Concrete"],
+    ["Box", "BoxMat"]
   ];
   private scene = new Scene();
   private objloader = new OBJLoader();
