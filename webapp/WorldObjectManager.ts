@@ -13,6 +13,7 @@ import {
   TextureLoader
 } from "three";
 import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
+import Table = WebAssembly.Table;
 
 class WorldObjectManger {
   private worldObjects: Array<Group> = [];
@@ -20,7 +21,8 @@ class WorldObjectManger {
   private reqModels: Array<Array<string>> = [
     ["Rack", "Rack_RackMat"],
     ["Warehouse", "Warehouse_Concrete"],
-    ["Box", "BoxMat"]
+    ["Box", "BoxMat"],
+    ["Table","TableMat"]
   ];
   private scene = new Scene();
   private objloader = new OBJLoader();
@@ -82,6 +84,16 @@ class WorldObjectManger {
     const light = new AmbientLight(0x404040);
     light.intensity = 4;
     this.scene.add(light);
+
+    let obj = this.getModel("Table");
+    obj.position.x = 21;
+    obj.position.y = -35;
+    obj.position.z = 60;
+    obj.rotation.y = Math.PI/2;
+    obj.scale.x = 20;
+    obj.scale.y = 20;
+    obj.scale.z = 20;
+    this.addScene(obj)
   }
 
   private getModel(name: string) {
