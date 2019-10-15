@@ -7,7 +7,7 @@ public class Rack implements Object3D, Updatable, Poolable {
   private String item;
   private Grid grid;
   private boolean fireUpdate;
-  private boolean inuse;
+  private boolean inUse;
 
   public int x;
   public int y;
@@ -20,14 +20,14 @@ public class Rack implements Object3D, Updatable, Poolable {
   }
 
   public void updatePosition(int x, int y) {
-    inuse = true;
+    inUse = true;
     fireUpdate = true;
     this.x = x;
     this.y = y;
     this.z = 0;
   }
   public void updatePosition(int z) {
-    inuse = true;
+    inUse = true;
     fireUpdate = true;
     this.z = z;
   }
@@ -83,12 +83,12 @@ public class Rack implements Object3D, Updatable, Poolable {
 
   @Override
   public boolean inUse() {
-    return inuse;
+    return inUse;
   }
 
   @Override
   public void putInPool() {
-    inuse = false;
+    inUse = false;
     fireUpdate = true;
     this.z = -10;
   }

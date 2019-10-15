@@ -80,7 +80,7 @@ class WorldObjectManger {
     const sphericalSkybox = new Mesh(sphericalSkyboxGeometry, sphericalSkyboxMaterial);
     this.scene.add(sphericalSkybox);
 
-    this.createWarehouse(4);
+    this.createWarehouse(10);
 
     const gridHelper = new GridHelper(42, 42);
     gridHelper.position.x = 21;

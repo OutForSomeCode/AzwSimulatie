@@ -35,7 +35,7 @@ public class SimulationController extends Controller {
       this.getWorldModel().update();
       this.getQueue().flush(this.getViews());
       try {
-        Thread.sleep(50);
+        Thread.sleep(100);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
