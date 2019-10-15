@@ -4,6 +4,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /*
  * Deze class is een versie van het model van de simulatie. In dit geval is het
@@ -39,7 +40,7 @@ public class World implements WorldModel {
    */
   public World() {
     this.worldObjects = new ArrayList<>();
-    grid = new Grid(4);
+    grid = new Grid();
   }
 
   public Robot findIdleRobot() {
@@ -108,6 +109,15 @@ public class World implements WorldModel {
       rack.updatePosition(x, y);
       grid.getNode(x, y).updateOccupation(rack);
     }
+  }
+
+  public Rack getUnusedRack(String type) {
+    Rack rack = findUnusedRack();
+    if (rack == null) {
+      rack = new Rack(type, grid);
+      this.worldObjects.add(rack);
+    }
+    return rack;
   }
 
   public void removeRack(int x, int y) {

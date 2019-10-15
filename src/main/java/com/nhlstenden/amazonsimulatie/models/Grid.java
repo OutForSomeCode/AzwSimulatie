@@ -1,5 +1,7 @@
 package com.nhlstenden.amazonsimulatie.models;
 
+import com.nhlstenden.amazonsimulatie.base.Data;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -16,8 +18,8 @@ public class Grid {
   private Node[][] grid;
   private Random r = new Random();
 
-  public Grid(int modules) {
-    this.gridSizeY = (6 * modules);
+  public Grid() {
+    this.gridSizeY = (6 * Data.modules);
     createGrid();
   }
 
