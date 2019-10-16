@@ -27,7 +27,8 @@ class WorldObjectManger {
     ["Rack", "Rack_RackMat"],
     ["Warehouse", "Warehouse_Concrete"],
     ["Box", "BoxMat"],
-    ["Table","TableMat"]
+    ["Table","TableMat"],
+    ["Cone4D","ConeMat"]
   ];
   private scene = new Scene();
   private truck;
@@ -100,7 +101,7 @@ class WorldObjectManger {
     obj.scale.y = 20;
     obj.scale.z = 20;
     this.addScene(obj)
-    this.truck = this.getModel("Rack");
+    this.truck = this.getModel("Cone4D");
     this.scene.add(this.truck);
 
   }
@@ -212,17 +213,23 @@ class WorldObjectManger {
 
 
   public movetruck(time): void{
-    const tankPosition = new Vector2();
+    const truckPosition = new Vector2();
     const tankTarget = new Vector2();
 
     const curve = new SplineCurve( [
       new Vector2(30 , 10),
-      new Vector2(33 , 5),
+      new Vector2(31 , 7.5),
+      new Vector2(32 , 5),
+      new Vector2(35 , 3),
+      new Vector2(37 , 2.7),
       new Vector2(40 , 2.5),
       new Vector2(30 , 2.5),
       new Vector2(25 , 2.5),
-      new Vector2(30 , 1 ),
+      new Vector2(26 , 2.3),
+      new Vector2(28 , 2 ),
+      new Vector2(29 , 0),
       new Vector2(30 , -5),
+      new Vector2(32 , -20),
       new Vector2(50 , -5),
       new Vector2(50 , 10),
       new Vector2(30 , 10),
@@ -238,12 +245,21 @@ class WorldObjectManger {
     const scene = this.scene;
     const worldObjects = this.worldObjects;
     const tankTime = time * .05;
-    curve.getPointAt(tankTime % 1, tankPosition);
+    curve.getPointAt(tankTime % 1, truckPosition);
     curve.getPointAt((tankTime + 0.01) % 1, tankTarget);
-    this.truck.position.set(tankPosition.x, 0, tankPosition.y);
-    this.truck.lookAt(tankTarget.x, 0, tankTarget.y);
+    this.truck.position.set(truckPosition.x, 0, truckPosition.y);
 
+    if(this.truck.position.x < 40 && this.truck.position.z >= 2.3 && this.truck.position.z <= 2.7 )
+    {
+        this.truck.lookAt(40, 0, 2.5);
+
+    }
+    else
+    {
+      this.truck.lookAt(tankTarget.x, 0, tankTarget.y);
+    }
   }
+
   CleanupAll(): void {
     for (let e in this.worldObjects) {
       this.scene.remove(this.worldObjects[e])

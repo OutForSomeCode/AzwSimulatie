@@ -23,6 +23,10 @@ let cameraControls: OrbitControls;
 let _socketService: SocketService;
 let _worldObjectManger:  WorldObjectManger;
 
+
+/*
+  function init initialized the world and all its objects
+ */
 function init() {
   _worldObjectManger = new WorldObjectManger();
   _worldObjectManger.loadModels(() => {
@@ -53,7 +57,9 @@ function onWindowResize() {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
-
+/*
+frameStep is updates every frame
+ */
 function frameStep() {
   requestAnimationFrame(frameStep);
   cameraControls.update();
