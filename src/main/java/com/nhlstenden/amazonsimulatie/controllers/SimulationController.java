@@ -14,10 +14,14 @@ import java.beans.PropertyChangeEvent;
  */
 public class SimulationController extends Controller {
   private WarehouseManager warehouseManager;
+  private MelkFactory melkFactory;
 
   public SimulationController(World worldModel) {
     super(worldModel); //Met dit onderdeel roep je de constructor aan van de superclass (Controller)
     this.warehouseManager = new WarehouseManager(worldModel);
+    this.melkFactory = new MelkFactory(worldModel);
+    WaybillResolver.Instance().Register(this.warehouseManager);
+    WaybillResolver.Instance().Register(this.melkFactory);
   }
 
   /*
@@ -31,6 +35,7 @@ public class SimulationController extends Controller {
   @Override
   public void run() {
     while (true) {
+      this.melkFactory.update();
       this.warehouseManager.update();
       this.getWorldModel().update();
       this.getQueue().flush(this.getViews());
