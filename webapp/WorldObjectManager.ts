@@ -10,7 +10,12 @@ import {
   MeshStandardMaterial,
   Scene,
   SphereGeometry,
-  TextureLoader
+  TextureLoader,
+  SplineCurve,
+  Vector2,
+  Line,
+  LineBasicMaterial,
+  BufferGeometry
 } from "three";
 import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
 import Table = WebAssembly.Table;
@@ -25,6 +30,7 @@ class WorldObjectManger {
     ["Table","TableMat"]
   ];
   private scene = new Scene();
+  private truck;
   private objloader = new OBJLoader();
   textureCube;
 
@@ -94,6 +100,9 @@ class WorldObjectManger {
     obj.scale.y = 20;
     obj.scale.z = 20;
     this.addScene(obj)
+    this.truck = this.getModel("Rack");
+    this.scene.add(this.truck);
+
   }
 
   private getModel(name: string) {
@@ -201,6 +210,40 @@ class WorldObjectManger {
   }
 
 
+
+  public movetruck(time): void{
+    const tankPosition = new Vector2();
+    const tankTarget = new Vector2();
+
+    const curve = new SplineCurve( [
+      new Vector2(30 , 10),
+      new Vector2(33 , 5),
+      new Vector2(40 , 2.5),
+      new Vector2(30 , 2.5),
+      new Vector2(25 , 2.5),
+      new Vector2(30 , 1 ),
+      new Vector2(30 , -5),
+      new Vector2(50 , -5),
+      new Vector2(50 , 10),
+      new Vector2(30 , 10),
+    ] );
+
+    const points = curve.getPoints( 50 );
+    const geometry = new BufferGeometry().setFromPoints( points );
+    const material = new LineBasicMaterial( { color : 0xff0000 } );
+    const splineObject = new Line( geometry, material );
+    splineObject.rotation.x = Math.PI * .5;
+    splineObject.position.y = 0.05;
+    this.scene.add(splineObject);
+    const scene = this.scene;
+    const worldObjects = this.worldObjects;
+    const tankTime = time * .05;
+    curve.getPointAt(tankTime % 1, tankPosition);
+    curve.getPointAt((tankTime + 0.01) % 1, tankTarget);
+    this.truck.position.set(tankPosition.x, 0, tankPosition.y);
+    this.truck.lookAt(tankTarget.x, 0, tankTarget.y);
+
+  }
   CleanupAll(): void {
     for (let e in this.worldObjects) {
       this.scene.remove(this.worldObjects[e])

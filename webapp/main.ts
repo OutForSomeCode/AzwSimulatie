@@ -15,7 +15,7 @@ import {
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import {WorldObjectManger} from "./WorldObjectManager";
 
-
+let time =0 ;
 let camera: PerspectiveCamera;
 let renderer: WebGLRenderer;
 
@@ -58,6 +58,8 @@ function frameStep() {
   requestAnimationFrame(frameStep);
   cameraControls.update();
   renderer.render(_worldObjectManger.getScene(), camera);
+  time += 0.01;
+  _worldObjectManger.movetruck(time);
 }
 
 window.onload = init;
