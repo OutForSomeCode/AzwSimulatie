@@ -22,7 +22,9 @@ public class Robot implements Object3D, Updatable, Poolable {
   private Rack rack;
 
   private int x = 0;
+  private int px = 0;
   private int y = 0;
+  private int py = 0;
   private int z = 0;
 
   private int rotationX = 0;
@@ -38,7 +40,9 @@ public class Robot implements Object3D, Updatable, Poolable {
   public Robot(Grid grid, int x, int y) {
     this(grid);
     this.x = x;
+    px = x;
     this.y = y;
+    py = y;
   }
 
   public void assignTask(ArrayList<RobotTask> tasks) {
@@ -70,29 +74,28 @@ public class Robot implements Object3D, Updatable, Poolable {
       Node current = pathToTask.remove();
       this.x = current.getGridX();
       this.y = current.getGridY();
-      if (current == currentTask.getDestination()) {
-        if (currentTask.getTask() == RobotTask.Task.PICKUP){
-          this.rack = (Rack) grid.getNode(x, y).getOccupation();
-          if(this.rack == null){
-            taskQueue.clear();
-            return true;
-          }
-
-          this.rack.updatePosition(-10);
-          grid.getNode(x, y).updateOccupation(null);
-        }
-        else if(currentTask.getTask() == RobotTask.Task.DROP){
-          if(this.rack == null){
-            taskQueue.clear();
-            return true;
-          }
-          this.rack.updatePosition(x, y);
-          grid.getNode(x, y).updateOccupation(this.rack);
-        }
-        // ipv new rack moet er een uit the obj pool komen.
-        // dit rack wordt nog niet zichtbaar, alleen de navigatie node is geupdate.
+      if (current != currentTask.getDestination()) {
+        return true;
       }
-
+      if (currentTask.getTask() == RobotTask.Task.PICKUP){
+        this.rack = (Rack) grid.getNode(x, y).getOccupation();
+        grid.getNode(x, y).updateOccupation(this.rack);
+        if(this.rack == null){
+          taskQueue.clear();
+          return true;
+        }
+        this.rack.updatePosition(-10);
+        grid.getNode(x, y).updateOccupation(null);
+      }
+      else if(currentTask.getTask() == RobotTask.Task.DROP){
+        if(this.rack == null){
+          taskQueue.clear();
+          return true;
+        }
+        this.rack.updatePosition(x, y);
+      }
+      // ipv new rack moet er een uit the obj pool komen.
+      // dit rack wordt nog niet zichtbaar, alleen de navigatie node is geupdate.
       return true;
     }
     if (!taskQueue.isEmpty()) {
@@ -152,9 +155,15 @@ public class Robot implements Object3D, Updatable, Poolable {
     return this.rotationZ;
   }
 
-
-
   @Override
   public void putInPool() {
+  }
+
+  public int getPx() {
+    return px;
+  }
+
+  public int getPy() {
+    return py;
   }
 }

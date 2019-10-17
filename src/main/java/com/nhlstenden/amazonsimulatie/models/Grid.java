@@ -16,7 +16,6 @@ public class Grid {
   private int gridSizeX = 30;
   private int gridSizeY;
   private Node[][] grid;
-  private Random r = new Random();
 
   public Grid() {
     this.gridSizeY = (6 * Data.modules);
@@ -55,12 +54,5 @@ public class Grid {
 
   public Node getNode(int x, int y) {
     return grid[x][y];
-  }
-
-  public Node RandomNode() {
-    Node random = grid[r.nextInt(gridSizeX)][r.nextInt(gridSizeY)];
-    if (random.getOccupation() == null)
-      return random;
-    return RandomNode();
   }
 }
