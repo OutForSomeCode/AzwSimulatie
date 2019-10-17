@@ -16,10 +16,9 @@ public class SimulationController extends Controller {
   private WarehouseManager warehouseManager;
   private MelkFactory melkFactory;
 
-  public SimulationController(World worldModel) {
-    super(worldModel); //Met dit onderdeel roep je de constructor aan van de superclass (Controller)
-    this.warehouseManager = new WarehouseManager(worldModel);
-    this.melkFactory = new MelkFactory(worldModel);
+  public SimulationController() {
+    this.warehouseManager = new WarehouseManager();
+    this.melkFactory = new MelkFactory();
     WaybillResolver.Instance().Register(this.warehouseManager);
     WaybillResolver.Instance().Register(this.melkFactory);
   }
@@ -37,7 +36,7 @@ public class SimulationController extends Controller {
     while (true) {
       this.melkFactory.update();
       this.warehouseManager.update();
-      this.getWorldModel().update();
+      World.Instance().update();
       this.getQueue().flush(this.getViews());
       try {
         Thread.sleep(100);
@@ -65,7 +64,7 @@ public class SimulationController extends Controller {
      * keer alle objecten krijgt toegestuurd, ook als deze objecten niet updaten. Zo voorkom je
      * dat de view alleen objecten ziet die worden geupdate (bijvoorbeeld bewegen).
      */
-    for (Object3D object : this.getWorldModel().getWorldObjectsAsList()) {
+    for (Object3D object : World.Instance().getWorldObjectsAsList()) {
       //view.update(Model.UPDATE_COMMAND, object);
       this.getQueue().addCommandToQueue(WorldModel.UPDATE_COMMAND, object);
     }

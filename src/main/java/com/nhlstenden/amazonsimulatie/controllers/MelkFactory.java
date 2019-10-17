@@ -13,12 +13,7 @@ import java.util.Random;
 public class MelkFactory implements Resource {
   boolean flipflop;
   private int time = 0;
-  private World world;
   private Random r = new Random();
-
-  public MelkFactory(World worldModel) {
-    this.world = worldModel;
-  }
 
   public void update() {
     time++;
@@ -28,13 +23,12 @@ public class MelkFactory implements Resource {
     if (flipflop) {
       // Store goods
       Deque<Rack> temp = new ArrayDeque<>();
-      for (int i = 0; i < 10; i++) {
-        temp.addFirst(world.getUnusedRack("kaas"));
+      for (int i = 0; i < r.nextInt(9) + 1; i++) {
+        temp.addFirst(World.Instance().getUnusedRack("kaas"));
       }
       Waybill dump = new Waybill(temp, Destination.WAREHOUSE);
       WaybillResolver.Instance().StoreResource(dump);
-    }
-    else{
+    } else {
       // Request goods
       WaybillResolver.Instance().RequestResource("kaas", 10);
     }
@@ -48,7 +42,7 @@ public class MelkFactory implements Resource {
 
   @Override
   public void StoreResource(Waybill waybill) {
-    for (Rack r: waybill.getRacks()) {
+    for (Rack r : waybill.getRacks()) {
       r.putInPool();
     }
   }

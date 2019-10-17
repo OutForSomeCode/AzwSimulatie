@@ -45,7 +45,7 @@ public class RoutingEngine {
       }
       for (Node next : grid.getNeighbours(current)) {
         if (!cameFrom.containsKey(next)) {
-          if (next.getOccupation() == null || next == end) {
+          if (!next.isOccupied() || next == end) {
             frontier.add(next);
             cameFrom.put(next, current);
           }

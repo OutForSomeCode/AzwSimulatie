@@ -15,6 +15,8 @@ import java.util.List;
  * in het model. Dit betekent dus de logica die het magazijn simuleert.
  */
 public class World implements WorldModel {
+  // static variable single_instance of type Singleton
+  private static World instance = null;
   /*
    * Dit onderdeel is nodig om veranderingen in het model te kunnen doorgeven aan de controller.
    * Het systeem werkt al as-is, dus dit hoeft niet aangepast te worden.
@@ -27,7 +29,7 @@ public class World implements WorldModel {
    * Deze objecten moeten uiteindelijk ook in de lijst passen (overerving). Daarom is dit
    * een lijst van Object3D onderdelen. Deze kunnen in principe alles zijn. (Robots, vrachrtwagens, etc)
    */
-  private List<Object3D> worldObjects;
+  //private List<Object3D> worldObjects;
   private Grid grid;
 
   /*
@@ -40,13 +42,19 @@ public class World implements WorldModel {
    * De wereld maakt een lege lijst voor worldObjects aan. Daarin wordt nu één robot gestopt.
    * Deze methode moet uitgebreid worden zodat alle objecten van de 3D wereld hier worden gemaakt.
    */
-  public World() {
-    this.worldObjects = new ArrayList<>();
-    grid = new Grid();
+  // private constructor restricted to this class itself
+  private World() {
+    grid = new Grid(this);
   }
 
-  public void RegisterObject(Object3D o) {
-    this.worldObjects.add(o);
+
+  // static method to create instance of Singleton class
+  public static World Instance() {
+    // To ensure only one instance is created
+    if (instance == null)
+      instance = new World();
+
+    return instance;
   }
 
   /*
@@ -60,13 +68,10 @@ public class World implements WorldModel {
    */
   @Override
   public void update() {
-    for (Object3D object : this.worldObjects) {
-      if (object instanceof Updatable) {
-        if (((Updatable) object).update()) {
-          controlerObserver.firePropertyChange(WorldModel.UPDATE_COMMAND, null, new ProxyObject3D(object));
-        }
-      }
-    }
+  }
+
+  public void updateObject(Object3D object) {
+    controlerObserver.firePropertyChange(WorldModel.UPDATE_COMMAND, null, new ProxyObject3D(object));
   }
 
   public Grid getGrid() {
@@ -88,30 +93,31 @@ public class World implements WorldModel {
    */
   @Override
   public List<Object3D> getWorldObjectsAsList() {
-    ArrayList<Object3D> returnList = new ArrayList<>();
+    try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
+      ArrayList<Object3D> returnList = new ArrayList<>();
 
-    for (Object3D object : this.worldObjects) {
-      returnList.add(new ProxyObject3D(object));
+      for (Object3D object : session.query(Robot.class).toList()) {
+        returnList.add(new ProxyObject3D(object));
+      }
+      for (Object3D object : session.query(Rack.class).toList()) {
+        returnList.add(new ProxyObject3D(object));
+      }
+      return returnList;
     }
-
-    return returnList;
   }
 
   public Rack getUnusedRack(String s) {
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
       Rack r = session.query(Rack.class)
         .whereEquals("status", Rack.RackStatus.POOLED)
-        .whereEquals("item", s)
+        //.whereEquals("item", s)
         .firstOrDefault();
       if (r != null) {
-        r.updateStatus(Rack.RackStatus.MOVING);
-        if (!this.worldObjects.contains(r)) {
-          this.worldObjects.add(r);
-        }
+        r.setStatus(Rack.RackStatus.WAITING);
       } else {
-        r = new Rack(s, grid);
+        r = new Rack(s);
+        r.setStatus(Rack.RackStatus.WAITING);
         session.store(r, r.getUUID());
-        this.worldObjects.add(r);
       }
       session.saveChanges();
       return r;
@@ -120,23 +126,16 @@ public class World implements WorldModel {
 
   public void addRack(String type, int x, int y) {
     Rack r = getUnusedRack(type);
-    r.x = x;
-    r.y = y;
-    try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      session.advanced().patch(r.getUUID().toString(), "x", x);
-      session.advanced().patch(r.getUUID().toString(), "y", y);
-      session.saveChanges();
-    }
+    r.updatePosition(x, y, 0);
   }
 
   public void RegisterRobot(Robot r) {
     r.registerGrid(grid);
-    this.worldObjects.add(r);
   }
 
   public void addWall(int x, int y) {
     if (x < grid.getGridSizeX() && y < grid.getGridSizeY()) {
-      grid.getNode(x, y).updateOccupation(new Wall());
+      grid.getNode(x, y).updateOccupation(true);
     }
   }
 }

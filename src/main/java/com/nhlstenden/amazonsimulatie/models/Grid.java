@@ -15,9 +15,11 @@ public class Grid {
   };
   private int gridSizeX = 30;
   private int gridSizeY;
+  private World world;
   private Node[][] grid;
 
-  public Grid() {
+  public Grid(World world) {
+    this.world = world;
     this.gridSizeY = (6 * Data.modules);
     createGrid();
   }
@@ -27,7 +29,7 @@ public class Grid {
 
     for (int x = 0; x < gridSizeX; x++) {
       for (int y = 0; y < gridSizeY; y++) {
-        grid[x][y] = new Node(x, y, null);
+        grid[x][y] = new Node(x, y, false);
       }
     }
   }
@@ -54,5 +56,8 @@ public class Grid {
 
   public Node getNode(int x, int y) {
     return grid[x][y];
+  }
+  public World getWorld() {
+    return world;
   }
 }

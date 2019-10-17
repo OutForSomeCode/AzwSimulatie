@@ -6,9 +6,9 @@ import com.nhlstenden.amazonsimulatie.base.RoutingEngine;
 import com.nhlstenden.amazonsimulatie.controllers.DocumentStoreHolder;
 import net.ravendb.client.documents.session.IDocumentSession;
 
-import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.Queue;
 import java.util.UUID;
 
 /*
@@ -16,10 +16,10 @@ import java.util.UUID;
  * 3D object is. Ook implementeerd deze class de interface Updatable. Dit is omdat
  * een robot geupdate kan worden binnen de 3D wereld om zich zo voort te bewegen.
  */
-public class Robot implements Object3D, Updatable, Poolable {
+public class Robot implements Object3D, Poolable {
   private RoutingEngine routingEngine;
   private Grid grid;
-  private ArrayList<RobotTask> taskQueue = new ArrayList<>();
+  private Queue<RobotTask> taskQueue = new LinkedList<>();
   private RobotTask currentTask;
   private Deque<Node> pathToTask = new LinkedList<>();
   private Rack rack;
@@ -90,13 +90,13 @@ public class Robot implements Object3D, Updatable, Poolable {
     routingEngine = new RoutingEngine(grid);
   }
 
-  public void assignTask(ArrayList<RobotTask> tasks) {
+  public void assignTask(LinkedList<RobotTask> tasks) {
     taskQueue = tasks;
     executeNextTask();
   }
 
   private void executeNextTask() {
-    currentTask = taskQueue.remove(0);
+    currentTask = taskQueue.remove();
     pathToTask = routingEngine.generateRoute(new Node(x, y), currentTask.getDestination());
   }
 
@@ -113,50 +113,67 @@ public class Robot implements Object3D, Updatable, Poolable {
    * (Omdat de informatie niet veranderd is, is deze dus ook nog steeds hetzelfde als
    * in de view)
    */
-  @Override
-  public boolean update() {
+  public void update() {
     if (!pathToTask.isEmpty()) {
       Node current = pathToTask.remove();
       this.x = current.getGridX();
       this.y = current.getGridY();
       if (current == currentTask.getDestination()) {
         if (currentTask.getTask() == RobotTask.Task.PICKUP) {
+          updatePosition();
           try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
             this.rack = session.query(Rack.class)
               .whereEquals("x", x)
-              .whereEquals("y", y).single();
-            if(rack != null) return false;
-            session.advanced().patch(rack.getUUID().toString(), "status", Rack.RackStatus.MOVING);
+              .andAlso()
+              .whereEquals("y", y)
+              .first();
           }
 
-          this.rack.updatePosition(-10);
-          grid.getNode(x, y).updateOccupation(null);
+          this.rack.updateStatus(Rack.RackStatus.MOVING);
+          this.rack.updatePosition(currentTask.getDestination().getGridX(), currentTask.getDestination().getGridX(), -10);
+          grid.getWorld().updateObject(this.rack);
+
+          //grid.getNode(x, y).updateOccupation(true);
         } else if (currentTask.getTask() == RobotTask.Task.DROP) {
+          updatePosition();
           try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
             session.advanced().patch(rack.getUUID().toString(), "status", Rack.RackStatus.STORED);
+            session.saveChanges();
           }
-          grid.getNode(x, y).updateOccupation(this.rack);
+          this.rack.updatePosition(x, y, z);
+          grid.getWorld().updateObject(this.rack);
+          //grid.getNode(x, y).updateOccupation(true);
         } else if (currentTask.getTask() == RobotTask.Task.PARK) {
+          updatePosition();
           updateStatus(RobotStatus.IDLE);
         }
         this.rack.updatePosition(x, y);
       }
-      // ipv new rack moet er een uit the obj pool komen.
-      // dit rack wordt nog niet zichtbaar, alleen de navigatie node is geupdate.
-      return true;
+
+      World.Instance().updateObject(this);
     }
-    if (!taskQueue.isEmpty()) {
+    else if (!taskQueue.isEmpty()) {
       executeNextTask();
     }
-    return false;
   }
 
   public void updateStatus(RobotStatus s) {
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      session.advanced().patch(uuid.toString(), "status", s);
       this.status = s;
+      session.advanced().patch(uuid.toString(), "status", s);
       session.saveChanges();
     }
+  }
+
+  void updatePosition() {
+    try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
+      Robot r = session.load(Robot.class, uuid.toString());
+      r.x = this.x;
+      r.y = this.y;
+      r.z = this.z;
+      session.saveChanges();
+    }
+    World.Instance().updateObject(this);
   }
 
   @Override

@@ -3,24 +3,24 @@ package com.nhlstenden.amazonsimulatie.models;
 public class Node {
   private int gridX;
   private int gridY;
-  private Object3D occupation;
+  private boolean isOccupied;
 
   public Node(int x, int y) {
-    this(x, y, null);
+    this(x, y, false);
   }
 
-  public Node(int x, int y, Object3D object) {
+  public Node(int x, int y, boolean object) {
     gridX = x;
     gridY = y;
-    occupation = object;
+    isOccupied = object;
   }
 
-  public void updateOccupation(Object3D object) {
-    this.occupation = object;
+  public void updateOccupation(boolean yes) {
+    this.isOccupied = yes;
   }
 
-  public Object3D getOccupation() {
-    return occupation;
+  public boolean isOccupied() {
+    return isOccupied;
   }
 
   // Overriding equals() to compare two Complex objects
@@ -31,8 +31,8 @@ public class Node {
       return true;
     }
 
-        /* Check if o is an instance of Complex or not
-          "null instanceof [type]" also returns false */
+    // Check if o is an instance of Complex or not
+    //"null instanceof [type]" also returns false
     if (!(o instanceof Node)) {
       return false;
     }

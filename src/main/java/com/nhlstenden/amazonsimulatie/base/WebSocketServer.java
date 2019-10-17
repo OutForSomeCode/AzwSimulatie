@@ -4,11 +4,10 @@ import com.nhlstenden.amazonsimulatie.controllers.Controller;
 import com.nhlstenden.amazonsimulatie.controllers.DocumentStoreHolder;
 import com.nhlstenden.amazonsimulatie.controllers.RESTController;
 import com.nhlstenden.amazonsimulatie.controllers.SimulationController;
-import com.nhlstenden.amazonsimulatie.models.World;
 import com.nhlstenden.amazonsimulatie.views.WebAppView;
-import net.ravendb.client.serverwide.DatabaseRecord;
-import net.ravendb.client.serverwide.operations.CreateDatabaseOperation;
-import net.ravendb.client.serverwide.operations.DeleteDatabasesOperation;
+import net.ravendb.client.documents.operations.DeleteByQueryOperation;
+import net.ravendb.client.documents.operations.Operation;
+import net.ravendb.client.documents.queries.IndexQuery;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -47,10 +46,7 @@ public class WebSocketServer extends SpringBootServletInitializer implements Web
    * SpringApplication.run().
    */
   public WebSocketServer() {
-    DocumentStoreHolder.getStore().initialize();
-
-    World world = new World();
-    this.simController = new SimulationController(world);
+    this.simController = new SimulationController();
     this.simController.start();
   }
 
@@ -62,6 +58,7 @@ public class WebSocketServer extends SpringBootServletInitializer implements Web
    * De WebSocketServer class is daardoor dus een server.
    */
   public static void main(String[] args) {
+    DocumentStoreHolder.getStore().initialize();
     SpringApplication.run(WebSocketServer.class, args);
   }
 

@@ -7,14 +7,12 @@ import net.ravendb.client.documents.session.IDocumentSession;
 
 import java.util.UUID;
 
-public class Rack implements Object3D, Updatable, Poolable {
-  public int x;
-  public int y;
-  int z;
+public class Rack implements Object3D, Poolable {
+  private int x;
+  private int y;
+  private int z;
   private UUID uuid;
   private String item;
-  private Grid grid;
-  private boolean fireUpdate;
   private RackStatus status = RackStatus.POOLED;
 
   @JsonCreator
@@ -31,7 +29,7 @@ public class Rack implements Object3D, Updatable, Poolable {
               @JsonProperty("rotationZ")
                 int rotationZ,
               @JsonProperty("uuid")
-                  UUID uuid,
+                UUID uuid,
               @JsonProperty("item")
                 String item,
               @JsonProperty("status")
@@ -45,22 +43,24 @@ public class Rack implements Object3D, Updatable, Poolable {
     this.z = z;
   }
 
-  public Rack(String type, Grid grid) {
+  public Rack(String type) {
     this.uuid = uuid.randomUUID();
     this.item = type;
-    this.grid = grid;
   }
 
-  public void updatePosition(int x, int y) {
-    fireUpdate = true;
+  public void updatePosition(int x, int y, int z) {
     this.x = x;
     this.y = y;
-    this.z = 0;
-  }
-
-  public void updatePosition(int z) {
-    fireUpdate = true;
     this.z = z;
+
+    try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
+      Rack r = session.load(Rack.class, uuid.toString());
+      r.x = x;
+      r.y = y;
+      r.z = z;
+      session.saveChanges();
+    }
+    World.Instance().updateObject(this);
   }
 
   public String getItem() {
@@ -108,15 +108,6 @@ public class Rack implements Object3D, Updatable, Poolable {
   }
 
   @Override
-  public boolean update() {
-    if (fireUpdate) {
-      fireUpdate = false;
-      return true;
-    }
-    return false;
-  }
-
-  @Override
   public boolean inUse() {
     return status == RackStatus.POOLED;
   }
@@ -124,8 +115,11 @@ public class Rack implements Object3D, Updatable, Poolable {
   @Override
   public void putInPool() {
     updateStatus(RackStatus.POOLED);
-    fireUpdate = true;
-    this.z = -10;
+    updatePosition(x, y, -10);
+  }
+
+  public void setStatus(RackStatus status) {
+    this.status = status;
   }
 
   public RackStatus getStatus() {
@@ -134,13 +128,14 @@ public class Rack implements Object3D, Updatable, Poolable {
 
   public void updateStatus(RackStatus s) {
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      session.advanced().patch(uuid.toString(), "status", s);
       this.status = s;
+      session.advanced().patch(uuid.toString(), "status", s);
       session.saveChanges();
     }
   }
 
   public enum RackStatus {
+    WAITING,
     POOLED,
     STORED,
     MOVING
