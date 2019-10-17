@@ -19,7 +19,8 @@ public class WarehouseManager implements Resource {
     this.world = world;
 
     for (int i = 0; i < (6 * Data.modules); i++) {
-      world.addRobot(0, 0);
+      world.addRobot(0, i);
+      world.addWall(0, i);
     }
 
     for (int y = 0; y < (6 * Data.modules); y++) {
@@ -81,7 +82,7 @@ public class WarehouseManager implements Resource {
         ArrayList<RobotTask> t = new ArrayList<>();
         t.add(new RobotTask(world.getGrid().getNode((29 - x), y), RobotTask.Task.PICKUP));
         t.add(new RobotTask(rackDropLocation(), RobotTask.Task.DROP));
-        t.add(new RobotTask(world.getGrid().getNode(0, r.nextInt((6 * Data.modules))), RobotTask.Task.PARK));
+        t.add(new RobotTask(world.getGrid().getNode(robot.getPx(), robot.getPy()), RobotTask.Task.PARK));
         robot.assignTask(t);
       }
     }

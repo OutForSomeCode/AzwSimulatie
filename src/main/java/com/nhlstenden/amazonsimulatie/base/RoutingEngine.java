@@ -2,6 +2,8 @@ package com.nhlstenden.amazonsimulatie.base;
 
 import com.nhlstenden.amazonsimulatie.models.Grid;
 import com.nhlstenden.amazonsimulatie.models.Node;
+import com.nhlstenden.amazonsimulatie.models.Object3D;
+import com.nhlstenden.amazonsimulatie.models.Rack;
 
 import java.util.*;
 
@@ -29,6 +31,10 @@ public class RoutingEngine {
     scanGrid();
     getPath(this.end);
     return path;
+  }
+
+  private int heuristic(Node a, Node b) {
+    return Math.abs(a.getGridX() - b.getGridX()) + Math.abs(a.getGridY() - b.getGridY());
   }
 
   private void scanGrid() {
