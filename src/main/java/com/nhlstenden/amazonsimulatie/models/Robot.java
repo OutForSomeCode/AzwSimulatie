@@ -1,6 +1,10 @@
 package com.nhlstenden.amazonsimulatie.models;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.nhlstenden.amazonsimulatie.base.RoutingEngine;
+import com.nhlstenden.amazonsimulatie.controllers.DocumentStoreHolder;
+import net.ravendb.client.documents.session.IDocumentSession;
 
 import java.util.ArrayList;
 import java.util.Deque;
@@ -14,12 +18,19 @@ import java.util.UUID;
  */
 public class Robot implements Object3D, Updatable, Poolable {
   private RoutingEngine routingEngine;
-  private UUID uuid;
   private Grid grid;
   private ArrayList<RobotTask> taskQueue = new ArrayList<>();
   private RobotTask currentTask;
   private Deque<Node> pathToTask = new LinkedList<>();
   private Rack rack;
+  private UUID uuid;
+  private RobotStatus status = RobotStatus.IDLE;
+  private int x;
+  private int y;
+  private int z;
+  private int rotationX;
+  private int rotationY;
+  private int rotationZ;
 
   private int x = 0;
   private int px = 0;
@@ -37,12 +48,46 @@ public class Robot implements Object3D, Updatable, Poolable {
     routingEngine = new RoutingEngine(grid);
   }
 
+  @JsonCreator
+  public Robot(@JsonProperty("uuid")
+                 UUID uuid,
+               @JsonProperty("status")
+                 RobotStatus status,
+               @JsonProperty("x")
+                 int x,
+               @JsonProperty("y")
+                 int y,
+               @JsonProperty("z")
+                 int z,
+               @JsonProperty("rotationX")
+                 int rotationX,
+               @JsonProperty("rotationY")
+                 int rotationY,
+               @JsonProperty("rotationZ")
+                 int rotationZ) {
+    this.uuid = uuid;
+    this.status = status;
+
+    this.x = x;
+    this.y = y;
+    this.z = z;
+
+    this.rotationX = rotationX;
+    this.rotationY = rotationY;
+    this.rotationZ = rotationZ;
+  }
+
   public Robot(Grid grid, int x, int y) {
     this(grid);
     this.x = x;
     px = x;
     this.y = y;
     py = y;
+  }
+
+  public void registerGrid(Grid grid) {
+    this.grid = grid;
+    routingEngine = new RoutingEngine(grid);
   }
 
   public void assignTask(ArrayList<RobotTask> tasks) {
@@ -74,23 +119,25 @@ public class Robot implements Object3D, Updatable, Poolable {
       Node current = pathToTask.remove();
       this.x = current.getGridX();
       this.y = current.getGridY();
-      if (current != currentTask.getDestination()) {
-        return true;
-      }
-      if (currentTask.getTask() == RobotTask.Task.PICKUP){
-        this.rack = (Rack) grid.getNode(x, y).getOccupation();
-        grid.getNode(x, y).updateOccupation(this.rack);
-        if(this.rack == null){
-          taskQueue.clear();
-          return true;
-        }
-        this.rack.updatePosition(-10);
-        grid.getNode(x, y).updateOccupation(null);
-      }
-      else if(currentTask.getTask() == RobotTask.Task.DROP){
-        if(this.rack == null){
-          taskQueue.clear();
-          return true;
+      if (current == currentTask.getDestination()) {
+        if (currentTask.getTask() == RobotTask.Task.PICKUP) {
+          try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
+            this.rack = session.query(Rack.class)
+              .whereEquals("x", x)
+              .whereEquals("y", y).single();
+            if(rack != null) return false;
+            session.advanced().patch(rack.getUUID().toString(), "status", Rack.RackStatus.MOVING);
+          }
+
+          this.rack.updatePosition(-10);
+          grid.getNode(x, y).updateOccupation(null);
+        } else if (currentTask.getTask() == RobotTask.Task.DROP) {
+          try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
+            session.advanced().patch(rack.getUUID().toString(), "status", Rack.RackStatus.STORED);
+          }
+          grid.getNode(x, y).updateOccupation(this.rack);
+        } else if (currentTask.getTask() == RobotTask.Task.PARK) {
+          updateStatus(RobotStatus.IDLE);
         }
         this.rack.updatePosition(x, y);
       }
@@ -102,6 +149,14 @@ public class Robot implements Object3D, Updatable, Poolable {
       executeNextTask();
     }
     return false;
+  }
+
+  public void updateStatus(RobotStatus s) {
+    try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
+      session.advanced().patch(uuid.toString(), "status", s);
+      this.status = s;
+      session.saveChanges();
+    }
   }
 
   @Override
@@ -132,12 +187,12 @@ public class Robot implements Object3D, Updatable, Poolable {
 
   @Override
   public double getY() {
-    return this.z;
+    return this.y;
   }
 
   @Override
   public double getZ() {
-    return this.y;
+    return this.z;
   }
 
   @Override
@@ -155,6 +210,10 @@ public class Robot implements Object3D, Updatable, Poolable {
     return this.rotationZ;
   }
 
+  public RobotStatus getStatus() {
+    return status;
+  }
+
   @Override
   public void putInPool() {
   }
@@ -165,5 +224,10 @@ public class Robot implements Object3D, Updatable, Poolable {
 
   public int getPy() {
     return py;
+  }
+
+  public enum RobotStatus {
+    IDLE,
+    WORKING
   }
 }

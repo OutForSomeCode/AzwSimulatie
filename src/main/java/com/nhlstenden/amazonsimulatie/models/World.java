@@ -1,10 +1,12 @@
 package com.nhlstenden.amazonsimulatie.models;
 
+import com.nhlstenden.amazonsimulatie.controllers.DocumentStoreHolder;
+import net.ravendb.client.documents.session.IDocumentSession;
+
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /*
  * Deze class is een versie van het model van de simulatie. In dit geval is het
@@ -43,95 +45,8 @@ public class World implements WorldModel {
     grid = new Grid();
   }
 
-  public Robot findIdleRobot() {
-    List<Robot> returnList = getRobots();
-
-    for (Robot robot : returnList) {
-      if (!robot.inUse())
-        return robot;
-    }
-    return null;
-  }
-
-  public void addRobot(int x, int y) {
-    if (x < grid.getGridSizeX() && y < grid.getGridSizeY()) {
-      this.worldObjects.add(new Robot(grid, x, y));
-    }
-  }
-
-  public List<Robot> getRobots() {
-    List<Robot> returnList = new ArrayList<>();
-
-    for (Object3D object : this.worldObjects) {
-      if (object instanceof Robot)
-        returnList.add((Robot) object);
-    }
-    return returnList;
-  }
-
-  public List<Rack> getRacks() {
-    List<Rack> returnList = new ArrayList<>();
-
-    for (Object3D object : this.worldObjects) {
-      if (object instanceof Rack)
-        returnList.add((Rack) object);
-    }
-    return returnList;
-  }
-
-  public List<Rack> getUsedRacks() {
-    List<Rack> returnList = new ArrayList<>();
-
-    for (Object3D object : this.worldObjects) {
-      if (object instanceof Rack && ((Rack) object).inUse())
-        returnList.add((Rack) object);
-    }
-    return returnList;
-  }
-
-  public Rack findUnusedRack() {
-    List<Rack> returnList = getRacks();
-
-    for (Rack rack : returnList) {
-      if (!rack.inUse())
-        return rack;
-    }
-    return null;
-  }
-
-  public void addRack(String type, int x, int y) {
-    if (x < grid.getGridSizeX() && y < grid.getGridSizeY()) {
-      Rack rack = findUnusedRack();
-      if (rack == null) {
-        rack = new Rack(type, grid);
-        this.worldObjects.add(rack);
-      }
-      rack.updatePosition(x, y);
-      grid.getNode(x, y).updateOccupation(rack);
-    }
-  }
-
-  public Rack getUnusedRack(String type) {
-    Rack rack = findUnusedRack();
-    if (rack == null) {
-      rack = new Rack(type, grid);
-      this.worldObjects.add(rack);
-    }
-    return rack;
-  }
-
-  public void removeRack(int x, int y) {
-    if (x < grid.getGridSizeX() && y < grid.getGridSizeY()) {
-      Rack r = (Rack) grid.getNode(x, y).getOccupation();
-      r.putInPool();
-      grid.getNode(x, y).updateOccupation(null);
-    }
-  }
-
-  public void addWall(int x, int y) {
-    if (x < grid.getGridSizeX() && y < grid.getGridSizeY()) {
-      grid.getNode(x, y).updateOccupation(new Wall());
-    }
+  public void RegisterObject(Object3D o) {
+    this.worldObjects.add(o);
   }
 
   /*
@@ -180,5 +95,48 @@ public class World implements WorldModel {
     }
 
     return returnList;
+  }
+
+  public Rack getUnusedRack(String s) {
+    try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
+      Rack r = session.query(Rack.class)
+        .whereEquals("status", Rack.RackStatus.POOLED)
+        .whereEquals("item", s)
+        .firstOrDefault();
+      if (r != null) {
+        r.updateStatus(Rack.RackStatus.MOVING);
+        if (!this.worldObjects.contains(r)) {
+          this.worldObjects.add(r);
+        }
+      } else {
+        r = new Rack(s, grid);
+        session.store(r, r.getUUID());
+        this.worldObjects.add(r);
+      }
+      session.saveChanges();
+      return r;
+    }
+  }
+
+  public void addRack(String type, int x, int y) {
+    Rack r = getUnusedRack(type);
+    r.x = x;
+    r.y = y;
+    try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
+      session.advanced().patch(r.getUUID().toString(), "x", x);
+      session.advanced().patch(r.getUUID().toString(), "y", y);
+      session.saveChanges();
+    }
+  }
+
+  public void RegisterRobot(Robot r) {
+    r.registerGrid(grid);
+    this.worldObjects.add(r);
+  }
+
+  public void addWall(int x, int y) {
+    if (x < grid.getGridSizeX() && y < grid.getGridSizeY()) {
+      grid.getNode(x, y).updateOccupation(new Wall());
+    }
   }
 }

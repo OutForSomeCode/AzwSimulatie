@@ -1,11 +1,14 @@
 package com.nhlstenden.amazonsimulatie.base;
 
 import com.nhlstenden.amazonsimulatie.controllers.Controller;
+import com.nhlstenden.amazonsimulatie.controllers.DocumentStoreHolder;
 import com.nhlstenden.amazonsimulatie.controllers.RESTController;
 import com.nhlstenden.amazonsimulatie.controllers.SimulationController;
-import com.nhlstenden.amazonsimulatie.controllers.WarehouseManager;
 import com.nhlstenden.amazonsimulatie.models.World;
 import com.nhlstenden.amazonsimulatie.views.WebAppView;
+import net.ravendb.client.serverwide.DatabaseRecord;
+import net.ravendb.client.serverwide.operations.CreateDatabaseOperation;
+import net.ravendb.client.serverwide.operations.DeleteDatabasesOperation;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -21,7 +24,6 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 
 import java.io.IOException;
-import java.io.PrintStream;
 
 
 /*
@@ -38,12 +40,15 @@ public class WebSocketServer extends SpringBootServletInitializer implements Web
 
   //De WebSocketServer is de applicatie en heeft de controller voor de simulatie in zich
   private Controller simController;
+
   /*
    * De constructor wordt uitgevoerd wanneer de app wordt opgebouwd. Je zult alleen
    * geen new WebSocketServer() tegenkomen. Dit doet Spring namelijk al voor je bij
    * SpringApplication.run().
    */
   public WebSocketServer() {
+    DocumentStoreHolder.getStore().initialize();
+
     World world = new World();
     this.simController = new SimulationController(world);
     this.simController.start();

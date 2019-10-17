@@ -25,6 +25,7 @@ configurations {
 dependencies {
   compile 'org.msgpack:msgpack-core:0.8.18'
   compile 'org.msgpack:jackson-dataformat-msgpack:0.8.18'
+  compile 'net.ravendb:ravendb:4.1.7'
   compile "org.springframework.boot:spring-boot-starter-websocket"
   compile "org.springframework.boot:spring-boot-starter-web"
   compile "org.springframework.boot:spring-boot-starter-actuator"

@@ -100,7 +100,7 @@ class WorldObjectManger {
     obj.scale.x = 20;
     obj.scale.y = 20;
     obj.scale.z = 20;
-    this.addScene(obj)
+    this.addScene(obj);
     this.truck = this.getModel("Cone4D");
     this.scene.add(this.truck);
 
@@ -154,8 +154,8 @@ class WorldObjectManger {
       return;
 
     object.position.x = command.parameters.x;
-    object.position.y = command.parameters.y;
-    object.position.z = command.parameters.z;
+    object.position.y = command.parameters.z;
+    object.position.z = command.parameters.y;
 
     object.rotation.x = command.parameters.rotationX;
     object.rotation.y = command.parameters.rotationY;
