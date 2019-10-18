@@ -1,9 +1,6 @@
 package com.nhlstenden.amazonsimulatie.base;
 
-import com.nhlstenden.amazonsimulatie.models.Grid;
-import com.nhlstenden.amazonsimulatie.models.Node;
-import com.nhlstenden.amazonsimulatie.models.Object3D;
-import com.nhlstenden.amazonsimulatie.models.Rack;
+import com.nhlstenden.amazonsimulatie.models.*;
 
 import java.util.*;
 
@@ -12,10 +9,10 @@ public class RoutingEngine {
   private Node start;
   private Node end;
   private Node current;
-  private Queue<Node> frontier = new LinkedList<>();
+  private int priority;
+  private PriorityQueue<Greedy> frontier = new PriorityQueue<>(999, new GreedyComparator());
   private Deque<Node> path = new LinkedList<>();
   private HashMap<Node, Node> cameFrom = new HashMap<>();
-
   public RoutingEngine(Grid grid) {
     this.grid = grid;
   }
@@ -26,7 +23,7 @@ public class RoutingEngine {
     cameFrom.clear();
     this.start = start;
     this.end = end;
-    frontier.add(this.start);
+    frontier.add(new Greedy(this.start, 0));
     cameFrom.put(this.start, null);
     scanGrid();
     getPath(this.end);
@@ -39,14 +36,15 @@ public class RoutingEngine {
 
   private void scanGrid() {
     while (!frontier.isEmpty()) {
-      current = frontier.remove();
+      current = frontier.remove().getNode();
       if (current == end) {
         break;
       }
       for (Node next : grid.getNeighbours(current)) {
         if (!cameFrom.containsKey(next)) {
           if (next.getOccupation() == null || next == end) {
-            frontier.add(next);
+            priority = heuristic(next, end);
+            frontier.add(new Greedy(next, priority));
             cameFrom.put(next, current);
           }
         }

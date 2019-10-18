@@ -3,10 +3,7 @@ package com.nhlstenden.amazonsimulatie.controllers;
 import com.nhlstenden.amazonsimulatie.base.Data;
 import com.nhlstenden.amazonsimulatie.models.*;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.Random;
+import java.util.*;
 
 public class WarehouseManager implements Resource {
   private int loadingBay = 0;
@@ -84,6 +81,14 @@ public class WarehouseManager implements Resource {
         t.add(new RobotTask(rackDropLocation(), RobotTask.Task.DROP));
         t.add(new RobotTask(world.getGrid().getNode(robot.getPx(), robot.getPy()), RobotTask.Task.PARK));
         robot.assignTask(t);
+
+        /*
+        List<RobotTaskStrategy> tasks = new ArrayList<>();
+        tasks.add(new RobotPickupStrategy(world.getGrid().getNode((29 - x), y)));
+        tasks.add(new RobotDropStrategy(rackDropLocation()));
+        tasks.add(new RobotParkStrategy(world.getGrid().getNode(robot.getPx(), robot.getPy())));
+        robot.assignTask(tasks);
+        */
       }
     }
   }
