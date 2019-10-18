@@ -52,7 +52,7 @@ public class MelkFactory implements Resource {
       try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
         int s = session.query(Rack.class).whereEquals("status", Rack.RackStatus.STORED).count();
         if (s > 100)
-          WaybillResolver.Instance().RequestResource("kaas", ran.nextInt(s));
+          WaybillResolver.Instance().RequestResource("kaas", ran.nextInt(30));
       }
 
     }
