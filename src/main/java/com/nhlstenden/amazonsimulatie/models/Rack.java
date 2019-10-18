@@ -2,18 +2,16 @@ package com.nhlstenden.amazonsimulatie.models;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.nhlstenden.amazonsimulatie.controllers.DocumentStoreHolder;
-import net.ravendb.client.documents.session.IDocumentSession;
 
 import java.util.UUID;
 
-public class Rack implements Object3D, Poolable {
+public class Rack implements Object3D {
   private int x;
   private int y;
   private int z;
-  private UUID uuid;
+  private String uuid;
   private String item;
-  private RackStatus status = RackStatus.POOLED;
+  private RackStatus status;
 
   @JsonCreator
   public Rack(@JsonProperty("x")
@@ -22,14 +20,8 @@ public class Rack implements Object3D, Poolable {
                 int y,
               @JsonProperty("z")
                 int z,
-              @JsonProperty("rotationX")
-                int rotationX,
-              @JsonProperty("rotationY")
-                int rotationY,
-              @JsonProperty("rotationZ")
-                int rotationZ,
               @JsonProperty("uuid")
-                UUID uuid,
+                String uuid,
               @JsonProperty("item")
                 String item,
               @JsonProperty("status")
@@ -44,32 +36,37 @@ public class Rack implements Object3D, Poolable {
   }
 
   public Rack(String type) {
-    this.uuid = uuid.randomUUID();
+    this.uuid = UUID.randomUUID().toString();
     this.item = type;
-  }
-
-  public void updatePosition(int x, int y, int z) {
-    this.x = x;
-    this.y = y;
-    this.z = z;
-
-    try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      Rack r = session.load(Rack.class, uuid.toString());
-      r.x = x;
-      r.y = y;
-      r.z = z;
-      session.saveChanges();
-    }
-    World.Instance().updateObject(this);
+    this.status = RackStatus.POOLED;
   }
 
   public String getItem() {
     return item;
   }
 
+  public void setItem(String item) {
+    this.item = item;
+  }
+
+  public RackStatus getStatus() {
+    return status;
+  }
+
+  public void setStatus(RackStatus status) {
+    this.status = status;
+  }
+
+  public void updatePosition(int x, int y, int z) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
+  }
+
+
   @Override
   public String getUUID() {
-    return uuid.toString();
+    return uuid;
   }
 
   @Override
@@ -107,32 +104,6 @@ public class Rack implements Object3D, Poolable {
     return 0;
   }
 
-  @Override
-  public boolean inUse() {
-    return status == RackStatus.POOLED;
-  }
-
-  @Override
-  public void putInPool() {
-    updateStatus(RackStatus.POOLED);
-    updatePosition(x, y, -10);
-  }
-
-  public void setStatus(RackStatus status) {
-    this.status = status;
-  }
-
-  public RackStatus getStatus() {
-    return status;
-  }
-
-  public void updateStatus(RackStatus s) {
-    try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      this.status = s;
-      session.advanced().patch(uuid.toString(), "status", s);
-      session.saveChanges();
-    }
-  }
 
   public enum RackStatus {
     WAITING,

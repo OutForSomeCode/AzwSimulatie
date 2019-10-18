@@ -44,7 +44,7 @@ public class World implements WorldModel {
    */
   // private constructor restricted to this class itself
   private World() {
-    grid = new Grid(this);
+    grid = new Grid();
   }
 
 
@@ -55,19 +55,6 @@ public class World implements WorldModel {
       instance = new World();
 
     return instance;
-  }
-
-  /*
-   * Deze methode wordt gebruikt om de wereld te updaten. Wanneer deze methode wordt aangeroepen,
-   * wordt op elk object in de wereld de methode update aangeroepen. Wanneer deze true teruggeeft
-   * betekent dit dat het onderdeel daadwerkelijk geupdate is (er is iets veranderd, zoals een positie).
-   * Als dit zo is moet dit worden geupdate, en wordt er via het pcs systeem een notificatie gestuurd
-   * naar de controller die luisterd. Wanneer de updatemethode van het onderdeel false teruggeeft,
-   * is het onderdeel niet veranderd en hoeft er dus ook geen signaal naar de controller verstuurd
-   * te worden.
-   */
-  @Override
-  public void update() {
   }
 
   public void updateObject(Object3D object) {
@@ -91,7 +78,7 @@ public class World implements WorldModel {
    * van ProxyObject3D objecten, voor de veiligheid. Zo kan de informatie wel worden gedeeld, maar
    * kan er niks aangepast worden.
    */
-  @Override
+  /*@Override
   public List<Object3D> getWorldObjectsAsList() {
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
       ArrayList<Object3D> returnList = new ArrayList<>();
@@ -104,9 +91,9 @@ public class World implements WorldModel {
       }
       return returnList;
     }
-  }
+  }*/
 
-  public Rack getUnusedRack(String s) {
+  /*public Rack getUnusedRack(String s) {
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
       Rack r = session.query(Rack.class)
         .whereEquals("status", Rack.RackStatus.POOLED)
@@ -126,8 +113,8 @@ public class World implements WorldModel {
 
   public void addRack(String type, int x, int y) {
     Rack r = getUnusedRack(type);
-    r.updatePosition(x, y, 0);
-  }
+    //r.updatePosition(x, y, 0);
+  }*/
 
   public void RegisterRobot(Robot r) {
     r.registerGrid(grid);

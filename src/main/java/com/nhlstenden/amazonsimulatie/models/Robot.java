@@ -22,7 +22,7 @@ public class Robot implements Object3D, Poolable {
   private Queue<RobotTask> taskQueue = new LinkedList<>();
   private RobotTask currentTask;
   private Deque<Node> pathToTask = new LinkedList<>();
-  private Rack rack;
+  private String rackUUID;
   private UUID uuid;
   private RobotStatus status = RobotStatus.IDLE;
   private int x;
@@ -120,39 +120,32 @@ public class Robot implements Object3D, Poolable {
       this.y = current.getGridY();
       if (current == currentTask.getDestination()) {
         if (currentTask.getTask() == RobotTask.Task.PICKUP) {
-          updatePosition();
-          try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-            this.rack = session.query(Rack.class)
-              .whereEquals("x", x)
-              .andAlso()
-              .whereEquals("y", y)
-              .first();
-          }
 
-          this.rack.updateStatus(Rack.RackStatus.MOVING);
-          this.rack.updatePosition(currentTask.getDestination().getGridX(), currentTask.getDestination().getGridX(), -10);
-          grid.getWorld().updateObject(this.rack);
-
-          //grid.getNode(x, y).updateOccupation(true);
-        } else if (currentTask.getTask() == RobotTask.Task.DROP) {
-          updatePosition();
           try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-            session.advanced().patch(rack.getUUID().toString(), "status", Rack.RackStatus.STORED);
+            Rack rack = session.load(Rack.class, rackUUID);
+            rack.setStatus(Rack.RackStatus.MOVING);
+            rack.updatePosition(currentTask.getDestination().getGridX(), currentTask.getDestination().getGridX(), -10);
+            World.Instance().updateObject(rack);
             session.saveChanges();
           }
-          this.rack.updatePosition(x, y, z);
-          grid.getWorld().updateObject(this.rack);
+          //grid.getNode(x, y).updateOccupation(true);
+        } else if (currentTask.getTask() == RobotTask.Task.DROP) {
+          try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
+            Rack rack = session.load(Rack.class, rackUUID);
+            rack.setStatus(Rack.RackStatus.STORED);
+            rack.updatePosition(x, y, z);
+            World.Instance().updateObject(rack);
+            session.saveChanges();
+          }
           //grid.getNode(x, y).updateOccupation(true);
         } else if (currentTask.getTask() == RobotTask.Task.PARK) {
-          updatePosition();
           updateStatus(RobotStatus.IDLE);
         }
         this.rack.updatePosition(x, y);
       }
 
       World.Instance().updateObject(this);
-    }
-    else if (!taskQueue.isEmpty()) {
+    } else if (!taskQueue.isEmpty()) {
       executeNextTask();
     }
   }
@@ -163,17 +156,6 @@ public class Robot implements Object3D, Poolable {
       session.advanced().patch(uuid.toString(), "status", s);
       session.saveChanges();
     }
-  }
-
-  void updatePosition() {
-    try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      Robot r = session.load(Robot.class, uuid.toString());
-      r.x = this.x;
-      r.y = this.y;
-      r.z = this.z;
-      session.saveChanges();
-    }
-    World.Instance().updateObject(this);
   }
 
   @Override
@@ -241,6 +223,10 @@ public class Robot implements Object3D, Poolable {
 
   public int getPy() {
     return py;
+  }
+
+  public void setRack(Rack rack) {
+    this.rackUUID = rack.getUUID();
   }
 
   public enum RobotStatus {

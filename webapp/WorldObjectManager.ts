@@ -92,7 +92,7 @@ class WorldObjectManger {
     light.intensity = 4;
     this.scene.add(light);
 
-    let obj = this.getModel("Table");
+    /*let obj = this.getModel("Table");
     obj.position.x = 21;
     obj.position.y = -35;
     obj.position.z = 60;
@@ -100,7 +100,7 @@ class WorldObjectManger {
     obj.scale.x = 20;
     obj.scale.y = 20;
     obj.scale.z = 20;
-    this.addScene(obj);
+    this.addScene(obj);*/
     this.truck = this.getModel("Cone4D");
     this.scene.add(this.truck);
 

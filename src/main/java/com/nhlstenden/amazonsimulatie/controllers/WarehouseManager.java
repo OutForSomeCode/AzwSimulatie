@@ -7,12 +7,14 @@ import net.ravendb.client.documents.session.IDocumentSession;
 
 import java.util.*;
 
+import static com.nhlstenden.amazonsimulatie.base.Data.truckpost;
+
 public class WarehouseManager implements Resource {
   private int loadingBay = 0;
   private int time = 0;
   private HashMap<String, Robot> robots = new HashMap<>();
   private boolean[] loadingBayInUse = new boolean[Data.modules]; // for testing
-  private Random r = new Random();
+  private Random rand = new Random();
 
   public WarehouseManager() {
     int rAmount = Data.modules * 4;
@@ -88,47 +90,47 @@ public class WarehouseManager implements Resource {
     loadingBay++;
     if (loadingBay > 9) loadingBay = 0;
 
-    for (int y = (loadingBay * 6); y < ((loadingBay * 6) + 6); y++) {
-      if (y % 6 != 2 && y % 6 != 3)
-        continue;
-      for (int x = 0; x <= 5; x++) {
-        if (cargo.isEmpty())
-          continue;
+    try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
+      List<Robot> idleRobots = session.query(Robot.class)
+        .whereEquals("status", Robot.RobotStatus.IDLE)
+        .take(cargo.size()).toList();
 
-        Node delloc = World.Instance().getGrid().getNode((29 - x), y);
+      int i = 0;
+
+      for (Robot r : idleRobots) {
+        Robot robot = robots.get(r.getUUID());
+
+        int x = truckpost[i][1] + 24,
+          y = (truckpost[i][0] + (loadingBay * 6));
+
+        Node delloc = World.Instance().getGrid().getNode(x, y);
         Node drop = rackDropLocation();
 
-        Rack rack = cargo.remove();
-        World.Instance().addRack(rack.getType(), delloc.getGridX(), delloc.getGridY());
+        i++;
 
-        Robot robot = findIdleRobot();
-        if (robot == null)
-          continue;
+        Rack rack = cargo.remove();
+        rack.updatePosition(x, y, 0);
+
+        World.Instance().updateObject(rack);
+
+        //Rack tmp = session.load(Rack.class, rack.getUUID());
+        //  tmp.updatePosition(x, y, 0);
+
         LinkedList<RobotTask> t = new LinkedList<>();
 
         t.add(new RobotTask(delloc, RobotTask.Task.PICKUP));
         t.add(new RobotTask(drop, RobotTask.Task.DROP));
-        t.add(new RobotTask(World.Instance().getGrid().getNode(0, r.nextInt((6 * Data.modules))), RobotTask.Task.PARK));
+        t.add(new RobotTask(World.Instance().getGrid().getNode(0, rand.nextInt((6 * Data.modules))), RobotTask.Task.PARK));
         robot.assignTask(t);
+        robot.setRack(rack);
         robot.updateStatus(Robot.RobotStatus.WORKING);
         World.Instance().getGrid().getNode(drop.getGridX(), drop.getGridY()).updateOccupation(true);
-
-        try {
-          Thread.sleep(5);
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
       }
+      session.saveChanges();
     }
   }
 
-  private Robot findIdleRobot() {
-    try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      Robot r = session.query(Robot.class)
-        .whereEquals("status", Robot.RobotStatus.IDLE)
-        .firstOrDefault();
-      if (r == null) return null;
-      return robots.get(r.getUUID());
-    }
+  void updateRack() {
+
   }
 }

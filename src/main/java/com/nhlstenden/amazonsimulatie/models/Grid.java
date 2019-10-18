@@ -15,11 +15,9 @@ public class Grid {
   };
   private int gridSizeX = 30;
   private int gridSizeY;
-  private World world;
   private Node[][] grid;
 
-  public Grid(World world) {
-    this.world = world;
+  public Grid() {
     this.gridSizeY = (6 * Data.modules);
     createGrid();
   }

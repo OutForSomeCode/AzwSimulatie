@@ -1,11 +1,11 @@
 package com.nhlstenden.amazonsimulatie.controllers;
 
-import com.nhlstenden.amazonsimulatie.models.World;
-import com.nhlstenden.amazonsimulatie.models.WorldModel;
-import com.nhlstenden.amazonsimulatie.models.Object3D;
+import com.nhlstenden.amazonsimulatie.models.*;
 import com.nhlstenden.amazonsimulatie.views.View;
+import net.ravendb.client.documents.session.IDocumentSession;
 
 import java.beans.PropertyChangeEvent;
+import java.util.ArrayList;
 
 /*
  * Dit is de controller class die de simulatie beheerd. Deze class erft van
@@ -36,7 +36,6 @@ public class SimulationController extends Controller {
     while (true) {
       this.melkFactory.update();
       this.warehouseManager.update();
-      World.Instance().update();
       this.getQueue().flush(this.getViews());
       try {
         Thread.sleep(100);
@@ -59,12 +58,23 @@ public class SimulationController extends Controller {
      */
     view.onViewClose(() -> t.removeView(view));
 
+    ArrayList<Object3D> returnList = new ArrayList<>();
+
+    try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
+      for (Object3D object : session.query(Robot.class).toList()) {
+        returnList.add(new ProxyObject3D(object));
+      }
+      for (Object3D object : session.query(Rack.class).toList()) {
+        returnList.add(new ProxyObject3D(object));
+      }
+    }
+
     /*
      * Dit stukje code zorgt ervoor dat wanneer een nieuwe view verbinding maakt, deze view één
      * keer alle objecten krijgt toegestuurd, ook als deze objecten niet updaten. Zo voorkom je
      * dat de view alleen objecten ziet die worden geupdate (bijvoorbeeld bewegen).
      */
-    for (Object3D object : World.Instance().getWorldObjectsAsList()) {
+    for (Object3D object : returnList) {
       //view.update(Model.UPDATE_COMMAND, object);
       this.getQueue().addCommandToQueue(WorldModel.UPDATE_COMMAND, object);
     }
