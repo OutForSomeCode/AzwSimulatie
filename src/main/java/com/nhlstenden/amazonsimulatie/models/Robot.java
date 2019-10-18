@@ -70,6 +70,7 @@ public class Robot implements Object3D, Poolable {
   }
 
   public Robot(Grid grid, int x, int y) {
+    this();
     this.x = x;
     px = x;
     this.y = y;
