@@ -33,32 +33,32 @@ public class ProxyObject3D implements Object3D {
   }
 
   @Override
-  public double getX() {
+  public int getX() {
     return this.object.getX();
   }
 
   @Override
-  public double getY() {
+  public int getY() {
     return this.object.getY();
   }
 
   @Override
-  public double getZ() {
+  public int getZ() {
     return this.object.getZ();
   }
 
   @Override
-  public double getRotationX() {
+  public int getRotationX() {
     return this.object.getRotationX();
   }
 
   @Override
-  public double getRotationY() {
+  public int getRotationY() {
     return this.object.getRotationY();
   }
 
   @Override
-  public double getRotationZ() {
+  public int getRotationZ() {
     return this.object.getRotationZ();
   }
 

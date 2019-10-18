@@ -1,6 +1,7 @@
 package com.nhlstenden.amazonsimulatie.controllers;
 
 import com.nhlstenden.amazonsimulatie.base.Data;
+import com.nhlstenden.amazonsimulatie.base.Destination;
 import com.nhlstenden.amazonsimulatie.models.*;
 import net.ravendb.client.documents.BulkInsertOperation;
 import net.ravendb.client.documents.session.IDocumentSession;
@@ -71,13 +72,16 @@ public class WarehouseManager implements Resource {
   @Override
   public void RequestResource(String resource, int amount) {
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      Deque<Rack> temp = new ArrayDeque<>();
-      for (int i = 0; i < 10; i++) {
-        Rack r = session.query(Rack.class).whereEquals("status", Rack.RackStatus.STORED).first();
-        temp.addFirst(r);
-      }
-      Waybill dump = new Waybill(temp);
-      WaybillResolver.Instance().StoreResource(dump);
+        List<Rack> pooledRacks = session.query(Rack.class)
+          .whereEquals("status", Rack.RackStatus.STORED)
+          .take(amount).toList();
+
+        for (Rack r : pooledRacks) {
+          r.setStatus(Rack.RackStatus.MOVING);
+        }
+        session.saveChanges();
+        Waybill dump = new Waybill(new ArrayDeque<>(pooledRacks), Destination.MELKFACTORY);
+        WaybillResolver.Instance().StoreResource(dump);
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -112,9 +116,6 @@ public class WarehouseManager implements Resource {
         rack.updatePosition(x, y, 0);
 
         World.Instance().updateObject(rack);
-
-        //Rack tmp = session.load(Rack.class, rack.getUUID());
-        //  tmp.updatePosition(x, y, 0);
 
         LinkedList<RobotTask> t = new LinkedList<>();
 

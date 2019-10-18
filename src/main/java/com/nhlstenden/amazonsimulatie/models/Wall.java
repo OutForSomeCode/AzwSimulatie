@@ -20,32 +20,32 @@ public class Wall implements Object3D {
   }
 
   @Override
-  public double getX() {
+  public int getX() {
     return 0;
   }
 
   @Override
-  public double getY() {
+  public int getY() {
     return 0;
   }
 
   @Override
-  public double getZ() {
+  public int getZ() {
     return 0;
   }
 
   @Override
-  public double getRotationX() {
+  public int getRotationX() {
     return 0;
   }
 
   @Override
-  public double getRotationY() {
+  public int getRotationY() {
     return 0;
   }
 
   @Override
-  public double getRotationZ() {
+  public int getRotationZ() {
     return 0;
   }
 }

@@ -12,15 +12,15 @@ public interface Object3D {
 
   public abstract String getType();
 
-  public abstract double getX();
+  public abstract int getX();
 
-  public abstract double getY();
+  public abstract int getY();
 
-  public abstract double getZ();
+  public abstract int getZ();
 
-  public abstract double getRotationX();
+  public abstract int getRotationX();
 
-  public abstract double getRotationY();
+  public abstract int getRotationY();
 
-  public abstract double getRotationZ();
+  public abstract int getRotationZ();
 }

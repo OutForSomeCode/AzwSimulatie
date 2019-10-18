@@ -4,6 +4,7 @@ import com.nhlstenden.amazonsimulatie.base.Destination;
 import com.nhlstenden.amazonsimulatie.models.Rack;
 import com.nhlstenden.amazonsimulatie.models.Resource;
 import com.nhlstenden.amazonsimulatie.models.Waybill;
+import com.nhlstenden.amazonsimulatie.models.World;
 import net.ravendb.client.documents.BulkInsertOperation;
 import net.ravendb.client.documents.session.IDocumentSession;
 
@@ -61,8 +62,10 @@ public class MelkFactory implements Resource {
   public void StoreResource(Waybill waybill) {
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
       for (Rack r : waybill.getRacks()) {
-        r.setStatus(Rack.RackStatus.POOLED);
+        World.Instance().getGrid().getNode(r.getX(), r.getY()).updateOccupation(false);
         r.updatePosition(50, 50, -20);
+        r.setStatus(Rack.RackStatus.POOLED);
+        World.Instance().updateObject(r);
       }
       session.saveChanges();
     }

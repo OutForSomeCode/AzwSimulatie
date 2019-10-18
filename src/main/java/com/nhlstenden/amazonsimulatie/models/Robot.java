@@ -180,32 +180,32 @@ public class Robot implements Object3D, Poolable {
   }
 
   @Override
-  public double getX() {
+  public int getX() {
     return this.x;
   }
 
   @Override
-  public double getY() {
+  public int getY() {
     return this.y;
   }
 
   @Override
-  public double getZ() {
+  public int getZ() {
     return this.z;
   }
 
   @Override
-  public double getRotationX() {
+  public int getRotationX() {
     return this.rotationX;
   }
 
   @Override
-  public double getRotationY() {
+  public int getRotationY() {
     return this.rotationY;
   }
 
   @Override
-  public double getRotationZ() {
+  public int getRotationZ() {
     return this.rotationZ;
   }
 
