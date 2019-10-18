@@ -36,6 +36,7 @@ public class WarehouseManager implements Resource {
       for (Robot r : session.query(Robot.class).toList()) {
         robots.put(r.getUUID(), r);
         World.Instance().RegisterRobot(r);
+        World.Instance().addWall(r.getPx(), r.getPy());
       }
     }
 
@@ -60,10 +61,10 @@ public class WarehouseManager implements Resource {
         continue;
       }
       for (int x : Data.rackPositionsX) {
-        if (World.Instance().getGrid().getNode(x, y).isOccupied())
-          continue;
-        World.Instance().getGrid().getNode(x, y).updateOccupation(true);
-        return World.Instance().getGrid().getNode(x, y);
+        if (!World.Instance().getGrid().getNode(x, y).isOccupied()) {
+          World.Instance().getGrid().getNode(x, y).updateOccupation(true);
+          return World.Instance().getGrid().getNode(x, y);
+        }
       }
     }
     return null;
@@ -72,25 +73,25 @@ public class WarehouseManager implements Resource {
   @Override
   public void RequestResource(String resource, int amount) {
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-        List<Rack> pooledRacks = session.query(Rack.class)
-          .whereEquals("status", Rack.RackStatus.STORED)
-          .take(amount).toList();
+      List<Rack> pooledRacks = session.query(Rack.class)
+        .whereEquals("status", Rack.RackStatus.STORED)
+        .take(amount).toList();
 
-        for (Rack r : pooledRacks) {
-          r.setStatus(Rack.RackStatus.MOVING);
-        }
-        session.saveChanges();
-        Waybill dump = new Waybill(new ArrayDeque<>(pooledRacks), Destination.MELKFACTORY);
-        WaybillResolver.Instance().StoreResource(dump);
+      List<String> tmp = new ArrayList<>();
+      for (Rack r : pooledRacks) {
+        tmp.add(r.getUUID());
+      }
+
+      Waybill dump = new Waybill(new ArrayDeque<>(tmp), Destination.MELKFACTORY);
+      WaybillResolver.Instance().StoreResource(dump);
     } catch (Exception e) {
       e.printStackTrace();
     }
-
   }
 
   @Override
   public void StoreResource(Waybill waybill) {
-    Deque<Rack> cargo = waybill.getRacks();
+    Deque<String> cargo = waybill.getRacks();
     loadingBay++;
     if (loadingBay > 9) loadingBay = 0;
 
@@ -112,7 +113,7 @@ public class WarehouseManager implements Resource {
 
         i++;
 
-        Rack rack = cargo.remove();
+        Rack rack = session.load(Rack.class, cargo.remove());
         rack.updatePosition(x, y, 0);
 
         World.Instance().updateObject(rack);
@@ -121,11 +122,12 @@ public class WarehouseManager implements Resource {
 
         t.add(new RobotTask(delloc, RobotTask.Task.PICKUP));
         t.add(new RobotTask(drop, RobotTask.Task.DROP));
-        t.add(new RobotTask(World.Instance().getGrid().getNode(0, rand.nextInt((6 * Data.modules))), RobotTask.Task.PARK));
+        t.add(new RobotTask(World.Instance().getGrid().getNode(robot.getPx(), robot.getPy()), RobotTask.Task.PARK));
         robot.assignTask(t);
         robot.setRack(rack);
-        robot.updateStatus(Robot.RobotStatus.WORKING);
-        World.Instance().getGrid().getNode(drop.getGridX(), drop.getGridY()).updateOccupation(true);
+        robot.setStatus(Robot.RobotStatus.WORKING);
+        session.advanced().patch(robot.getUUID(), "status", Robot.RobotStatus.WORKING);
+        //World.Instance().getGrid().getNode(drop.getGridX(), drop.getGridY()).updateOccupation(true);
       }
       session.saveChanges();
     }

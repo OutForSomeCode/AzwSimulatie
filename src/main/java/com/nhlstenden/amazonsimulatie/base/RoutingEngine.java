@@ -1,14 +1,10 @@
 package com.nhlstenden.amazonsimulatie.base;
 
-import com.nhlstenden.amazonsimulatie.models.Grid;
-import com.nhlstenden.amazonsimulatie.models.Node;
-import com.nhlstenden.amazonsimulatie.models.Object3D;
-import com.nhlstenden.amazonsimulatie.models.Rack;
+import com.nhlstenden.amazonsimulatie.models.*;
 
 import java.util.*;
 
 public class RoutingEngine {
-  private Grid grid;
   private Node start;
   private Node end;
   private Node current;
@@ -16,9 +12,6 @@ public class RoutingEngine {
   private Deque<Node> path = new LinkedList<>();
   private HashMap<Node, Node> cameFrom = new HashMap<>();
 
-  public RoutingEngine(Grid grid) {
-    this.grid = grid;
-  }
 
   public Deque<Node> generateRoute(Node start, Node end) {
     frontier.clear();
@@ -38,6 +31,7 @@ public class RoutingEngine {
   }
 
   private void scanGrid() {
+    Grid grid = World.Instance().getGrid();
     while (!frontier.isEmpty()) {
       current = frontier.remove();
       if (current == end) {

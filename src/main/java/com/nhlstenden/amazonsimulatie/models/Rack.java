@@ -3,8 +3,6 @@ package com.nhlstenden.amazonsimulatie.models;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.UUID;
-
 public class Rack implements Object3D {
   private int x;
   private int y;
@@ -35,8 +33,8 @@ public class Rack implements Object3D {
     this.z = z;
   }
 
-  public Rack(String type) {
-    this.uuid = UUID.randomUUID().toString();
+  public Rack(String type, String uuid) {
+    this.uuid = uuid;//UUID.randomUUID().toString();
     this.item = type;
     this.status = RackStatus.POOLED;
   }

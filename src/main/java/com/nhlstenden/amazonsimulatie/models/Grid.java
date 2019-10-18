@@ -55,7 +55,4 @@ public class Grid {
   public Node getNode(int x, int y) {
     return grid[x][y];
   }
-  public World getWorld() {
-    return world;
-  }
 }
