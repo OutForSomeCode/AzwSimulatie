@@ -7,6 +7,7 @@
 	},
 	"dependencies": {
 		"@msgpack/msgpack": "^1.9.1",
+		"@tweenjs/tween.js": "^18.3.1",
 		"clean-webpack-plugin": "^3.0.0",
 		"copy-webpack-plugin": "^5.0.4",
 		"friendly-errors-webpack-plugin": "^1.7.0",

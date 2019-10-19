@@ -1,27 +1,16 @@
 import {SocketService} from './SocketService';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
-import {
-  AmbientLight,
-  DoubleSide, Group,
-  Mesh,
-  MeshBasicMaterial,
-  PerspectiveCamera,
-  PlaneGeometry,
-  Scene,
-  SphereGeometry,
-  TextureLoader,
-  WebGLRenderer
-} from 'three';
-import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
+import {PerspectiveCamera, WebGLRenderer} from 'three';
 import {WorldObjectManger} from "./WorldObjectManager";
+import TWEEN from '@tweenjs/tween.js';
 
-let time =0 ;
+let time = 0;
 let camera: PerspectiveCamera;
 let renderer: WebGLRenderer;
 
 let cameraControls: OrbitControls;
 let _socketService: SocketService;
-let _worldObjectManger:  WorldObjectManger;
+let _worldObjectManger: WorldObjectManger;
 
 
 /*
@@ -48,8 +37,6 @@ function init() {
   document.body.appendChild(renderer.domElement);
 
   window.addEventListener('resize', onWindowResize, false);
-
-
 }
 
 function onWindowResize() {
@@ -57,6 +44,7 @@ function onWindowResize() {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
+
 /*
 frameStep is updates every frame
  */
@@ -64,7 +52,8 @@ function frameStep() {
   requestAnimationFrame(frameStep);
   cameraControls.update();
   renderer.render(_worldObjectManger.getScene(), camera);
-  time += 0.01;
+  TWEEN.update();
+  //time += 0.01;
   //_worldObjectManger.movetruck(time);
 }
 

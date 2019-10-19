@@ -38,7 +38,7 @@ public class SimulationController extends Controller {
       this.warehouseManager.update();
       this.getQueue().flush(this.getViews());
       try {
-        Thread.sleep(100);
+        Thread.sleep(500);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }

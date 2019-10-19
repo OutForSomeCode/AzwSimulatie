@@ -1,23 +1,24 @@
 import {
   AmbientLight,
   BoxGeometry,
+  BufferGeometry,
   CubeTextureLoader,
   DoubleSide,
   GridHelper,
   Group,
+  Line,
+  LineBasicMaterial,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
   Scene,
   SphereGeometry,
-  TextureLoader,
   SplineCurve,
-  Vector2,
-  Line,
-  LineBasicMaterial,
-  BufferGeometry
+  TextureLoader,
+  Vector2
 } from "three";
 import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
+import TWEEN from '@tweenjs/tween.js';
 import Table = WebAssembly.Table;
 
 class WorldObjectManger {
@@ -27,8 +28,8 @@ class WorldObjectManger {
     ["Rack", "Rack_RackMat"],
     ["Warehouse", "Warehouse_Concrete"],
     ["Box", "BoxMat"],
-    ["Table","TableMat"],
-    ["Cone4D","ConeMat"]
+    ["Table", "TableMat"],
+    ["Cone4D", "ConeMat"]
   ];
   private scene = new Scene();
   private truck;
@@ -153,9 +154,20 @@ class WorldObjectManger {
     if (object == null)
       return;
 
-    object.position.x = command.parameters.x;
-    object.position.y = command.parameters.z;
-    object.position.z = command.parameters.y;
+    if (command.parameters.type === 'robot') {
+      var tween = new TWEEN.Tween(object.position)
+        .to({
+          x: command.parameters.x,
+          y: command.parameters.z,
+          z: command.parameters.y
+        }, 550);
+      tween.autoDestroy = true;
+      tween.start();
+    } else {
+      object.position.x = command.parameters.x;
+      object.position.y = command.parameters.z;
+      object.position.z = command.parameters.y;
+    }
 
     object.rotation.x = command.parameters.rotationX;
     object.rotation.y = command.parameters.rotationY;
@@ -211,34 +223,33 @@ class WorldObjectManger {
   }
 
 
-
-  public movetruck(time): void{
+  public movetruck(time): void {
     const truckPosition = new Vector2();
     const tankTarget = new Vector2();
 
-    const curve = new SplineCurve( [
-      new Vector2(30 , 10),
-      new Vector2(31 , 7.5),
-      new Vector2(32 , 5),
-      new Vector2(35 , 3),
-      new Vector2(37 , 2.7),
-      new Vector2(40 , 2.5),
-      new Vector2(30 , 2.5),
-      new Vector2(25 , 2.5),
-      new Vector2(26 , 2.3),
-      new Vector2(28 , 2 ),
-      new Vector2(29 , 0),
-      new Vector2(30 , -5),
-      new Vector2(32 , -20),
-      new Vector2(50 , -5),
-      new Vector2(50 , 10),
-      new Vector2(30 , 10),
-    ] );
+    const curve = new SplineCurve([
+      new Vector2(30, 10),
+      new Vector2(31, 7.5),
+      new Vector2(32, 5),
+      new Vector2(35, 3),
+      new Vector2(37, 2.7),
+      new Vector2(40, 2.5),
+      new Vector2(30, 2.5),
+      new Vector2(25, 2.5),
+      new Vector2(26, 2.3),
+      new Vector2(28, 2),
+      new Vector2(29, 0),
+      new Vector2(30, -5),
+      new Vector2(32, -20),
+      new Vector2(50, -5),
+      new Vector2(50, 10),
+      new Vector2(30, 10),
+    ]);
 
-    const points = curve.getPoints( 50 );
-    const geometry = new BufferGeometry().setFromPoints( points );
-    const material = new LineBasicMaterial( { color : 0xff0000 } );
-    const splineObject = new Line( geometry, material );
+    const points = curve.getPoints(50);
+    const geometry = new BufferGeometry().setFromPoints(points);
+    const material = new LineBasicMaterial({color: 0xff0000});
+    const splineObject = new Line(geometry, material);
     splineObject.rotation.x = Math.PI * .5;
     splineObject.position.y = 0.05;
     this.scene.add(splineObject);
@@ -249,13 +260,10 @@ class WorldObjectManger {
     curve.getPointAt((tankTime + 0.01) % 1, tankTarget);
     this.truck.position.set(truckPosition.x, 0, truckPosition.y);
 
-    if(this.truck.position.x < 40 && this.truck.position.z >= 2.3 && this.truck.position.z <= 2.7 )
-    {
-        this.truck.lookAt(40, 0, 2.5);
+    if (this.truck.position.x < 40 && this.truck.position.z >= 2.3 && this.truck.position.z <= 2.7) {
+      this.truck.lookAt(40, 0, 2.5);
 
-    }
-    else
-    {
+    } else {
       this.truck.lookAt(tankTarget.x, 0, tankTarget.y);
     }
   }
