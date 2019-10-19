@@ -155,6 +155,7 @@ class WorldObjectManger {
       return;
 
     if (command.parameters.type === 'robot') {
+      object.lookAt(command.parameters.x, command.parameters.z, command.parameters.y);
       var tween = new TWEEN.Tween(object.position)
         .to({
           x: command.parameters.x,
@@ -169,9 +170,9 @@ class WorldObjectManger {
       object.position.z = command.parameters.y;
     }
 
-    object.rotation.x = command.parameters.rotationX;
+    /*object.rotation.x = command.parameters.rotationX;
     object.rotation.y = command.parameters.rotationY;
-    object.rotation.z = command.parameters.rotationZ;
+    object.rotation.z = command.parameters.rotationZ;*/
   }
 
   public createRobot(command): void {
