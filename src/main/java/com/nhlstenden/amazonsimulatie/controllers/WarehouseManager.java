@@ -18,24 +18,23 @@ public class WarehouseManager implements Resource {
   private Random rand = new Random();
 
   public WarehouseManager() {
-    int rAmount = Data.modules * 4;
+    int rAmount = Data.modules * 6;
 
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      rAmount -= session.query(Robot.class).count();
-    }
+      rAmount -= session.query(RobotPOJO.class).count();
 
-    if (rAmount > 0)
-      try (BulkInsertOperation bulkInsert = DocumentStoreHolder.getStore().bulkInsert()) {
-        for (int i = 0; i < rAmount; i++) {
-          Robot r = new Robot(World.Instance().getGrid(), 0, i);
-          bulkInsert.store(r, r.getUUID());
+      if (rAmount > 0)
+        try (BulkInsertOperation bulkInsert = DocumentStoreHolder.getStore().bulkInsert()) {
+          for (int i = 0; i < rAmount; i++) {
+            Robot r = new Robot(0, i);
+            RobotPOJO rp = new RobotPOJO(r.getUUID(),0, i);
+            bulkInsert.store(rp, r.getUUID());
+          }
         }
-      }
 
-    try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      for (Robot r : session.query(Robot.class).toList()) {
+      for (RobotPOJO rp : session.query(RobotPOJO.class).toList()) {
+        Robot r = new Robot(rp.getUUID(), rp.getX(),rp.getY());
         robots.put(r.getUUID(), r);
-        World.Instance().RegisterRobot(r);
         World.Instance().addWall(r.getPx(), r.getPy());
       }
     }
@@ -96,13 +95,13 @@ public class WarehouseManager implements Resource {
     if (loadingBay > 9) loadingBay = 0;
 
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      List<Robot> idleRobots = session.query(Robot.class)
+      List<RobotPOJO> idleRobots = session.query(RobotPOJO.class)
         .whereEquals("status", Robot.RobotStatus.IDLE)
         .take(cargo.size()).toList();
 
       int i = 0;
 
-      for (Robot r : idleRobots) {
+      for (RobotPOJO r : idleRobots) {
         Robot robot = robots.get(r.getUUID());
 
         int x = truckpost[i][1] + 24,
@@ -125,7 +124,7 @@ public class WarehouseManager implements Resource {
         t.add(new RobotTask(World.Instance().getGrid().getNode(robot.getPx(), robot.getPy()), RobotTask.Task.PARK));
         robot.assignTask(t);
         robot.setRack(rack);
-        robot.setStatus(Robot.RobotStatus.WORKING);
+        //robot.setStatus(Robot.RobotStatus.WORKING);
         session.advanced().patch(robot.getUUID(), "status", Robot.RobotStatus.WORKING);
         //World.Instance().getGrid().getNode(drop.getGridX(), drop.getGridY()).updateOccupation(true);
       }

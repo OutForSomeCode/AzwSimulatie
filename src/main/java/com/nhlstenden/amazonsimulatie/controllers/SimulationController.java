@@ -61,8 +61,9 @@ public class SimulationController extends Controller {
     ArrayList<Object3D> returnList = new ArrayList<>();
 
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      for (Object3D object : session.query(Robot.class).toList()) {
-        returnList.add(new ProxyObject3D(object));
+      for (RobotPOJO object : session.query(RobotPOJO.class).toList()) {
+        Robot rob = new Robot(object);
+        returnList.add(new ProxyObject3D(rob));
       }
       for (Object3D object : session.query(Rack.class).toList()) {
         returnList.add(new ProxyObject3D(object));

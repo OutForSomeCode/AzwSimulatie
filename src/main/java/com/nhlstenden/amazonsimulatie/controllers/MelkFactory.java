@@ -17,7 +17,7 @@ public class MelkFactory implements Resource {
 
   public void update() {
     time++;
-    if (time < 30)
+    if (time < 10)
       return;
     flipflop = !flipflop;
     if (flipflop) {
@@ -32,6 +32,7 @@ public class MelkFactory implements Resource {
           try (BulkInsertOperation bulkInsert = DocumentStoreHolder.getStore().bulkInsert()) {
             for (int i = 0; i < ra; i++) {
               Rack r = new Rack("kaas", UUID.randomUUID().toString());
+              r.setStatus(Rack.RackStatus.WAITING);
               bulkInsert.store(r, r.getUUID());
               pooledRacks.add(r);
             }

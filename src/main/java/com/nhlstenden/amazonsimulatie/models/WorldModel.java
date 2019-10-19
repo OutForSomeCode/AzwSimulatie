@@ -15,7 +15,9 @@ public interface WorldModel {
    * Hier is zo'n commando weergegeven als statische waarde, omdat deze gelijk
    * is voor alle models.
    */
-  static final String UPDATE_COMMAND = "object_update";
+  static final String UPDATE_COMMAND = "update";
+  static final String PARENT_COMMAND = "parent";
+  static final String UNPARENT_COMMAND = "unparent";
 
   void addObserver(PropertyChangeListener pcl);
 

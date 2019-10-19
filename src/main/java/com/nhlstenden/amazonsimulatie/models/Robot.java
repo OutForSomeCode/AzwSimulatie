@@ -23,7 +23,6 @@ public class Robot implements Object3D, Poolable {
   private Deque<Node> pathToTask = new LinkedList<>();
   private String rackUUID;
   private String uuid;
-  private RobotStatus status = RobotStatus.IDLE;
 
   private int x = 0;
   private int px = 0;
@@ -35,41 +34,24 @@ public class Robot implements Object3D, Poolable {
   private int rotationY = 0;
   private int rotationZ = 0;
 
+  public Robot(String uuid) {
+    this.uuid = uuid;
+    routingEngine = new RoutingEngine();
+  }
   public Robot() {
     this.uuid = UUID.randomUUID().toString();
     routingEngine = new RoutingEngine();
   }
 
-  @JsonCreator
-  public Robot(@JsonProperty("uuid")
-                 String uuid,
-               @JsonProperty("status")
-                 RobotStatus status,
-               @JsonProperty("x")
-                 int x,
-               @JsonProperty("y")
-                 int y,
-               @JsonProperty("z")
-                 int z,
-               @JsonProperty("rotationX")
-                 int rotationX,
-               @JsonProperty("rotationY")
-                 int rotationY,
-               @JsonProperty("rotationZ")
-                 int rotationZ) {
-    this.uuid = uuid;
-    this.status = status;
-
-    this.x = x;
-    this.y = y;
-    this.z = z;
-
-    this.rotationX = rotationX;
-    this.rotationY = rotationY;
-    this.rotationZ = rotationZ;
+  public Robot(RobotPOJO rp) {
+    this.x = rp.getX();
+    this.y = rp.getY();
+    this.z = rp.getZ();
+    this.uuid = rp.getUUID();
+    this.rackUUID = rp.getRackUUID();
   }
 
-  public Robot(Grid grid, int x, int y) {
+  public Robot(int x, int y) {
     this();
     this.x = x;
     px = x;
@@ -77,8 +59,12 @@ public class Robot implements Object3D, Poolable {
     py = y;
   }
 
-  public void registerGrid(Grid grid) {
-    routingEngine = new RoutingEngine();
+  public Robot(String uuid, Integer x, Integer y) {
+    this(uuid);
+    this.x = x;
+    px = x;
+    this.y = y;
+    py = y;
   }
 
   public void assignTask(LinkedList<RobotTask> tasks) {
@@ -132,7 +118,7 @@ public class Robot implements Object3D, Poolable {
           //grid.getNode(x, y).updateOccupation(true);
         } else if (currentTask.getTask() == RobotTask.Task.PARK) {
           try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-            Robot robot = session.load(Robot.class, uuid);
+            RobotPOJO robot = session.load(RobotPOJO.class, uuid);
             robot.setStatus(RobotStatus.IDLE);
             session.saveChanges();
           }
@@ -145,9 +131,9 @@ public class Robot implements Object3D, Poolable {
     }
   }
 
-  public void setStatus(RobotStatus s) {
+  /*public void setStatus(RobotStatus s) {
       this.status = s;
-  }
+  }*/
 
   @Override
   public boolean inUse() {
@@ -200,9 +186,9 @@ public class Robot implements Object3D, Poolable {
     return this.rotationZ;
   }
 
-  public RobotStatus getStatus() {
+  /*public RobotStatus getStatus() {
     return status;
-  }
+  }*/
 
   @Override
   public void putInPool() {

@@ -62,7 +62,7 @@ public class WebSocketServer extends SpringBootServletInitializer implements Web
     DocumentStoreHolder.getStore().initialize();
     Operation operation = DocumentStoreHolder.getStore().operations()
       .sendAsync(
-        new PatchByQueryOperation("from Robots as r update { r.status=\"IDLE\";}")
+        new PatchByQueryOperation("from RobotPOJOs as r update { r.status=\"IDLE\";}")
       );
 
     operation.waitForCompletion();
