@@ -116,7 +116,7 @@ public class Robot implements Object3D, Poolable {
             Rack rack = session.load(Rack.class, rackUUID);
             rack.setStatus(Rack.RackStatus.MOVING);
             rack.updatePosition(x, y, -10);
-            World.Instance().updateObject(rack);
+            World.Instance().parentObject(uuid, rackUUID);
             session.saveChanges();
           }
           //grid.getNode(x, y).updateOccupation(true);
@@ -125,6 +125,7 @@ public class Robot implements Object3D, Poolable {
             Rack rack = session.load(Rack.class, rackUUID);
             rack.setStatus(Rack.RackStatus.STORED);
             rack.updatePosition(x, y, z);
+            World.Instance().unparentObject(uuid, rackUUID);
             World.Instance().updateObject(rack);
             session.saveChanges();
           }

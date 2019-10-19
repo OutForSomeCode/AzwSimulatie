@@ -269,10 +269,21 @@ class WorldObjectManger {
     }
   }
 
-  CleanupAll(): void {
-    for (let e in this.worldObjects) {
-      this.scene.remove(this.worldObjects[e])
-    }
+  parentObject(command) {
+    var objs = command.parameters.split("|");
+    let robot = this.worldObjects[objs[0]];
+    let rack = this.worldObjects[objs[1]];
+
+    rack.parent = robot;
+    rack.position.set(0, 0.1, 0);
+  }
+
+  unparentObject(command) {
+    var objs = command.parameters.split("|");
+    let robot = this.worldObjects[objs[0]];
+    let rack = this.worldObjects[objs[1]];
+    rack.parent = null;
+    rack.position.set(robot.position.x, robot.position.y, robot.position.z);
   }
 }
 

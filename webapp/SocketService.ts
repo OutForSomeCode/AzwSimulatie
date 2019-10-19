@@ -37,8 +37,14 @@ class SocketService {
       for (let com of commands) {
         //console.log(com);
         // Wanneer het commando is "object_update", dan wordt deze code uitgevoerd. Bekijk ook de servercode om dit goed te begrijpen.
-        if (com.command === 'object_update') {
+        if (com.command === 'update') {
           this._worldObjectManger.updateObject(com);
+        }
+        else if (com.command === 'parent') {
+          this._worldObjectManger.parentObject(com);
+        }
+        else if (com.command === 'unparent') {
+          this._worldObjectManger.unparentObject(com);
         }
       }
 
@@ -46,7 +52,6 @@ class SocketService {
     };
     this.socket.onclose = e => {
       console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
-      this._worldObjectManger.CleanupAll();
       setTimeout(() => {
         this.connect();
       }, 1000);

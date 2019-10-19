@@ -1,12 +1,7 @@
 package com.nhlstenden.amazonsimulatie.models;
 
-import com.nhlstenden.amazonsimulatie.controllers.DocumentStoreHolder;
-import net.ravendb.client.documents.session.IDocumentSession;
-
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.ArrayList;
-import java.util.List;
 
 /*
  * Deze class is een versie van het model van de simulatie. In dit geval is het
@@ -61,6 +56,14 @@ public class World implements WorldModel {
     controlerObserver.firePropertyChange(WorldModel.UPDATE_COMMAND, null, new ProxyObject3D(object));
   }
 
+  public void parentObject(String uuid1, String uuid2) {
+    controlerObserver.firePropertyChange(WorldModel.PARENT_COMMAND, null, String.format("%s|%s", uuid1, uuid2));
+  }
+
+  public void unparentObject(String uuid1, String uuid2) {
+    controlerObserver.firePropertyChange(WorldModel.UNPARENT_COMMAND, null,  String.format("%s|%s", uuid1, uuid2));
+  }
+
   public Grid getGrid() {
     return grid;
   }
@@ -73,52 +76,6 @@ public class World implements WorldModel {
     controlerObserver.addPropertyChangeListener(pcl);
   }
 
-  /*
-   * Deze methode geeft een lijst terug van alle objecten in de wereld. De lijst is echter wel
-   * van ProxyObject3D objecten, voor de veiligheid. Zo kan de informatie wel worden gedeeld, maar
-   * kan er niks aangepast worden.
-   */
-  /*@Override
-  public List<Object3D> getWorldObjectsAsList() {
-    try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      ArrayList<Object3D> returnList = new ArrayList<>();
-
-      for (Object3D object : session.query(Robot.class).toList()) {
-        returnList.add(new ProxyObject3D(object));
-      }
-      for (Object3D object : session.query(Rack.class).toList()) {
-        returnList.add(new ProxyObject3D(object));
-      }
-      return returnList;
-    }
-  }*/
-
-  /*public Rack getUnusedRack(String s) {
-    try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      Rack r = session.query(Rack.class)
-        .whereEquals("status", Rack.RackStatus.POOLED)
-        //.whereEquals("item", s)
-        .firstOrDefault();
-      if (r != null) {
-        r.setStatus(Rack.RackStatus.WAITING);
-      } else {
-        r = new Rack(s);
-        r.setStatus(Rack.RackStatus.WAITING);
-        session.store(r, r.getUUID());
-      }
-      session.saveChanges();
-      return r;
-    }
-  }
-
-  public void addRack(String type, int x, int y) {
-    Rack r = getUnusedRack(type);
-    //r.updatePosition(x, y, 0);
-  }*/
-
-  public void RegisterRobot(Robot r) {
-    r.registerGrid(grid);
-  }
 
   public void addWall(int x, int y) {
     if (x < grid.getGridSizeX() && y < grid.getGridSizeY()) {
