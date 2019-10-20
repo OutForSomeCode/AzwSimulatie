@@ -22,6 +22,7 @@ public class Robot implements Object3D, Poolable {
   private Deque<Node> pathToTask = new LinkedList<>();
   private String rackUUID;
   private String uuid;
+  private boolean taskDone;
 
   private int x = 0;
   private int px = 0;
@@ -91,30 +92,33 @@ public class Robot implements Object3D, Poolable {
    * in de view)
    */
   public void update() {
-    if (!pathToTask.isEmpty()) {
+    if (taskDone) {
+      taskDone = false;
+      try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
+        Rack rack = session.load(Rack.class, rackUUID);
+        RobotPOJO robot = session.load(RobotPOJO.class, uuid);
+        if (currentTask.getTask() == RobotTask.Task.PICKUP) {
+          robot.setRackUUID(rackUUID);
+          rack.setStatus(Rack.RackStatus.MOVING);
+          rack.updatePosition(x, y, -10);
+          MessageBroker.Instance().parentObject(uuid, rackUUID);
+        } else if (currentTask.getTask() == RobotTask.Task.DROP) {
+          robot.setRackUUID(null);
+          rack.setStatus(Rack.RackStatus.STORED);
+          rack.updatePosition(x, y, z);
+          MessageBroker.Instance().unparentObject(uuid, rackUUID);
+          MessageBroker.Instance().updateObject(rack);
+        } else if (currentTask.getTask() == RobotTask.Task.PARK) {
+          robot.setStatus(RobotStatus.IDLE);
+        }
+        session.saveChanges();
+      }
+    } else if (!pathToTask.isEmpty()) {
       Node current = pathToTask.remove();
       this.x = current.getGridX();
       this.y = current.getGridY();
       if (current == currentTask.getDestination()) {
-        try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-          Rack rack = session.load(Rack.class, rackUUID);
-          RobotPOJO robot = session.load(RobotPOJO.class, uuid);
-          if (currentTask.getTask() == RobotTask.Task.PICKUP) {
-            robot.setRackUUID(rackUUID);
-            rack.setStatus(Rack.RackStatus.MOVING);
-            rack.updatePosition(x, y, -10);
-            MessageBroker.Instance().parentObject(uuid, rackUUID);
-          } else if (currentTask.getTask() == RobotTask.Task.DROP) {
-            robot.setRackUUID(null);
-            rack.setStatus(Rack.RackStatus.STORED);
-            rack.updatePosition(x, y, z);
-            MessageBroker.Instance().unparentObject(uuid, rackUUID);
-            MessageBroker.Instance().updateObject(rack);
-          } else if (currentTask.getTask() == RobotTask.Task.PARK) {
-            robot.setStatus(RobotStatus.IDLE);
-          }
-          session.saveChanges();
-        }
+        taskDone = true;
       }
 
       MessageBroker.Instance().updateObject(this);

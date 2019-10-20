@@ -161,7 +161,7 @@ class WorldObjectManger {
           x: command.parameters.x,
           y: command.parameters.z,
           z: command.parameters.y
-        }, 550);
+        }, 525);
       tween.autoDestroy = true;
       tween.start();
     } else {
