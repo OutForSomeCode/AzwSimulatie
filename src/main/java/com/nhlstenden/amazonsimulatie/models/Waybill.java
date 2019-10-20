@@ -5,7 +5,7 @@ import com.nhlstenden.amazonsimulatie.base.Destination;
 import java.util.Deque;
 import java.util.UUID;
 
-public class Waybill{
+public class Waybill {
   private UUID uuid;
   private Destination destination;
   private Deque<String> racks;

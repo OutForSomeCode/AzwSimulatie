@@ -1,7 +1,6 @@
 package com.nhlstenden.amazonsimulatie.views;
 
 import com.nhlstenden.amazonsimulatie.base.Command;
-import com.nhlstenden.amazonsimulatie.models.Object3D;
 import org.springframework.web.socket.BinaryMessage;
 
 /*

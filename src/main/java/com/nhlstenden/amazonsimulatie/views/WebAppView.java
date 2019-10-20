@@ -1,8 +1,6 @@
 package com.nhlstenden.amazonsimulatie.views;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhlstenden.amazonsimulatie.base.Command;
-import org.msgpack.jackson.dataformat.MessagePackFactory;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.WebSocketSession;
 

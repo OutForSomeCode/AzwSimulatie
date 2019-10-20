@@ -8,19 +8,19 @@ package com.nhlstenden.amazonsimulatie.models;
  * setters nodig zijn.
  */
 public interface Object3D {
-  public abstract String getUUID();
+  String getUUID();
 
-  public abstract String getType();
+  String getType();
 
-  public abstract int getX();
+  int getX();
 
-  public abstract int getY();
+  int getY();
 
-  public abstract int getZ();
+  int getZ();
 
-  public abstract int getRotationX();
+  int getRotationX();
 
-  public abstract int getRotationY();
+  int getRotationY();
 
-  public abstract int getRotationZ();
+  int getRotationZ();
 }

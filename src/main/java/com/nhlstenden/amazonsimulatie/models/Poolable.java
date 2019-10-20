@@ -1,6 +1,6 @@
 package com.nhlstenden.amazonsimulatie.models;
 
 public interface Poolable {
-  public boolean inUse();
-  public void putInPool();
+  boolean inUse();
+  void putInPool();
 }

@@ -1,11 +1,13 @@
 package com.nhlstenden.amazonsimulatie.controllers;
 
-import com.nhlstenden.amazonsimulatie.models.*;
+import com.nhlstenden.amazonsimulatie.models.ProxyObject3D;
+import com.nhlstenden.amazonsimulatie.models.ProxyRobot3D;
+import com.nhlstenden.amazonsimulatie.models.Rack;
+import com.nhlstenden.amazonsimulatie.models.RobotPOJO;
 import com.nhlstenden.amazonsimulatie.views.View;
 import net.ravendb.client.documents.session.IDocumentSession;
 
 import java.beans.PropertyChangeEvent;
-import java.util.ArrayList;
 
 /*
  * Dit is de controller class die de simulatie beheerd. Deze class erft van
@@ -58,27 +60,25 @@ public class SimulationController extends Controller {
      */
     view.onViewClose(() -> t.removeView(view));
 
-    ArrayList<Object3D> returnList = new ArrayList<>();
-
-    try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      for (RobotPOJO object : session.query(RobotPOJO.class).toList()) {
-        Robot rob = new Robot(object);
-        returnList.add(new ProxyObject3D(rob));
-      }
-      for (Object3D object : session.query(Rack.class).toList()) {
-        returnList.add(new ProxyObject3D(object));
-      }
-    }
-
+    //ArrayList<Object3D> returnList = new ArrayList<>();
     /*
      * Dit stukje code zorgt ervoor dat wanneer een nieuwe view verbinding maakt, deze view één
      * keer alle objecten krijgt toegestuurd, ook als deze objecten niet updaten. Zo voorkom je
      * dat de view alleen objecten ziet die worden geupdate (bijvoorbeeld bewegen).
      */
-    for (Object3D object : returnList) {
-      //view.update(Model.UPDATE_COMMAND, object);
-      this.getQueue().addCommandToQueue(WorldModel.UPDATE_COMMAND, object);
+    try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
+      for (Rack rack : session.query(Rack.class).toList()) {
+        this.getQueue().addCommandToQueue(MessageBroker.UPDATE_COMMAND, new ProxyObject3D(rack));
+      }
+      for (RobotPOJO robot : session.query(RobotPOJO.class).toList()) {
+        this.getQueue().addCommandToQueue(MessageBroker.UPDATE_COMMAND, new ProxyRobot3D(robot));
+        if (robot.getRackUUID() != null) {
+          this.getQueue().addCommandToQueue(MessageBroker.PARENT_COMMAND,
+            String.format("%s|%s", robot.getUUID(), robot.getRackUUID()));
+        }
+      }
     }
+
     this.getQueue().flush(view);
   }
 

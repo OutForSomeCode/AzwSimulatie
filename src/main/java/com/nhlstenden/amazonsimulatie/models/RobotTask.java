@@ -1,7 +1,5 @@
 package com.nhlstenden.amazonsimulatie.models;
 
-import java.util.PrimitiveIterator;
-
 public class RobotTask {
   private Node destination;
   private Task task;

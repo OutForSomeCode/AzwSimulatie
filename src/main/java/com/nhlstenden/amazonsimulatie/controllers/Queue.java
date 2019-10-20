@@ -23,7 +23,7 @@ class Queue {
 
   void flush(List<View> views) {
     try {
-      if(queue.size() == 0)
+      if (queue.size() == 0)
         return;
       BinaryMessage m = new BinaryMessage(objectMapper.writeValueAsBytes(queue));
       for (int i = 0; i < views.size(); i++) {
@@ -39,7 +39,7 @@ class Queue {
 
   void flush(View view) {
     try {
-      if(queue.size() == 0)
+      if (queue.size() == 0)
         return;
       BinaryMessage m = new BinaryMessage(objectMapper.writeValueAsBytes(queue));
       view.update(m);

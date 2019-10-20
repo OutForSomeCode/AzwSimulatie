@@ -1,10 +1,7 @@
 package com.nhlstenden.amazonsimulatie.models;
 
-import com.nhlstenden.amazonsimulatie.base.Data;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class Grid {
   private final int[][] checkInts = {

@@ -16,7 +16,7 @@ public class RESTController {
   @RequestMapping("/poweroff")
   public String poweroff(@RequestParam(value = "pwk", defaultValue = "None") String key) {
     if (key.equals(System.getenv("POWEROFF-KEY"))) {
-      int exitCode = SpringApplication.exit(context, (ExitCodeGenerator) () -> 0);
+      int exitCode = SpringApplication.exit(context, () -> 0);
       System.exit(exitCode);
       return "OK";
     } else {

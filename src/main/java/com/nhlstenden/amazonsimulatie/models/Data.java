@@ -1,7 +1,7 @@
-package com.nhlstenden.amazonsimulatie.base;
+package com.nhlstenden.amazonsimulatie.models;
 
 public final class Data {
-  public static final String cargoType[] = {"kaas", "donut", "boter", "melk"};
+  public static final String[] cargoType = {"kaas", "donut", "boter", "melk"};
   public static final int cargoSize = 10;
 
   public static final int modules = 10;

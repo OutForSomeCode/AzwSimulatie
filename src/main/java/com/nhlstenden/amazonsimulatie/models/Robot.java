@@ -1,9 +1,8 @@
 package com.nhlstenden.amazonsimulatie.models;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.nhlstenden.amazonsimulatie.base.RoutingEngine;
 import com.nhlstenden.amazonsimulatie.controllers.DocumentStoreHolder;
+import com.nhlstenden.amazonsimulatie.controllers.MessageBroker;
+import com.nhlstenden.amazonsimulatie.controllers.RoutingEngine;
 import net.ravendb.client.documents.session.IDocumentSession;
 
 import java.util.Deque;
@@ -38,6 +37,7 @@ public class Robot implements Object3D, Poolable {
     this.uuid = uuid;
     routingEngine = new RoutingEngine();
   }
+
   public Robot() {
     this.uuid = UUID.randomUUID().toString();
     routingEngine = new RoutingEngine();
@@ -96,36 +96,28 @@ public class Robot implements Object3D, Poolable {
       this.x = current.getGridX();
       this.y = current.getGridY();
       if (current == currentTask.getDestination()) {
-        if (currentTask.getTask() == RobotTask.Task.PICKUP) {
-
-          try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-            Rack rack = session.load(Rack.class, rackUUID);
+        try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
+          Rack rack = session.load(Rack.class, rackUUID);
+          RobotPOJO robot = session.load(RobotPOJO.class, uuid);
+          if (currentTask.getTask() == RobotTask.Task.PICKUP) {
+            robot.setRackUUID(rackUUID);
             rack.setStatus(Rack.RackStatus.MOVING);
             rack.updatePosition(x, y, -10);
-            World.Instance().parentObject(uuid, rackUUID);
-            session.saveChanges();
-          }
-          //grid.getNode(x, y).updateOccupation(true);
-        } else if (currentTask.getTask() == RobotTask.Task.DROP) {
-          try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-            Rack rack = session.load(Rack.class, rackUUID);
+            MessageBroker.Instance().parentObject(uuid, rackUUID);
+          } else if (currentTask.getTask() == RobotTask.Task.DROP) {
+            robot.setRackUUID(null);
             rack.setStatus(Rack.RackStatus.STORED);
             rack.updatePosition(x, y, z);
-            World.Instance().unparentObject(uuid, rackUUID);
-            World.Instance().updateObject(rack);
-            session.saveChanges();
-          }
-          //grid.getNode(x, y).updateOccupation(true);
-        } else if (currentTask.getTask() == RobotTask.Task.PARK) {
-          try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-            RobotPOJO robot = session.load(RobotPOJO.class, uuid);
+            MessageBroker.Instance().unparentObject(uuid, rackUUID);
+            MessageBroker.Instance().updateObject(rack);
+          } else if (currentTask.getTask() == RobotTask.Task.PARK) {
             robot.setStatus(RobotStatus.IDLE);
-            session.saveChanges();
           }
+          session.saveChanges();
         }
       }
 
-      World.Instance().updateObject(this);
+      MessageBroker.Instance().updateObject(this);
     } else if (!taskQueue.isEmpty()) {
       executeNextTask();
     }
@@ -142,7 +134,7 @@ public class Robot implements Object3D, Poolable {
 
   @Override
   public String getUUID() {
-    return this.uuid.toString();
+    return this.uuid;
   }
 
   @Override

@@ -5,10 +5,8 @@ import com.nhlstenden.amazonsimulatie.controllers.DocumentStoreHolder;
 import com.nhlstenden.amazonsimulatie.controllers.RESTController;
 import com.nhlstenden.amazonsimulatie.controllers.SimulationController;
 import com.nhlstenden.amazonsimulatie.views.WebAppView;
-import net.ravendb.client.documents.operations.DeleteByQueryOperation;
 import net.ravendb.client.documents.operations.Operation;
 import net.ravendb.client.documents.operations.PatchByQueryOperation;
-import net.ravendb.client.documents.queries.IndexQuery;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -62,7 +60,7 @@ public class WebSocketServer extends SpringBootServletInitializer implements Web
     DocumentStoreHolder.getStore().initialize();
     Operation operation = DocumentStoreHolder.getStore().operations()
       .sendAsync(
-        new PatchByQueryOperation("from RobotPOJOs as r update { r.status=\"IDLE\";}")
+        new PatchByQueryOperation("from RobotPOJOs as r update { r.status=\"IDLE\"; r.rackUUID = null }")
       );
 
     operation.waitForCompletion();

@@ -1,6 +1,5 @@
 package com.nhlstenden.amazonsimulatie.controllers;
 
-import com.nhlstenden.amazonsimulatie.base.Data;
 import com.nhlstenden.amazonsimulatie.base.Destination;
 import com.nhlstenden.amazonsimulatie.models.*;
 import net.ravendb.client.documents.BulkInsertOperation;
@@ -8,15 +7,32 @@ import net.ravendb.client.documents.session.IDocumentSession;
 
 import java.util.*;
 
-import static com.nhlstenden.amazonsimulatie.base.Data.truckpost;
+import static com.nhlstenden.amazonsimulatie.models.Data.truckpost;
 
+/*
+ * Deze class is een versie van het model van de simulatie. In dit geval is het
+ * de 3D wereld die we willen modelleren (magazijn). De zogenaamde domain-logic,
+ * de logica die van toepassing is op het domein dat de applicatie modelleerd, staat
+ * in het model. Dit betekent dus de logica die het magazijn simuleert.
+ */
 public class WarehouseManager implements Resource {
   private int loadingBay = 0;
   private int time = 0;
+  /*
+   * De wereld bestaat uit objecten, vandaar de naam worldObjects. Dit is een lijst
+   * van alle objecten in de 3D wereld. Deze objecten zijn in deze voorbeeldcode alleen
+   * nog robots. Er zijn ook nog meer andere objecten die ook in de wereld voor kunnen komen.
+   * Deze objecten moeten uiteindelijk ook in de lijst passen (overerving). Daarom is dit
+   * een lijst van Object3D onderdelen. Deze kunnen in principe alles zijn. (Robots, vrachrtwagens, etc)
+   */
   private HashMap<String, Robot> robots = new HashMap<>();
   private boolean[] loadingBayInUse = new boolean[Data.modules]; // for testing
   private Random rand = new Random();
 
+  /*
+   * De wereld maakt een lege lijst voor worldObjects aan. Daarin wordt nu één robot gestopt.
+   * Deze methode moet uitgebreid worden zodat alle objecten van de 3D wereld hier worden gemaakt.
+   */
   public WarehouseManager() {
     int rAmount = Data.modules * 6;
 
@@ -27,22 +43,22 @@ public class WarehouseManager implements Resource {
         try (BulkInsertOperation bulkInsert = DocumentStoreHolder.getStore().bulkInsert()) {
           for (int i = 0; i < rAmount; i++) {
             Robot r = new Robot(0, i);
-            RobotPOJO rp = new RobotPOJO(r.getUUID(),0, i);
+            RobotPOJO rp = new RobotPOJO(r.getUUID(), 0, i);
             bulkInsert.store(rp, r.getUUID());
           }
         }
 
       for (RobotPOJO rp : session.query(RobotPOJO.class).toList()) {
-        Robot r = new Robot(rp.getUUID(), rp.getX(),rp.getY());
+        Robot r = new Robot(rp.getUUID(), rp.getX(), rp.getY());
         robots.put(r.getUUID(), r);
-        World.Instance().addWall(r.getPx(), r.getPy());
+        MessageBroker.Instance().addWall(r.getPx(), r.getPy());
       }
     }
 
     for (int y = 0; y < (6 * Data.modules); y++) {
       if (y % 6 == 0 || y % 6 == 1 || y % 6 == 4 || y % 6 == 5) {
         for (int x = 0; x < 6; x++) {
-          World.Instance().addWall((29 - x), y);
+          MessageBroker.Instance().addWall((29 - x), y);
         }
       }
     }
@@ -60,9 +76,9 @@ public class WarehouseManager implements Resource {
         continue;
       }
       for (int x : Data.rackPositionsX) {
-        if (!World.Instance().getGrid().getNode(x, y).isOccupied()) {
-          World.Instance().getGrid().getNode(x, y).updateOccupation(true);
-          return World.Instance().getGrid().getNode(x, y);
+        if (!MessageBroker.Instance().getGrid().getNode(x, y).isOccupied()) {
+          MessageBroker.Instance().getGrid().getNode(x, y).updateOccupation(true);
+          return MessageBroker.Instance().getGrid().getNode(x, y);
         }
       }
     }
@@ -107,7 +123,7 @@ public class WarehouseManager implements Resource {
         int x = truckpost[i][1] + 24,
           y = (truckpost[i][0] + (loadingBay * 6));
 
-        Node delloc = World.Instance().getGrid().getNode(x, y);
+        Node delloc = MessageBroker.Instance().getGrid().getNode(x, y);
         Node drop = rackDropLocation();
 
         i++;
@@ -115,24 +131,18 @@ public class WarehouseManager implements Resource {
         Rack rack = session.load(Rack.class, cargo.remove());
         rack.updatePosition(x, y, 0);
 
-        World.Instance().updateObject(rack);
+        MessageBroker.Instance().updateObject(rack);
 
         LinkedList<RobotTask> t = new LinkedList<>();
 
         t.add(new RobotTask(delloc, RobotTask.Task.PICKUP));
         t.add(new RobotTask(drop, RobotTask.Task.DROP));
-        t.add(new RobotTask(World.Instance().getGrid().getNode(robot.getPx(), robot.getPy()), RobotTask.Task.PARK));
+        t.add(new RobotTask(MessageBroker.Instance().getGrid().getNode(robot.getPx(), robot.getPy()), RobotTask.Task.PARK));
         robot.assignTask(t);
         robot.setRack(rack);
-        //robot.setStatus(Robot.RobotStatus.WORKING);
         session.advanced().patch(robot.getUUID(), "status", Robot.RobotStatus.WORKING);
-        //World.Instance().getGrid().getNode(drop.getGridX(), drop.getGridY()).updateOccupation(true);
       }
       session.saveChanges();
     }
-  }
-
-  void updateRack() {
-
   }
 }
