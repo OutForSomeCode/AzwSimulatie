@@ -20,7 +20,8 @@ import {
 import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
 import TWEEN from '@tweenjs/tween.js';
 import Table = WebAssembly.Table;
-
+import Dat from "dat.gui";
+import "three-dat.gui";
 class WorldObjectManger {
   private worldObjects: Array<Group> = [];
   private preloadedModels: Record<string, Group> = {};
@@ -74,6 +75,12 @@ class WorldObjectManger {
 
   public initWorld() {
 
+    var gui = new Dat.GUI();
+    var geometry = new BoxGeometry(1, 1, 1);
+    var material = new MeshStandardMaterial();
+    var mesh = new Mesh(geometry, material);
+    this.scene.add(mesh);
+    gui.addMaterial("amount of warehouse modules", 0, 20, 1);
     const sphericalSkyboxGeometry = new SphereGeometry(900, 32, 32);
     const sphericalSkyboxMaterial = new MeshBasicMaterial({
       map: new TextureLoader().load('assets/textures/lebombo_2k.jpg'),
@@ -93,7 +100,7 @@ class WorldObjectManger {
     light.intensity = 4;
     this.scene.add(light);
 
-    /*let obj = this.getModel("Table");
+    let obj = this.getModel("Table");
     obj.position.x = 21;
     obj.position.y = -35;
     obj.position.z = 60;
@@ -101,7 +108,7 @@ class WorldObjectManger {
     obj.scale.x = 20;
     obj.scale.y = 20;
     obj.scale.z = 20;
-    this.addScene(obj);*/
+    this.addScene(obj);
     this.truck = this.getModel("Cone4D");
     this.scene.add(this.truck);
 
@@ -224,33 +231,41 @@ class WorldObjectManger {
   }
 
 
-  public movetruck(time): void {
-    const truckPosition = new Vector2();
-    const tankTarget = new Vector2();
 
-    const curve = new SplineCurve([
-      new Vector2(30, 10),
-      new Vector2(31, 7.5),
-      new Vector2(32, 5),
-      new Vector2(35, 3),
-      new Vector2(37, 2.7),
-      new Vector2(40, 2.5),
-      new Vector2(30, 2.5),
-      new Vector2(25, 2.5),
-      new Vector2(26, 2.3),
-      new Vector2(28, 2),
-      new Vector2(29, 0),
-      new Vector2(30, -5),
-      new Vector2(32, -20),
-      new Vector2(50, -5),
-      new Vector2(50, 10),
-      new Vector2(30, 10),
-    ]);
+  public movetruck(time , modulePosition): void{
+    const truckPosition = new Vector2();   // the x y coordinates of the truck
+    const tankTarget = new Vector2();  //the position where the front of the truck is
+    var moduleMultiplier = modulePosition * 6;    // the difference distance between modules
 
-    const points = curve.getPoints(50);
-    const geometry = new BufferGeometry().setFromPoints(points);
-    const material = new LineBasicMaterial({color: 0xff0000});
-    const splineObject = new Line(geometry, material);
+    //creates the line where the truck moves over
+    const curve = new SplineCurve( [
+      new Vector2(30,100),
+      new Vector2(30 , moduleMultiplier + 14),
+      new Vector2(30 , moduleMultiplier + 4),
+      new Vector2(31 , moduleMultiplier + 1.5),
+      new Vector2(32 , moduleMultiplier + -1),
+      new Vector2(35 , moduleMultiplier +-3),
+      new Vector2(37 , moduleMultiplier + -3.2) ,
+      new Vector2(40 , moduleMultiplier + -3.5),
+      new Vector2(30 , moduleMultiplier + -3.6),
+      new Vector2(25 , moduleMultiplier + -3.7),
+      new Vector2(26 , moduleMultiplier + -4),
+      new Vector2(28 , moduleMultiplier + -4.5 ),
+      new Vector2(29 , moduleMultiplier + -8),
+      new Vector2(29 , moduleMultiplier + -13),
+
+      new Vector2(30 ,  moduleMultiplier + -20),
+      new Vector2(30 ,  -20),
+      new Vector2(50 , -5),
+      new Vector2(50 , 10),
+      new Vector2(50 , 100),
+      new Vector2(30 , 100),
+    ] );
+
+    const points = curve.getPoints( 50 );
+    const geometry = new BufferGeometry().setFromPoints( points );
+    const material = new LineBasicMaterial( { color : 0xff0000 } );
+    const splineObject = new Line( geometry, material );
     splineObject.rotation.x = Math.PI * .5;
     splineObject.position.y = 0.05;
     this.scene.add(splineObject);
@@ -259,12 +274,15 @@ class WorldObjectManger {
     const tankTime = time * .05;
     curve.getPointAt(tankTime % 1, truckPosition);
     curve.getPointAt((tankTime + 0.01) % 1, tankTarget);
-    this.truck.position.set(truckPosition.x, 0, truckPosition.y);
-
-    if (this.truck.position.x < 40 && this.truck.position.z >= 2.3 && this.truck.position.z <= 2.7) {
-      this.truck.lookAt(40, 0, 2.5);
-
-    } else {
+    this.truck.position.set(truckPosition.x, 0, truckPosition.y); // put the tuck to the x y coordinates
+    let maxz = (-3.9 + moduleMultiplier);
+    let minz = (-3.38 + moduleMultiplier);
+    if(this.truck.position.x < 41 && this.truck.position.z >= maxz && this.truck.position.z <= minz ) //checks if the truck is between the given parameters and make it look backwards
+    {
+        this.truck.lookAt(41, 0, -4.1 + moduleMultiplier);
+    }
+    else //look at the line
+    {
       this.truck.lookAt(tankTarget.x, 0, tankTarget.y);
     }
   }

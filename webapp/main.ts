@@ -54,7 +54,7 @@ function frameStep() {
   renderer.render(_worldObjectManger.getScene(), camera);
   TWEEN.update();
   //time += 0.01;
-  //_worldObjectManger.movetruck(time);
+  //_worldObjectManger.movetruck(time , 1);
 }
 
 window.onload = init;

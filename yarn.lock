@@ -1084,6 +1084,11 @@ cyclist@^1.0.1:
   resolved "https://registry.yarnpkg.com/cyclist/-/cyclist-1.0.1.tgz#596e9698fd0c80e12038c2b82d6eb1b35b6224d9"
   integrity sha1-WW6WmP0MgOEgOMK4LW6xs1tiJNk=
 
+dat.gui@^0.7.3:
+  version "0.7.6"
+  resolved "https://registry.yarnpkg.com/dat.gui/-/dat.gui-0.7.6.tgz#92182a0f2dc96c26910f888238d3839166d82f76"
+  integrity sha512-9Uqr4aQUvp9q5P2b4y6gK604HXafubOq578OmOS8mjrIkYrBP4EbQ9gz9YRXgyPh7aQi+b9H/jAG7EucmhYpSA==
+
 date-now@^0.1.4:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/date-now/-/date-now-0.1.4.tgz#eaf439fd4d4848ad74e5cc7dbef200672b9e345b"
@@ -4357,10 +4362,23 @@ terser@^4.1.2:
     source-map "~0.6.1"
     source-map-support "~0.5.12"
 
+three-dat.gui@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/three-dat.gui/-/three-dat.gui-1.0.2.tgz#bb29c451e7156098596685dee5b70b582c0b94a8"
+  integrity sha512-NDLRaSsrGAxKFpkb0JL+anC5D3q5IVZ3bG9RXdwYcUbgrFm/ZQD5h3dTgGFrslnJ0OtmwtafNPxopn3vmS2fCQ==
+  dependencies:
+    dat.gui "^0.7.3"
+    three "^0.98.0"
+
 three@^0.109.0:
   version "0.109.0"
   resolved "https://registry.yarnpkg.com/three/-/three-0.109.0.tgz#611c9ef860d10bd107695cead6c6abcd2422e5fd"
   integrity sha512-XT99T3Hvgh2CEvwPdHYEunNE+clLK6KiT1U8En7YOgIqTUw4MrLeIc8zxQAJ6wbP8hhJaY5+Cff3jwBPpBa0gA==
+
+three@^0.98.0:
+  version "0.98.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.98.0.tgz#11d4e3cca4b5d099c7de0ea5afa153b5d20cda84"
+  integrity sha512-fihjYVjCmQbI03zt1+YCl/m+UrZCcDHFNLexgqBOIdPwnO6PYkQaYUsIbqtvNNse+BiMeu+pQWzZn9/NSnIv6A==
 
 through2@^0.6.3:
   version "0.6.5"
