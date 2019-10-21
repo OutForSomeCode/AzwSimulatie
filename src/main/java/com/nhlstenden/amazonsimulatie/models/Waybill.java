@@ -1,7 +1,5 @@
 package com.nhlstenden.amazonsimulatie.models;
 
-import com.nhlstenden.amazonsimulatie.base.Destination;
-
 import java.util.Deque;
 import java.util.UUID;
 

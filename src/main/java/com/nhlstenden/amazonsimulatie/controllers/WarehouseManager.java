@@ -1,11 +1,12 @@
 package com.nhlstenden.amazonsimulatie.controllers;
 
-import com.nhlstenden.amazonsimulatie.base.Destination;
+import com.nhlstenden.amazonsimulatie.models.Destination;
 import com.nhlstenden.amazonsimulatie.models.*;
 import net.ravendb.client.documents.BulkInsertOperation;
 import net.ravendb.client.documents.session.IDocumentSession;
 
 import java.util.*;
+import java.util.Queue;
 
 import static com.nhlstenden.amazonsimulatie.models.Data.truckpost;
 
@@ -123,8 +124,8 @@ public class WarehouseManager implements Resource {
         int x = truckpost[i][1] + 24,
           y = (truckpost[i][0] + (loadingBay * 6));
 
-        Node delloc = MessageBroker.Instance().getGrid().getNode(x, y);
-        Node drop = rackDropLocation();
+        //Node delloc = MessageBroker.Instance().getGrid().getNode(x, y);
+        //Node drop = rackDropLocation();
 
         i++;
 
@@ -133,12 +134,22 @@ public class WarehouseManager implements Resource {
 
         MessageBroker.Instance().updateObject(rack);
 
+        /*
         LinkedList<RobotTask> t = new LinkedList<>();
 
         t.add(new RobotTask(delloc, RobotTask.Task.PICKUP));
         t.add(new RobotTask(drop, RobotTask.Task.DROP));
         t.add(new RobotTask(MessageBroker.Instance().getGrid().getNode(robot.getPx(), robot.getPy()), RobotTask.Task.PARK));
         robot.assignTask(t);
+         */
+
+
+        Queue<RobotTaskStrategy> tasks = new LinkedList<>();
+        tasks.add(new RobotPickupStrategy(MessageBroker.Instance().getGrid().getNode(x, y)));
+        tasks.add(new RobotDropStrategy(rackDropLocation()));
+        tasks.add(new RobotParkStrategy(MessageBroker.Instance().getGrid().getNode(robot.getPx(), robot.getPy())));
+        robot.assignTask(tasks);
+
         robot.setRack(rack);
         session.advanced().patch(robot.getUUID(), "status", Robot.RobotStatus.WORKING);
       }

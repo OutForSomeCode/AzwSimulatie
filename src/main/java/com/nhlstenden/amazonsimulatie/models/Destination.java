@@ -1,4 +1,4 @@
-package com.nhlstenden.amazonsimulatie.base;
+package com.nhlstenden.amazonsimulatie.models;
 
 public enum Destination {
   WAREHOUSE,

@@ -5,10 +5,7 @@ import com.nhlstenden.amazonsimulatie.controllers.MessageBroker;
 import com.nhlstenden.amazonsimulatie.controllers.RoutingEngine;
 import net.ravendb.client.documents.session.IDocumentSession;
 
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.UUID;
+import java.util.*;
 
 /*
  * Deze class stelt een robot voor. Hij impelementeerd de class Object3D, omdat het ook een
@@ -17,12 +14,12 @@ import java.util.UUID;
  */
 public class Robot implements Object3D, Poolable {
   private RoutingEngine routingEngine;
-  private Queue<RobotTask> taskQueue = new LinkedList<>();
-  private RobotTask currentTask;
+  private Queue<RobotTaskStrategy> taskQueue = new LinkedList<>();
+  private RobotTaskStrategy currentTask;
   private Deque<Node> pathToTask = new LinkedList<>();
   private String rackUUID;
   private String uuid;
-  private boolean taskDone;
+  private boolean taskDone = false;
 
   private int x = 0;
   private int px = 0;
@@ -44,14 +41,6 @@ public class Robot implements Object3D, Poolable {
     routingEngine = new RoutingEngine();
   }
 
-  public Robot(RobotPOJO rp) {
-    this.x = rp.getX();
-    this.y = rp.getY();
-    this.z = rp.getZ();
-    this.uuid = rp.getUUID();
-    this.rackUUID = rp.getRackUUID();
-  }
-
   public Robot(int x, int y) {
     this();
     this.x = x;
@@ -68,7 +57,7 @@ public class Robot implements Object3D, Poolable {
     py = y;
   }
 
-  public void assignTask(LinkedList<RobotTask> tasks) {
+  public void assignTask(Queue<RobotTaskStrategy> tasks) {
     taskQueue = tasks;
     executeNextTask();
   }
@@ -76,6 +65,14 @@ public class Robot implements Object3D, Poolable {
   private void executeNextTask() {
     currentTask = taskQueue.remove();
     pathToTask = routingEngine.generateRoute(new Node(x, y), currentTask.getDestination());
+  }
+
+  public void taskDone() {
+
+  }
+
+  public String getRackUUID() {
+    return rackUUID;
   }
 
   /*
@@ -94,6 +91,8 @@ public class Robot implements Object3D, Poolable {
   public void update() {
     if (taskDone) {
       taskDone = false;
+      currentTask.execute(this);
+      /*
       try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
         Rack rack = session.load(Rack.class, rackUUID);
         RobotPOJO robot = session.load(RobotPOJO.class, uuid);
@@ -113,6 +112,7 @@ public class Robot implements Object3D, Poolable {
         }
         session.saveChanges();
       }
+       */
     } else if (!pathToTask.isEmpty()) {
       Node current = pathToTask.remove();
       this.x = current.getGridX();

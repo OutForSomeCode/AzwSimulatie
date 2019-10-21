@@ -1,6 +1,6 @@
 package com.nhlstenden.amazonsimulatie.controllers;
 
-import com.nhlstenden.amazonsimulatie.base.Destination;
+import com.nhlstenden.amazonsimulatie.models.Destination;
 import com.nhlstenden.amazonsimulatie.models.Rack;
 import com.nhlstenden.amazonsimulatie.models.Resource;
 import com.nhlstenden.amazonsimulatie.models.Waybill;
