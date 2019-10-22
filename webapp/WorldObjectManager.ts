@@ -144,7 +144,7 @@ class WorldObjectManger {
   public updateObject(command): void {
     // Wanneer het object dat moet worden geupdate nog niet bestaat (komt niet voor in de lijst met worldObjects op de client),
     // dan wordt het 3D model eerst aangemaakt in de 3D wereld.
-    if (Object.keys(this.worldObjects).indexOf(command.parameters.uuid) < 0) {
+    if (Object.keys(this.worldObjects).indexOf(command.parameters.id) < 0) {
       // Wanneer het object een robot is, wordt de code hieronder uitgevoerd.
       if (command.parameters.type === 'robot') {
         this.createRobot(command);
@@ -156,7 +156,7 @@ class WorldObjectManger {
     /*
    * Deze code wordt elke update uitgevoerd. Het update alle positiegegevens van het 3D object.
    */
-    const object = this.worldObjects[command.parameters.uuid];
+    const object = this.worldObjects[command.parameters.id];
 
     if (object == null)
       return;
@@ -216,7 +216,7 @@ class WorldObjectManger {
     const group = new Group();
     group.add(robot);
     this.scene.add(group);
-    this.worldObjects[command.parameters.uuid] = group;
+    this.worldObjects[command.parameters.id] = group;
   }
 
   public createRack(command): void {
@@ -227,7 +227,7 @@ class WorldObjectManger {
     //initial spawn position of the racks
     rack.position.y = -1000;
     scene.add(rack);
-    worldObjects[command.parameters.uuid] = rack;
+    worldObjects[command.parameters.id] = rack;
   }
 
 

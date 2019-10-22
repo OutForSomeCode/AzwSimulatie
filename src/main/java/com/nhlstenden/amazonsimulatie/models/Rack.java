@@ -7,7 +7,7 @@ public class Rack implements Object3D {
   private int x;
   private int y;
   private int z;
-  private String uuid;
+  private String id;
   private String item;
   private RackStatus status;
 
@@ -18,13 +18,10 @@ public class Rack implements Object3D {
                 int y,
               @JsonProperty("z")
                 int z,
-              @JsonProperty("uuid")
-                String uuid,
               @JsonProperty("item")
                 String item,
               @JsonProperty("status")
                 RackStatus status) {
-    this.uuid = uuid;
     this.status = status;
     this.item = item;
 
@@ -33,8 +30,8 @@ public class Rack implements Object3D {
     this.z = z;
   }
 
-  public Rack(String type, String uuid) {
-    this.uuid = uuid;//UUID.randomUUID().toString();
+  public Rack(String type, String id) {
+    this.id = id;//UUID.randomUUID().toString();
     this.item = type;
     this.status = RackStatus.POOLED;
   }
@@ -63,8 +60,8 @@ public class Rack implements Object3D {
 
 
   @Override
-  public String getUUID() {
-    return uuid;
+  public String getId() {
+    return id;
   }
 
   @Override

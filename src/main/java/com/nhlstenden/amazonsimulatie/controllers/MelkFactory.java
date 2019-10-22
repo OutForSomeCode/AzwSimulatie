@@ -7,7 +7,10 @@ import com.nhlstenden.amazonsimulatie.models.Waybill;
 import net.ravendb.client.documents.BulkInsertOperation;
 import net.ravendb.client.documents.session.IDocumentSession;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 
 public class MelkFactory implements Resource {
   boolean flipflop;
@@ -32,27 +35,29 @@ public class MelkFactory implements Resource {
             for (int i = 0; i < ra; i++) {
               Rack r = new Rack("kaas", UUID.randomUUID().toString());
               r.setStatus(Rack.RackStatus.WAITING);
-              bulkInsert.store(r, r.getUUID());
+              bulkInsert.store(r);
               pooledRacks.add(r);
             }
           }
         }
 
-        List<String> tmp = new ArrayList<>();
         for (Rack r : pooledRacks) {
           r.setStatus(Rack.RackStatus.WAITING);
-          tmp.add(r.getUUID());
         }
+
+        Waybill dump = new Waybill(UUID.randomUUID().toString());
+        dump.setRacks(pooledRacks);
+        dump.setDestination(Destination.WAREHOUSE);
+        dump.setStatus(Waybill.WaybillStatus.UNRESOLVED);
+        session.store(dump);
         session.saveChanges();
-        Waybill dump = new Waybill(new ArrayDeque<>(tmp), Destination.WAREHOUSE);
-        WaybillResolver.Instance().StoreResource(dump);
       }
     } else {
       // Request goods
       try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
         int s = session.query(Rack.class).whereEquals("status", Rack.RackStatus.STORED).count();
-        if (s > 100)
-          WaybillResolver.Instance().RequestResource("kaas", ran.nextInt(30));
+        //if (s > 100)
+        // WaybillResolver.Instance().RequestResource("kaas", ran.nextInt(30));
       }
 
     }
@@ -67,13 +72,14 @@ public class MelkFactory implements Resource {
   @Override
   public void StoreResource(Waybill waybill) {
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      for (String r : waybill.getRacks()) {
-        Rack rack = session.load(Rack.class, r);
+      for (Rack rack : waybill.getRacks()) {
+        // = session.load(Rack.class, r);
         MessageBroker.Instance().getGrid().getNode(rack.getX(), rack.getY()).updateOccupation(false);
         rack.updatePosition(rack.getX(), rack.getY(), -5);
         rack.setStatus(Rack.RackStatus.POOLED);
         MessageBroker.Instance().updateObject(rack);
       }
+      session.delete(waybill.getId());
       session.saveChanges();
     }
   }

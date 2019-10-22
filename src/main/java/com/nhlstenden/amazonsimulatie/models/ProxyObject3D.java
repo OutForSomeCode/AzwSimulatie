@@ -23,8 +23,8 @@ public class ProxyObject3D implements Object3D {
   }
 
   @Override
-  public String getUUID() {
-    return this.object.getUUID();
+  public String getId() {
+    return this.object.getId();
   }
 
   @Override

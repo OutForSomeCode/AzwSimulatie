@@ -19,16 +19,16 @@ public class RobotDropStrategy implements RobotTaskStrategy {
   public void execute(Robot robot) {
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
       Rack rack = session.load(Rack.class, robot.getRackUUID());
-      RobotPOJO robotP = session.load(RobotPOJO.class, robot.getUUID());
+      RobotPOJO robotP = session.load(RobotPOJO.class, robot.getId());
 
-      robotP.setRackUUID(null);
+      robotP.setRack(rack);
       rack.setStatus(Rack.RackStatus.STORED);
       rack.updatePosition(robot.getX(), robot.getY(), 0);
-      MessageBroker.Instance().unparentObject(robot.getUUID(), robot.getRackUUID());
+      MessageBroker.Instance().unparentObject(robot.getId(), robot.getRackUUID());
       MessageBroker.Instance().updateObject(rack);
 
       session.saveChanges();
-      robot.taskDone();
+      robot.taskDone(this);
     }
   }
 }

@@ -21,8 +21,8 @@ public class SimulationController extends Controller {
   public SimulationController() {
     this.warehouseManager = new WarehouseManager();
     this.melkFactory = new MelkFactory();
-    WaybillResolver.Instance().Register(this.warehouseManager);
-    WaybillResolver.Instance().Register(this.melkFactory);
+    //WaybillResolver.Instance().Register(this.warehouseManager);
+    //WaybillResolver.Instance().Register(this.melkFactory);
   }
 
   /*
@@ -72,9 +72,9 @@ public class SimulationController extends Controller {
       }
       for (RobotPOJO robot : session.query(RobotPOJO.class).toList()) {
         this.getQueue().addCommandToQueue(MessageBroker.UPDATE_COMMAND, new ProxyRobot3D(robot));
-        if (robot.getRackUUID() != null) {
+        if (robot.getRack() != null) {
           this.getQueue().addCommandToQueue(MessageBroker.PARENT_COMMAND,
-            String.format("%s|%s", robot.getUUID(), robot.getRackUUID()));
+            String.format("%s|%s", robot.getId(), robot.getRack().getId()));
         }
       }
     }

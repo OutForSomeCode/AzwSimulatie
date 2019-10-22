@@ -1,12 +1,11 @@
 package com.nhlstenden.amazonsimulatie.controllers;
 
-import com.nhlstenden.amazonsimulatie.models.Destination;
 import com.nhlstenden.amazonsimulatie.models.*;
 import net.ravendb.client.documents.BulkInsertOperation;
 import net.ravendb.client.documents.session.IDocumentSession;
 
-import java.util.*;
 import java.util.Queue;
+import java.util.*;
 
 import static com.nhlstenden.amazonsimulatie.models.Data.truckpost;
 
@@ -16,9 +15,9 @@ import static com.nhlstenden.amazonsimulatie.models.Data.truckpost;
  * de logica die van toepassing is op het domein dat de applicatie modelleerd, staat
  * in het model. Dit betekent dus de logica die het magazijn simuleert.
  */
-public class WarehouseManager implements Resource {
+public class WarehouseManager implements Resource, Warehouse {
   private int loadingBay = 0;
-  private int time = 0;
+  private int timer = 0;
   /*
    * De wereld bestaat uit objecten, vandaar de naam worldObjects. Dit is een lijst
    * van alle objecten in de 3D wereld. Deze objecten zijn in deze voorbeeldcode alleen
@@ -29,6 +28,8 @@ public class WarehouseManager implements Resource {
   private HashMap<String, Robot> robots = new HashMap<>();
   private boolean[] loadingBayInUse = new boolean[Data.modules]; // for testing
   private Random rand = new Random();
+
+  private List<String> waybills = new ArrayList<>();
 
   /*
    * De wereld maakt een lege lijst voor worldObjects aan. Daarin wordt nu één robot gestopt.
@@ -44,14 +45,16 @@ public class WarehouseManager implements Resource {
         try (BulkInsertOperation bulkInsert = DocumentStoreHolder.getStore().bulkInsert()) {
           for (int i = 0; i < rAmount; i++) {
             Robot r = new Robot(0, i);
-            RobotPOJO rp = new RobotPOJO(r.getUUID(), 0, i);
-            bulkInsert.store(rp, r.getUUID());
+            r.registerWarehouse(this);
+            RobotPOJO rp = new RobotPOJO(r.getId(), 0, i);
+            bulkInsert.store(rp);
           }
         }
 
       for (RobotPOJO rp : session.query(RobotPOJO.class).toList()) {
-        Robot r = new Robot(rp.getUUID(), rp.getX(), rp.getY());
-        robots.put(r.getUUID(), r);
+        Robot r = new Robot(rp.getId(), rp.getX(), rp.getY());
+        r.registerWarehouse(this);
+        robots.put(r.getId(), r);
         MessageBroker.Instance().addWall(r.getPx(), r.getPy());
       }
     }
@@ -69,6 +72,25 @@ public class WarehouseManager implements Resource {
     for (Map.Entry<String, Robot> r : robots.entrySet()) {
       r.getValue().update();
     }
+    try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
+      List<Waybill> uway = session.query(Waybill.class)
+        .whereEquals("status", Waybill.WaybillStatus.UNRESOLVED)
+        .andAlso()
+        .whereEquals("destination", Destination.WAREHOUSE)
+        .toList();
+      if (uway.size() <= 0)
+        return;
+      for (Waybill w : uway) {
+        w.setStatus(Waybill.WaybillStatus.RESOLVING);
+        StoreResource(w);
+      }
+
+      session.saveChanges();
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
   }
 
   private Node rackDropLocation() {
@@ -93,13 +115,10 @@ public class WarehouseManager implements Resource {
         .whereEquals("status", Rack.RackStatus.STORED)
         .take(amount).toList();
 
-      List<String> tmp = new ArrayList<>();
-      for (Rack r : pooledRacks) {
-        tmp.add(r.getUUID());
-      }
-
-      Waybill dump = new Waybill(new ArrayDeque<>(tmp), Destination.MELKFACTORY);
-      WaybillResolver.Instance().StoreResource(dump);
+      Waybill dump = new Waybill(UUID.randomUUID().toString());
+      dump.setRacks(pooledRacks);
+      dump.setDestination(Destination.MELKFACTORY);
+      //WaybillResolver.Instance().StoreResource(dump.getUuid(), Destination.MELKFACTORY);
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -107,23 +126,23 @@ public class WarehouseManager implements Resource {
 
   @Override
   public void StoreResource(Waybill waybill) {
-    Deque<String> cargo = waybill.getRacks();
-    loadingBay++;
-    if (loadingBay > 9) loadingBay = 0;
-
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
+      List<Rack> cargo = waybill.getRacks();
+      loadingBay++;
+      if (loadingBay > 9) loadingBay = 0;
+
       List<RobotPOJO> idleRobots = session.query(RobotPOJO.class)
         .whereEquals("status", Robot.RobotStatus.IDLE)
         .take(cargo.size()).toList();
 
       for (int i = 0; i < idleRobots.size(); i++) {
         RobotPOJO r = idleRobots.get(i);
-        Robot robot = robots.get(r.getUUID());
+        Robot robot = robots.get(r.getId());
 
         int x = truckpost[i][1] + 24,
-            y = (truckpost[i][0] + (loadingBay * 6));
+          y = (truckpost[i][0] + (loadingBay * 6));
 
-        Rack rack = session.load(Rack.class, cargo.remove());
+        Rack rack = cargo.remove(0);
         rack.updatePosition(x, y, 0);
 
         MessageBroker.Instance().updateObject(rack);
@@ -135,9 +154,28 @@ public class WarehouseManager implements Resource {
         robot.assignTask(tasks);
 
         robot.setRack(rack);
-        session.advanced().patch(robot.getUUID(), "status", Robot.RobotStatus.WORKING);
+        robot.setWaybillUUID(waybill.getId());
+        r.setStatus(Robot.RobotStatus.WORKING);
+        r.setWaybill(waybill);
       }
+      //session.delete(waybill.getUuid());
       session.saveChanges();
+    }
+  }
+
+  @Override
+  public void robotFinishedTask(Robot robot, RobotTaskStrategy task) {
+    if (task instanceof RobotDropStrategy) {
+      try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
+        Waybill w = session.load(Waybill.class, robot.getWaybillUUID());
+        Rack r = session.load(Rack.class, robot.getRackUUID());
+
+        w.getRacks().remove(r);
+        if (w.getRacks().size() <= 0)
+          session.delete(w);
+
+        session.saveChanges();
+      }
     }
   }
 }

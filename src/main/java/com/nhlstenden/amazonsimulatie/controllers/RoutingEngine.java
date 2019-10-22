@@ -2,10 +2,7 @@ package com.nhlstenden.amazonsimulatie.controllers;
 
 import com.nhlstenden.amazonsimulatie.models.*;
 
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.PriorityQueue;
+import java.util.*;
 
 public class RoutingEngine {
   private Node start;
@@ -63,4 +60,31 @@ public class RoutingEngine {
     path.addFirst(current);
     getPath(cameFrom.get(current));
   }
+
+  public class Greedy {
+    private Node node;
+    private int priority;
+
+    Greedy(Node node, int priority) {
+      this.node = node;
+      this.priority = priority;
+    }
+
+    public Node getNode() {
+      return node;
+    }
+
+    int getPriority() {
+      return priority;
+    }
+  }
+
+  public class GreedyComparator implements Comparator<Greedy> {
+
+    @Override
+    public int compare(Greedy g1, Greedy g2) {
+      return Integer.compare(g1.getPriority(), g2.getPriority());
+    }
+  }
+
 }

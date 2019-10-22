@@ -2,38 +2,40 @@ package com.nhlstenden.amazonsimulatie.models;
 
 import com.nhlstenden.amazonsimulatie.controllers.MessageBroker;
 import com.nhlstenden.amazonsimulatie.controllers.RoutingEngine;
+import com.nhlstenden.amazonsimulatie.controllers.Warehouse;
 
-import java.util.*;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.UUID;
 
 /*
  * Deze class stelt een robot voor. Hij impelementeerd de class Object3D, omdat het ook een
  * 3D object is. Ook implementeerd deze class de interface Updatable. Dit is omdat
  * een robot geupdate kan worden binnen de 3D wereld om zich zo voort te bewegen.
  */
-public class Robot implements Object3D, Poolable {
+public class Robot implements Object3D {
   private RoutingEngine routingEngine;
   private Queue<RobotTaskStrategy> taskQueue = new LinkedList<>();
   private RobotTaskStrategy currentTask;
   private Deque<Node> pathToTask = new LinkedList<>();
   private String rackUUID;
+  private String waybillUUID;
   private String uuid;
+  private Warehouse warehouse;
   private boolean executeTask = false;
-
   private int x = 0;
   private int px = 0;
   private int y = 0;
   private int py = 0;
   private int z = 0;
-
   private int rotationX = 0;
   private int rotationY = 0;
   private int rotationZ = 0;
-
   public Robot(String uuid) {
     this.uuid = uuid;
     routingEngine = new RoutingEngine();
   }
-
   public Robot() {
     this.uuid = UUID.randomUUID().toString();
     routingEngine = new RoutingEngine();
@@ -55,6 +57,18 @@ public class Robot implements Object3D, Poolable {
     py = y;
   }
 
+  public String getWaybillUUID() {
+    return waybillUUID;
+  }
+
+  public void setWaybillUUID(String waybillUUID) {
+    this.waybillUUID = waybillUUID;
+  }
+
+  public void registerWarehouse(Warehouse warehouse) {
+    this.warehouse = warehouse;
+  }
+
   public void assignTask(Queue<RobotTaskStrategy> tasks) {
     taskQueue = tasks;
     executeNextTask();
@@ -65,8 +79,8 @@ public class Robot implements Object3D, Poolable {
     pathToTask = routingEngine.generateRoute(new Node(x, y), currentTask.getDestination());
   }
 
-  public void taskDone() {
-
+  public void taskDone(RobotTaskStrategy task) {
+    warehouse.robotFinishedTask(this, task);
   }
 
   public String getRackUUID() {
@@ -105,12 +119,7 @@ public class Robot implements Object3D, Poolable {
   }
 
   @Override
-  public boolean inUse() {
-    return !taskQueue.isEmpty();
-  }
-
-  @Override
-  public String getUUID() {
+  public String getId() {
     return this.uuid;
   }
 
@@ -155,10 +164,6 @@ public class Robot implements Object3D, Poolable {
     return this.rotationZ;
   }
 
-  @Override
-  public void putInPool() {
-  }
-
   public int getPx() {
     return px;
   }
@@ -168,7 +173,7 @@ public class Robot implements Object3D, Poolable {
   }
 
   public void setRack(Rack rack) {
-    this.rackUUID = rack.getUUID();
+    this.rackUUID = rack.getId();
   }
 
   public enum RobotStatus {

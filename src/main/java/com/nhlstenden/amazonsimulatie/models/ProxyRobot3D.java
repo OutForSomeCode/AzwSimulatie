@@ -22,13 +22,13 @@ public class ProxyRobot3D implements Object3D {
     this.rob = rob;
   }
 
-  public String getRackUUID() {
-    return this.rob.getRackUUID();
+  public Rack getRack() {
+    return this.rob.getRack();
   }
 
   @Override
-  public String getUUID() {
-    return this.rob.getUUID();
+  public String getId() {
+    return this.rob.getId();
   }
 
   @Override

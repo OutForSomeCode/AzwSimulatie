@@ -1,4 +1,8 @@
 package com.nhlstenden.amazonsimulatie.controllers;
 
-public abstract class Warehouse {
+import com.nhlstenden.amazonsimulatie.models.Robot;
+import com.nhlstenden.amazonsimulatie.models.RobotTaskStrategy;
+
+public interface Warehouse {
+  void robotFinishedTask(Robot robot, RobotTaskStrategy task);
 }

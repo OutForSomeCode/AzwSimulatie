@@ -8,7 +8,7 @@ package com.nhlstenden.amazonsimulatie.models;
  * setters nodig zijn.
  */
 public interface Object3D {
-  String getUUID();
+  String getId();
 
   String getType();
 
