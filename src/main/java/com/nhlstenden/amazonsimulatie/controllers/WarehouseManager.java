@@ -116,33 +116,17 @@ public class WarehouseManager implements Resource {
         .whereEquals("status", Robot.RobotStatus.IDLE)
         .take(cargo.size()).toList();
 
-      int i = 0;
-
-      for (RobotPOJO r : idleRobots) {
+      for (int i = 0; i < idleRobots.size(); i++) {
+        RobotPOJO r = idleRobots.get(i);
         Robot robot = robots.get(r.getUUID());
 
         int x = truckpost[i][1] + 24,
-          y = (truckpost[i][0] + (loadingBay * 6));
-
-        //Node delloc = MessageBroker.Instance().getGrid().getNode(x, y);
-        //Node drop = rackDropLocation();
-
-        i++;
+            y = (truckpost[i][0] + (loadingBay * 6));
 
         Rack rack = session.load(Rack.class, cargo.remove());
         rack.updatePosition(x, y, 0);
 
         MessageBroker.Instance().updateObject(rack);
-
-        /*
-        LinkedList<RobotTask> t = new LinkedList<>();
-
-        t.add(new RobotTask(delloc, RobotTask.Task.PICKUP));
-        t.add(new RobotTask(drop, RobotTask.Task.DROP));
-        t.add(new RobotTask(MessageBroker.Instance().getGrid().getNode(robot.getPx(), robot.getPy()), RobotTask.Task.PARK));
-        robot.assignTask(t);
-         */
-
 
         Queue<RobotTaskStrategy> tasks = new LinkedList<>();
         tasks.add(new RobotPickupStrategy(MessageBroker.Instance().getGrid().getNode(x, y)));

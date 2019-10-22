@@ -1,9 +1,6 @@
 package com.nhlstenden.amazonsimulatie.controllers;
 
-import com.nhlstenden.amazonsimulatie.models.Greedy;
-import com.nhlstenden.amazonsimulatie.models.GreedyComparator;
-import com.nhlstenden.amazonsimulatie.models.Grid;
-import com.nhlstenden.amazonsimulatie.models.Node;
+import com.nhlstenden.amazonsimulatie.models.*;
 
 import java.util.Deque;
 import java.util.HashMap;
@@ -13,19 +10,22 @@ import java.util.PriorityQueue;
 public class RoutingEngine {
   private Node start;
   private Node end;
-  private PriorityQueue<Greedy> frontier = new PriorityQueue<>(999, new GreedyComparator());
+  private PriorityQueue<Greedy> frontier = new PriorityQueue<>(180 * Data.modules, new GreedyComparator());
   private Deque<Node> path = new LinkedList<>();
   private HashMap<Node, Node> cameFrom = new HashMap<>();
+  private HashMap<Node, Integer> currentCost = new HashMap<>();
 
 
   public Deque<Node> generateRoute(Node start, Node end) {
     frontier.clear();
     path.clear();
     cameFrom.clear();
+    currentCost.clear();
     this.start = start;
     this.end = end;
     frontier.add(new Greedy(this.start, 0));
     cameFrom.put(this.start, null);
+    currentCost.put(this.start, 0);
     scanGrid();
     getPath(this.end);
     return path;
@@ -43,9 +43,12 @@ public class RoutingEngine {
         break;
       }
       for (Node next : grid.getNeighbours(current)) {
-        if (!cameFrom.containsKey(next)) {
-          if (!next.isOccupied() || next == end) {
-            int priority = heuristic(next, end);
+        if (!next.isOccupied() || next == end) {
+          int newCost = currentCost.get(current) + 1;
+
+          if (!currentCost.containsKey(next) || newCost < currentCost.get(next)) {
+            int priority = newCost + heuristic(next, end);
+            currentCost.put(next, newCost);
             frontier.add(new Greedy(next, priority));
             cameFrom.put(next, current);
           }
