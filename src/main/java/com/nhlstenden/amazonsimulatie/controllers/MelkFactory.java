@@ -16,7 +16,7 @@ public class MelkFactory {
 
   public void update() {
     time++;
-    if (time < 10)
+    if (time < 20)
       return;
     flipflop = !flipflop;
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
