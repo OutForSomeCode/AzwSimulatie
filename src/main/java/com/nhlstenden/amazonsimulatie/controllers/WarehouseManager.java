@@ -6,11 +6,14 @@ import com.nhlstenden.amazonsimulatie.models.generated.Robot;
 import com.nhlstenden.amazonsimulatie.models.generated.Waybill;
 import net.ravendb.client.documents.BulkInsertOperation;
 import net.ravendb.client.documents.session.IDocumentSession;
+import net.ravendb.client.documents.subscriptions.SubscriptionBatch;
+import net.ravendb.client.documents.subscriptions.SubscriptionWorker;
 
 import java.util.Queue;
 import java.util.*;
 
 import static com.nhlstenden.amazonsimulatie.models.Data.truckpost;
+import static com.nhlstenden.amazonsimulatie.models.generated.Waybill.Destination.MELKFACTORY;
 
 /*
  * Deze class is een versie van het model van de simulatie. In dit geval is het
@@ -68,36 +71,28 @@ public class WarehouseManager implements Warehouse {
         }
       }
     }
+
+    String subscriptionName = DocumentStoreHolder.getStore().subscriptions().create(Waybill.class);
+    SubscriptionWorker<Waybill> workerWBatch = DocumentStoreHolder.getStore().subscriptions().getSubscriptionWorker(Waybill.class, subscriptionName);
+    workerWBatch.run(batch -> {
+      for (SubscriptionBatch.Item<Waybill> item : batch.getItems()) {
+        if (item.getResult().getStatus() == Waybill.Status.UNRESOLVED)
+          switch (item.getResult().getDestination()) {
+            case WAREHOUSE:
+              StoreResource(item.getId());
+              break;
+            case MELKFACTORY:
+              RequestResource(item.getId());
+              break;
+          }
+      }
+    });
   }
 
   public void update() {
     for (Map.Entry<String, RobotImp> r : robots.entrySet()) {
       r.getValue().update();
     }
-    try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      List<Waybill> uway = session.query(Waybill.class)
-        .whereEquals("status", Waybill.Status.UNRESOLVED)
-        .toList();
-      if (uway.size() <= 0)
-        return;
-      for (Waybill w : uway) {
-        w.setStatus(Waybill.Status.RESOLVING);
-        switch (w.getDestination()) {
-          case WAREHOUSE:
-            StoreResource(w);
-            break;
-          case MELKFACTORY:
-            RequestResource(w);
-            break;
-        }
-      }
-
-      session.saveChanges();
-
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-
   }
 
   private Node rackDropLocation() {
@@ -115,9 +110,11 @@ public class WarehouseManager implements Warehouse {
     return null;
   }
 
-  private void RequestResource(Waybill waybill) {
+  private void RequestResource(String waybillId) {
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
+      Waybill waybill = session.load(Waybill.class, waybillId);
       List<String> cargo = waybill.getRacks();
+      waybill.setStatus(Waybill.Status.RESOLVING);
       waybill.setTodoList(cargo);
       loadingBay++;
       if (loadingBay > 9) loadingBay = 0;
@@ -150,9 +147,11 @@ public class WarehouseManager implements Warehouse {
     }
   }
 
-  void StoreResource(Waybill waybill) {
+  void StoreResource(String waybillId) {
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
+      Waybill waybill = session.load(Waybill.class, waybillId);
       List<String> cargo = waybill.getRacks();
+      waybill.setStatus(Waybill.Status.RESOLVING);
       waybill.setTodoList(cargo);
       loadingBay++;
       if (loadingBay > 9) loadingBay = 0;
@@ -200,7 +199,7 @@ public class WarehouseManager implements Warehouse {
           w.getTodoList().remove(robotImp.getRackUUID());
 
         if (w.getTodoList() == null || w.getTodoList().size() <= 0) {
-          if (w.getDestination() == Waybill.Destination.MELKFACTORY)
+          if (w.getDestination() == MELKFACTORY)
             for (String id : w.getRacks()) {
               Rack r = session.load(Rack.class, id);
               r.setZ(-10);
