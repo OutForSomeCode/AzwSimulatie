@@ -1,8 +1,8 @@
 package com.nhlstenden.amazonsimulatie.models;
 
 import com.nhlstenden.amazonsimulatie.models.generated.Object3D;
-import com.nhlstenden.amazonsimulatie.models.generated.Robot;
 import com.nhlstenden.amazonsimulatie.models.generated.Rack;
+import com.nhlstenden.amazonsimulatie.models.generated.Robot;
 
 /*
  * Deze class wordt gebruikt om informatie van het model aan de view te kunnen geven. Dit

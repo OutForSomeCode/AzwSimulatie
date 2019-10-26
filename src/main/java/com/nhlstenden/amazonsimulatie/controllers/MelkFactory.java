@@ -16,7 +16,7 @@ public class MelkFactory {
 
   public void update() {
     time++;
-    if (time < 10)
+    if (time < 30)
       return;
     flipflop = !flipflop;
     if (flipflop) {
@@ -25,7 +25,7 @@ public class MelkFactory {
       // Request goods
       try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
         int s = session.query(Rack.class).whereEquals("status", Rack.Status.STORED).count();
-        if (s > 150)
+        if (s > 100)
           requestWaybill();
       }
 

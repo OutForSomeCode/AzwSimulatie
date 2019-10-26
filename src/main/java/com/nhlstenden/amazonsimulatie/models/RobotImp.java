@@ -5,12 +5,10 @@ import com.nhlstenden.amazonsimulatie.controllers.RoutingEngine;
 import com.nhlstenden.amazonsimulatie.controllers.Warehouse;
 import com.nhlstenden.amazonsimulatie.models.generated.Object3D;
 import com.nhlstenden.amazonsimulatie.models.generated.Rack;
-import com.nhlstenden.amazonsimulatie.models.generated.Robot;
 
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.UUID;
 
 /*
  * Deze class stelt een robot voor. Hij impelementeerd de class Object3D, omdat het ook een

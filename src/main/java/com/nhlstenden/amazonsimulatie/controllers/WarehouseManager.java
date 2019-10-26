@@ -20,7 +20,6 @@ import static com.nhlstenden.amazonsimulatie.models.Data.truckpost;
  */
 public class WarehouseManager implements Warehouse {
   private int loadingBay = 0;
-  private int timer = 0;
   /*
    * De wereld bestaat uit objecten, vandaar de naam worldObjects. Dit is een lijst
    * van alle objecten in de 3D wereld. Deze objecten zijn in deze voorbeeldcode alleen
@@ -29,10 +28,6 @@ public class WarehouseManager implements Warehouse {
    * een lijst van Object3D onderdelen. Deze kunnen in principe alles zijn. (Robots, vrachrtwagens, etc)
    */
   private HashMap<String, RobotImp> robots = new HashMap<>();
-  private boolean[] loadingBayInUse = new boolean[Data.modules]; // for testing
-  private Random rand = new Random();
-
-  private List<String> waybills = new ArrayList<>();
 
   /*
    * De wereld maakt een lege lijst voor worldObjects aan. Daarin wordt nu één robot gestopt.
@@ -48,6 +43,7 @@ public class WarehouseManager implements Warehouse {
         try (BulkInsertOperation bulkInsert = DocumentStoreHolder.getStore().bulkInsert()) {
           for (int i = 0; i < rAmount; i++) {
             Robot rp = new Robot();
+            rp.setStatus(Robot.Status.IDLE);
             rp.setX(0);
             rp.setY(i);
             bulkInsert.store(rp);

@@ -1,6 +1,8 @@
 package com.nhlstenden.amazonsimulatie.controllers;
 
-import com.nhlstenden.amazonsimulatie.models.*;
+import com.nhlstenden.amazonsimulatie.models.Data;
+import com.nhlstenden.amazonsimulatie.models.Grid;
+import com.nhlstenden.amazonsimulatie.models.Node;
 
 import java.util.*;
 
