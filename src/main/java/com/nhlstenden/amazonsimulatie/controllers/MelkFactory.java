@@ -16,19 +16,18 @@ public class MelkFactory {
 
   public void update() {
     time++;
-    if (time < 30)
+    if (time < 10)
       return;
     flipflop = !flipflop;
-    if (flipflop) {
-      sendWaybill();
-    } else {
-      // Request goods
-      try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-        int s = session.query(Rack.class).whereEquals("status", Rack.Status.STORED).count();
+    try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
+      int s = session.query(Rack.class).whereEquals("status", Rack.Status.STORED).count();
+      if (flipflop) {
+        if (s < 300)
+          sendWaybill();
+      } else {
         if (s > 100)
           requestWaybill();
       }
-
     }
     time = 0;
   }

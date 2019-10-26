@@ -68,7 +68,8 @@ public class SimulationController extends Controller {
      */
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
       for (Rack rack : session.query(Rack.class).toList()) {
-        this.getQueue().addCommandToQueue(MessageBroker.UPDATE_COMMAND, new ProxyObject3D(rack));
+        if (rack.getStatus() != Rack.Status.POOLED)
+          this.getQueue().addCommandToQueue(MessageBroker.UPDATE_COMMAND, new ProxyObject3D(rack));
       }
       for (Robot robot : session.query(Robot.class).toList()) {
         this.getQueue().addCommandToQueue(MessageBroker.UPDATE_COMMAND, new ProxyRobot3D(robot));
