@@ -1,0 +1,28 @@
+{
+  "$id": "object3d.schema.json",
+  "javaType": "com.nhlstenden.amazonsimulatie.models.generated.Object3D",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "x": {
+      "type": "integer"
+    },
+    "y": {
+      "type": "integer"
+    },
+    "z": {
+      "type": "integer"
+    },
+    "rotationX": {
+      "type": "integer"
+    },
+    "rotationY": {
+      "type": "integer"
+    },
+    "rotationZ": {
+      "type": "integer"
+    }
+  }
+}

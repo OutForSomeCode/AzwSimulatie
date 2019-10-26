@@ -1,6 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
+apply plugin: 'jsonschema2pojo'
 
 repositories {
   mavenCentral()
@@ -11,7 +12,8 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath("org.springframework.boot:spring-boot-gradle-plugin:2.2.0.RELEASE")
+    classpath 'org.jsonschema2pojo:jsonschema2pojo-gradle-plugin:1.0.1'
+    classpath "org.springframework.boot:spring-boot-gradle-plugin:2.2.0.RELEASE"
   }
 }
 
@@ -49,4 +51,7 @@ task webpack(type: Exec) {
   commandLine "$projectDir/node_modules/.bin/webpack"
 }
 
-
+jsonSchema2Pojo {
+  usePrimitives = true
+  targetDirectory = file("${project.projectDir}/src/main/java")
+}

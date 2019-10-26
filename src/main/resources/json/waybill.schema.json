@@ -1,0 +1,32 @@
+{
+  "$id": "waybill.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "javaType": "com.nhlstenden.amazonsimulatie.models.generated.Waybill",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "destination": {
+      "type": "string",
+      "enum": [
+        "WAREHOUSE",
+        "MELKFACTORY"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "UNRESOLVED",
+        "RESOLVING",
+        "RESOLVED"
+      ]
+    },
+    "racks": {
+      "type": "array",
+      "items": {
+        "type" : "string"
+      }
+    }
+  }
+}

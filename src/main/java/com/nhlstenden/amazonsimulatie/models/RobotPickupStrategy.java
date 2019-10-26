@@ -2,6 +2,8 @@ package com.nhlstenden.amazonsimulatie.models;
 
 import com.nhlstenden.amazonsimulatie.controllers.DocumentStoreHolder;
 import com.nhlstenden.amazonsimulatie.controllers.MessageBroker;
+import com.nhlstenden.amazonsimulatie.models.generated.Rack;
+import com.nhlstenden.amazonsimulatie.models.generated.Robot;
 import net.ravendb.client.documents.session.IDocumentSession;
 
 public class RobotPickupStrategy implements RobotTaskStrategy {
@@ -17,18 +19,20 @@ public class RobotPickupStrategy implements RobotTaskStrategy {
 
 
   @Override
-  public void execute(Robot robot) {
+  public void execute(RobotImp robotImp) {
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      Rack rack = session.load(Rack.class, robot.getRackUUID());
-      RobotPOJO robotP = session.load(RobotPOJO.class, robot.getId());
+      Rack rack = session.load(Rack.class, robotImp.getRackUUID());
+      Robot robotP = session.load(Robot.class, robotImp.getId());
 
       robotP.setRack(rack);
-      rack.setStatus(Rack.RackStatus.MOVING);
-      rack.updatePosition(robot.getX(), robot.getY(), -10);
-      MessageBroker.Instance().parentObject(robot.getId(), robot.getRackUUID());
+      rack.setStatus(Rack.Status.MOVING);
+      rack.setX(robotImp.getX());
+      rack.setY(robotImp.getY());
+      rack.setZ(-10);
+      MessageBroker.Instance().parentObject(robotImp.getId(), robotImp.getRackUUID());
 
       session.saveChanges();
-      robot.taskDone(this);
+      robotImp.taskDone(this);
     }
   }
 }

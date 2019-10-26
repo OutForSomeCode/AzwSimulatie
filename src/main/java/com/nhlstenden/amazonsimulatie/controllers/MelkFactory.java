@@ -1,19 +1,16 @@
 package com.nhlstenden.amazonsimulatie.controllers;
 
-import com.nhlstenden.amazonsimulatie.models.Destination;
-import com.nhlstenden.amazonsimulatie.models.Rack;
-import com.nhlstenden.amazonsimulatie.models.Resource;
-import com.nhlstenden.amazonsimulatie.models.Waybill;
+import com.nhlstenden.amazonsimulatie.models.generated.Rack;
+import com.nhlstenden.amazonsimulatie.models.generated.Waybill;
 import net.ravendb.client.documents.BulkInsertOperation;
 import net.ravendb.client.documents.session.IDocumentSession;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.UUID;
 
 public class MelkFactory implements Resource {
-  boolean flipflop;
+  private boolean flipflop;
   private int time = 0;
   private Random ran = new Random();
 
@@ -26,36 +23,39 @@ public class MelkFactory implements Resource {
       int ra = ran.nextInt(9) + 1;
       try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
         List<Rack> pooledRacks = session.query(Rack.class)
-          .whereEquals("status", Rack.RackStatus.POOLED)
+          .whereEquals("status", Rack.Status.POOLED)
           .take(ra).toList();
         if (pooledRacks.size() <= ra) {
           ra -= pooledRacks.size();
 
           try (BulkInsertOperation bulkInsert = DocumentStoreHolder.getStore().bulkInsert()) {
             for (int i = 0; i < ra; i++) {
-              Rack r = new Rack("kaas", UUID.randomUUID().toString());
-              r.setStatus(Rack.RackStatus.WAITING);
+              Rack r = new Rack();
+              r.setItem("kaas");
+              r.setStatus(Rack.Status.WAITING);
               bulkInsert.store(r);
               pooledRacks.add(r);
             }
           }
         }
 
+        List<String> tmp = new ArrayList<>();
         for (Rack r : pooledRacks) {
-          r.setStatus(Rack.RackStatus.WAITING);
+          r.setStatus(Rack.Status.WAITING);
+          tmp.add(r.getId());
         }
 
-        Waybill dump = new Waybill(UUID.randomUUID().toString());
-        dump.setRacks(pooledRacks);
-        dump.setDestination(Destination.WAREHOUSE);
-        dump.setStatus(Waybill.WaybillStatus.UNRESOLVED);
+        Waybill dump = new Waybill();
         session.store(dump);
+        dump.setRacks(tmp);
+        dump.setDestination(Waybill.Destination.WAREHOUSE);
+        dump.setStatus(Waybill.Status.UNRESOLVED);
         session.saveChanges();
       }
     } else {
       // Request goods
       try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-        int s = session.query(Rack.class).whereEquals("status", Rack.RackStatus.STORED).count();
+        int s = session.query(Rack.class).whereEquals("status", Rack.Status.STORED).count();
         //if (s > 100)
         // WaybillResolver.Instance().RequestResource("kaas", ran.nextInt(30));
       }
@@ -72,11 +72,12 @@ public class MelkFactory implements Resource {
   @Override
   public void StoreResource(Waybill waybill) {
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      for (Rack rack : waybill.getRacks()) {
-        // = session.load(Rack.class, r);
+      for (String r : waybill.getRacks()) {
+        Rack rack = session.load(Rack.class, r);
         MessageBroker.Instance().getGrid().getNode(rack.getX(), rack.getY()).updateOccupation(false);
-        rack.updatePosition(rack.getX(), rack.getY(), -5);
-        rack.setStatus(Rack.RackStatus.POOLED);
+        //rack.updatePosition(rack.getX(), rack.getY(), -5);
+        rack.setZ(-5);
+        rack.setStatus(Rack.Status.POOLED);
         MessageBroker.Instance().updateObject(rack);
       }
       session.delete(waybill.getId());

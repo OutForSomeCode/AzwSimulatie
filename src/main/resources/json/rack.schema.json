@@ -1,0 +1,21 @@
+{
+  "$id": "Rack",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "javaType": "com.nhlstenden.amazonsimulatie.models.generated.Rack",
+  "extendsJavaClass": "Object3D",
+  "type": "object",
+  "properties": {
+    "item": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "WAITING",
+        "POOLED",
+        "STORED",
+        "MOVING"
+      ]
+    }
+  }
+}

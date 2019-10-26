@@ -3,6 +3,9 @@ package com.nhlstenden.amazonsimulatie.models;
 import com.nhlstenden.amazonsimulatie.controllers.MessageBroker;
 import com.nhlstenden.amazonsimulatie.controllers.RoutingEngine;
 import com.nhlstenden.amazonsimulatie.controllers.Warehouse;
+import com.nhlstenden.amazonsimulatie.models.generated.Object3D;
+import com.nhlstenden.amazonsimulatie.models.generated.Rack;
+import com.nhlstenden.amazonsimulatie.models.generated.Robot;
 
 import java.util.Deque;
 import java.util.LinkedList;
@@ -14,46 +17,28 @@ import java.util.UUID;
  * 3D object is. Ook implementeerd deze class de interface Updatable. Dit is omdat
  * een robot geupdate kan worden binnen de 3D wereld om zich zo voort te bewegen.
  */
-public class Robot implements Object3D {
+public class RobotImp extends Object3D {
   private RoutingEngine routingEngine;
   private Queue<RobotTaskStrategy> taskQueue = new LinkedList<>();
   private RobotTaskStrategy currentTask;
   private Deque<Node> pathToTask = new LinkedList<>();
   private String rackUUID;
   private String waybillUUID;
-  private String uuid;
   private Warehouse warehouse;
   private boolean executeTask = false;
-  private int x = 0;
   private int px = 0;
-  private int y = 0;
   private int py = 0;
-  private int z = 0;
-  private int rotationX = 0;
-  private int rotationY = 0;
-  private int rotationZ = 0;
-  public Robot(String uuid) {
-    this.uuid = uuid;
-    routingEngine = new RoutingEngine();
-  }
-  public Robot() {
-    this.uuid = UUID.randomUUID().toString();
+
+  public RobotImp(String uuid) {
+    this.setId(uuid);
     routingEngine = new RoutingEngine();
   }
 
-  public Robot(int x, int y) {
-    this();
-    this.x = x;
-    px = x;
-    this.y = y;
-    py = y;
-  }
-
-  public Robot(String uuid, Integer x, Integer y) {
+  public RobotImp(String uuid, Integer x, Integer y) {
     this(uuid);
-    this.x = x;
+    this.setX(x);
     px = x;
-    this.y = y;
+    this.setY(y);
     py = y;
   }
 
@@ -76,7 +61,7 @@ public class Robot implements Object3D {
 
   private void executeNextTask() {
     currentTask = taskQueue.remove();
-    pathToTask = routingEngine.generateRoute(new Node(x, y), currentTask.getDestination());
+    pathToTask = routingEngine.generateRoute(new Node(getX(), getY()), currentTask.getDestination());
   }
 
   public void taskDone(RobotTaskStrategy task) {
@@ -106,8 +91,8 @@ public class Robot implements Object3D {
       currentTask.execute(this);
     } else if (!pathToTask.isEmpty()) {
       Node current = pathToTask.remove();
-      this.x = current.getGridX();
-      this.y = current.getGridY();
+      this.setX(current.getGridX());
+      this.setY(current.getGridY());
       if (current == currentTask.getDestination()) {
         executeTask = true;
       }
@@ -116,52 +101,6 @@ public class Robot implements Object3D {
     } else if (!taskQueue.isEmpty()) {
       executeNextTask();
     }
-  }
-
-  @Override
-  public String getId() {
-    return this.uuid;
-  }
-
-  @Override
-  public String getType() {
-    /*
-     * Dit onderdeel wordt gebruikt om het type van dit object als stringwaarde terug
-     * te kunnen geven. Het moet een stringwaarde zijn omdat deze informatie nodig
-     * is op de client, en die verstuurd moet kunnen worden naar de browser. In de
-     * javascript code wordt dit dan weer verder afgehandeld.
-     */
-    return Robot.class.getSimpleName().toLowerCase();
-  }
-
-  @Override
-  public int getX() {
-    return this.x;
-  }
-
-  @Override
-  public int getY() {
-    return this.y;
-  }
-
-  @Override
-  public int getZ() {
-    return this.z;
-  }
-
-  @Override
-  public int getRotationX() {
-    return this.rotationX;
-  }
-
-  @Override
-  public int getRotationY() {
-    return this.rotationY;
-  }
-
-  @Override
-  public int getRotationZ() {
-    return this.rotationZ;
   }
 
   public int getPx() {
@@ -174,10 +113,5 @@ public class Robot implements Object3D {
 
   public void setRack(Rack rack) {
     this.rackUUID = rack.getId();
-  }
-
-  public enum RobotStatus {
-    IDLE,
-    WORKING
   }
 }

@@ -2,6 +2,8 @@ package com.nhlstenden.amazonsimulatie.models;
 
 import com.nhlstenden.amazonsimulatie.controllers.DocumentStoreHolder;
 import com.nhlstenden.amazonsimulatie.controllers.MessageBroker;
+import com.nhlstenden.amazonsimulatie.models.generated.Rack;
+import com.nhlstenden.amazonsimulatie.models.generated.Robot;
 import net.ravendb.client.documents.session.IDocumentSession;
 
 public class RobotDropStrategy implements RobotTaskStrategy {
@@ -16,19 +18,23 @@ public class RobotDropStrategy implements RobotTaskStrategy {
   }
 
   @Override
-  public void execute(Robot robot) {
+  public void execute(RobotImp robotImp) {
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      Rack rack = session.load(Rack.class, robot.getRackUUID());
-      RobotPOJO robotP = session.load(RobotPOJO.class, robot.getId());
+      Rack rack = session.load(Rack.class, robotImp.getRackUUID());
+      Robot robotP = session.load(Robot.class, robotImp.getId());
 
-      robotP.setRack(rack);
-      rack.setStatus(Rack.RackStatus.STORED);
-      rack.updatePosition(robot.getX(), robot.getY(), 0);
-      MessageBroker.Instance().unparentObject(robot.getId(), robot.getRackUUID());
+      robotP.setRack(null);
+
+      rack.setStatus(Rack.Status.STORED);
+      rack.setX(robotImp.getX());
+      rack.setY(robotImp.getY());
+      rack.setZ(0);
+
+      MessageBroker.Instance().unparentObject(robotImp.getId(), robotImp.getRackUUID());
       MessageBroker.Instance().updateObject(rack);
 
       session.saveChanges();
-      robot.taskDone(this);
+      robotImp.taskDone(this);
     }
   }
 }

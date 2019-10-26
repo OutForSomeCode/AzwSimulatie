@@ -1,8 +1,8 @@
 package com.nhlstenden.amazonsimulatie.controllers;
 
 import com.nhlstenden.amazonsimulatie.models.Grid;
-import com.nhlstenden.amazonsimulatie.models.Object3D;
 import com.nhlstenden.amazonsimulatie.models.ProxyObject3D;
+import com.nhlstenden.amazonsimulatie.models.generated.Object3D;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;

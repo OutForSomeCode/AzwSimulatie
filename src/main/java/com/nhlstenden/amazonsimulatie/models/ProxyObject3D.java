@@ -1,5 +1,7 @@
 package com.nhlstenden.amazonsimulatie.models;
 
+import com.nhlstenden.amazonsimulatie.models.generated.Object3D;
+
 /*
  * Deze class wordt gebruikt om informatie van het model aan de view te kunnen geven. Dit
  * gaat via het zogenaamde proxy design pattern. Een proxy pattern is een manier om alleen
@@ -15,7 +17,7 @@ package com.nhlstenden.amazonsimulatie.models;
  * mogelijkheden kunnen zijn zodat de view toch bij de updatemethode van de robot kan komen. Deze mag
  * alleen de World class aanroepen, dus dat zou onveilige software betekenen.
  */
-public class ProxyObject3D implements Object3D {
+public class ProxyObject3D extends Object3D {
   private Object3D object;
 
   public ProxyObject3D(Object3D object) {
@@ -27,9 +29,8 @@ public class ProxyObject3D implements Object3D {
     return this.object.getId();
   }
 
-  @Override
   public String getType() {
-    return this.object.getType();
+    return this.object.getClass().getSimpleName().toLowerCase();
   }
 
   @Override
@@ -61,6 +62,4 @@ public class ProxyObject3D implements Object3D {
   public int getRotationZ() {
     return this.object.getRotationZ();
   }
-
-
 }

@@ -28,7 +28,7 @@ class WorldObjectManger {
   private reqModels: Array<Array<string>> = [
     ["Rack", "Rack_RackMat"],
     ["Warehouse", "Warehouse_Concrete"],
-    ["Box", "BoxMat"],
+    //["Box", "BoxMat"],
     ["Table", "TableMat"],
     ["Cone4D", "ConeMat"]
   ];
@@ -109,8 +109,9 @@ class WorldObjectManger {
     obj.scale.y = 20;
     obj.scale.z = 20;
     this.addScene(obj);
-    this.truck = this.getModel("Cone4D");
-    this.scene.add(this.truck);
+
+    /*this.truck = this.getModel("Cone4D");
+    this.scene.add(this.truck);*/
 
   }
 
@@ -146,7 +147,7 @@ class WorldObjectManger {
     // dan wordt het 3D model eerst aangemaakt in de 3D wereld.
     if (Object.keys(this.worldObjects).indexOf(command.parameters.id) < 0) {
       // Wanneer het object een robot is, wordt de code hieronder uitgevoerd.
-      if (command.parameters.type === 'robot') {
+      if (command.parameters.type === 'robotimp') {
         this.createRobot(command);
       }
       if (command.parameters.type === 'rack') {
@@ -161,7 +162,7 @@ class WorldObjectManger {
     if (object == null)
       return;
 
-    if (command.parameters.type === 'robot') {
+    if (command.parameters.type === 'robotimp') {
       object.lookAt(command.parameters.x, command.parameters.z, command.parameters.y);
       var tween = new TWEEN.Tween(object.position)
         .to({

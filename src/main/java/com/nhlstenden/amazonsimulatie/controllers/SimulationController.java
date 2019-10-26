@@ -2,8 +2,8 @@ package com.nhlstenden.amazonsimulatie.controllers;
 
 import com.nhlstenden.amazonsimulatie.models.ProxyObject3D;
 import com.nhlstenden.amazonsimulatie.models.ProxyRobot3D;
-import com.nhlstenden.amazonsimulatie.models.Rack;
-import com.nhlstenden.amazonsimulatie.models.RobotPOJO;
+import com.nhlstenden.amazonsimulatie.models.generated.Rack;
+import com.nhlstenden.amazonsimulatie.models.generated.Robot;
 import com.nhlstenden.amazonsimulatie.views.View;
 import net.ravendb.client.documents.session.IDocumentSession;
 
@@ -70,7 +70,7 @@ public class SimulationController extends Controller {
       for (Rack rack : session.query(Rack.class).toList()) {
         this.getQueue().addCommandToQueue(MessageBroker.UPDATE_COMMAND, new ProxyObject3D(rack));
       }
-      for (RobotPOJO robot : session.query(RobotPOJO.class).toList()) {
+      for (Robot robot : session.query(Robot.class).toList()) {
         this.getQueue().addCommandToQueue(MessageBroker.UPDATE_COMMAND, new ProxyRobot3D(robot));
         if (robot.getRack() != null) {
           this.getQueue().addCommandToQueue(MessageBroker.PARENT_COMMAND,
