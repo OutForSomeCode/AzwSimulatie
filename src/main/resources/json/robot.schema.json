@@ -2,6 +2,7 @@
   "$id": "robot.schema.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "javaType": "com.nhlstenden.amazonsimulatie.models.generated.Robot",
+  "description": "NOTE: XY pos are used for parking pos",
   "extendsJavaClass": "Object3D",
   "type": "object",
   "properties": {

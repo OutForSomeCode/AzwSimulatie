@@ -18,7 +18,7 @@ import static com.nhlstenden.amazonsimulatie.models.Data.truckpost;
  * de logica die van toepassing is op het domein dat de applicatie modelleerd, staat
  * in het model. Dit betekent dus de logica die het magazijn simuleert.
  */
-public class WarehouseManager implements Resource, Warehouse {
+public class WarehouseManager implements Warehouse {
   private int loadingBay = 0;
   private int timer = 0;
   /*
@@ -81,14 +81,19 @@ public class WarehouseManager implements Resource, Warehouse {
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
       List<Waybill> uway = session.query(Waybill.class)
         .whereEquals("status", Waybill.Status.UNRESOLVED)
-        .andAlso()
-        .whereEquals("destination", Waybill.Destination.WAREHOUSE)
         .toList();
       if (uway.size() <= 0)
         return;
       for (Waybill w : uway) {
         w.setStatus(Waybill.Status.RESOLVING);
-        StoreResource(w);
+        switch (w.getDestination()) {
+          case WAREHOUSE:
+            StoreResource(w);
+            break;
+          case MELKFACTORY:
+            RequestResource(w);
+            break;
+        }
       }
 
       session.saveChanges();
@@ -114,30 +119,10 @@ public class WarehouseManager implements Resource, Warehouse {
     return null;
   }
 
-  @Override
-  public void RequestResource(String resource, int amount) {
-    try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      List<Rack> pooledRacks = session.query(Rack.class)
-        .whereEquals("status", Rack.Status.STORED)
-        .take(amount).toList();
-
-      List<String> tmp = new ArrayList<>();
-      for (Rack r : pooledRacks)
-        tmp.add(r.getId());
-
-      Waybill dump = new Waybill();
-      dump.setRacks(tmp);
-      dump.setDestination(Waybill.Destination.MELKFACTORY);
-      //WaybillResolver.Instance().StoreResource(dump.getUuid(), Destination.MELKFACTORY);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
-
-  @Override
-  public void StoreResource(Waybill waybill) {
+  private void RequestResource(Waybill waybill) {
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
       List<String> cargo = waybill.getRacks();
+      waybill.setTodoList(cargo);
       loadingBay++;
       if (loadingBay > 9) loadingBay = 0;
 
@@ -153,7 +138,41 @@ public class WarehouseManager implements Resource, Warehouse {
           y = (truckpost[i][0] + (loadingBay * 6));
 
         Rack rack = session.load(Rack.class, cargo.get(i));
-        //rack.updatePosition(x, y, 0);
+
+        Queue<RobotTaskStrategy> tasks = new LinkedList<>();
+        tasks.add(new RobotPickupStrategy(MessageBroker.Instance().getGrid().getNode(rack.getX(), rack.getY())));
+        tasks.add(new RobotDropStrategy(MessageBroker.Instance().getGrid().getNode(x, y)));
+        tasks.add(new RobotParkStrategy(MessageBroker.Instance().getGrid().getNode(robotImp.getPx(), robotImp.getPy())));
+        robotImp.assignTask(tasks);
+
+        robotImp.setRack(rack);
+        robotImp.setWaybillUUID(waybill.getId());
+        r.setStatus(Robot.Status.WORKING);
+        r.setWaybill(waybill);
+      }
+      session.saveChanges();
+    }
+  }
+
+  void StoreResource(Waybill waybill) {
+    try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
+      List<String> cargo = waybill.getRacks();
+      waybill.setTodoList(cargo);
+      loadingBay++;
+      if (loadingBay > 9) loadingBay = 0;
+
+      List<Robot> idleRobots = session.query(Robot.class)
+        .whereEquals("status", Robot.Status.IDLE)
+        .take(cargo.size()).toList();
+
+      for (int i = 0; i < idleRobots.size(); i++) {
+        Robot r = idleRobots.get(i);
+        RobotImp robotImp = robots.get(r.getId());
+
+        int x = truckpost[i][1] + 24,
+          y = (truckpost[i][0] + (loadingBay * 6));
+
+        Rack rack = session.load(Rack.class, cargo.get(i));
         rack.setX(x);
         rack.setY(y);
         rack.setZ(0);
@@ -171,7 +190,6 @@ public class WarehouseManager implements Resource, Warehouse {
         r.setStatus(Robot.Status.WORKING);
         r.setWaybill(waybill);
       }
-      //session.delete(waybill.getId());
       session.saveChanges();
     }
   }
@@ -181,13 +199,20 @@ public class WarehouseManager implements Resource, Warehouse {
     if (task instanceof RobotDropStrategy) {
       try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
         Waybill w = session.load(Waybill.class, robotImp.getWaybillUUID());
-        Rack r = session.load(Rack.class, robotImp.getRackUUID());
 
-        if (w.getRacks() != null)
-          w.getRacks().remove(r.getId());
+        if (w.getTodoList() != null)
+          w.getTodoList().remove(robotImp.getRackUUID());
 
-        if (w.getRacks() == null || w.getRacks().size() <= 0)
+        if (w.getTodoList() == null || w.getTodoList().size() <= 0) {
+          if (w.getDestination() == Waybill.Destination.MELKFACTORY)
+            for (String id : w.getRacks()) {
+              Rack r = session.load(Rack.class, id);
+              r.setZ(-10);
+              r.setStatus(Rack.Status.POOLED);
+              MessageBroker.Instance().updateObject(r);
+            }
           session.delete(w);
+        }
 
         session.saveChanges();
       }

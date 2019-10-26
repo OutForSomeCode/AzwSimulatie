@@ -50,11 +50,11 @@ class SocketService {
 
       //this._worldObjectManger.updateWorldPosition(command);
     };
-    this.socket.onclose = e => {
-      console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
+    this.socket.onclose = e =>{
+      console.log('Socket is closed. Reconnect will be attempted in 5 second.', e.reason);
       setTimeout(() => {
-        this.connect();
-      }, 1000);
+        window.location.reload();
+      }, 5000);
     };
   }
 

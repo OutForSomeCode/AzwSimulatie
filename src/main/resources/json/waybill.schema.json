@@ -27,6 +27,12 @@
       "items": {
         "type" : "string"
       }
+    },
+    "todoList": {
+      "type": "array",
+      "items": {
+        "type" : "string"
+      }
     }
   }
 }

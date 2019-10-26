@@ -19,7 +19,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
     "id",
     "destination",
     "status",
-    "racks"
+    "racks",
+    "todoList"
 })
 public class Waybill {
 
@@ -31,6 +32,8 @@ public class Waybill {
     private Waybill.Status status;
     @JsonProperty("racks")
     private List<String> racks = new ArrayList<String>();
+    @JsonProperty("todoList")
+    private List<String> todoList = new ArrayList<String>();
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -74,6 +77,16 @@ public class Waybill {
         this.racks = racks;
     }
 
+    @JsonProperty("todoList")
+    public List<String> getTodoList() {
+        return todoList;
+    }
+
+    @JsonProperty("todoList")
+    public void setTodoList(List<String> todoList) {
+        this.todoList = todoList;
+    }
+
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -104,6 +117,10 @@ public class Waybill {
         sb.append('=');
         sb.append(((this.racks == null)?"<null>":this.racks));
         sb.append(',');
+        sb.append("todoList");
+        sb.append('=');
+        sb.append(((this.todoList == null)?"<null>":this.todoList));
+        sb.append(',');
         sb.append("additionalProperties");
         sb.append('=');
         sb.append(((this.additionalProperties == null)?"<null>":this.additionalProperties));
@@ -119,6 +136,7 @@ public class Waybill {
     @Override
     public int hashCode() {
         int result = 1;
+        result = ((result* 31)+((this.todoList == null)? 0 :this.todoList.hashCode()));
         result = ((result* 31)+((this.destination == null)? 0 :this.destination.hashCode()));
         result = ((result* 31)+((this.racks == null)? 0 :this.racks.hashCode()));
         result = ((result* 31)+((this.id == null)? 0 :this.id.hashCode()));
@@ -136,7 +154,7 @@ public class Waybill {
             return false;
         }
         Waybill rhs = ((Waybill) other);
-        return ((((((this.destination == rhs.destination)||((this.destination!= null)&&this.destination.equals(rhs.destination)))&&((this.racks == rhs.racks)||((this.racks!= null)&&this.racks.equals(rhs.racks))))&&((this.id == rhs.id)||((this.id!= null)&&this.id.equals(rhs.id))))&&((this.additionalProperties == rhs.additionalProperties)||((this.additionalProperties!= null)&&this.additionalProperties.equals(rhs.additionalProperties))))&&((this.status == rhs.status)||((this.status!= null)&&this.status.equals(rhs.status))));
+        return (((((((this.todoList == rhs.todoList)||((this.todoList!= null)&&this.todoList.equals(rhs.todoList)))&&((this.destination == rhs.destination)||((this.destination!= null)&&this.destination.equals(rhs.destination))))&&((this.racks == rhs.racks)||((this.racks!= null)&&this.racks.equals(rhs.racks))))&&((this.id == rhs.id)||((this.id!= null)&&this.id.equals(rhs.id))))&&((this.additionalProperties == rhs.additionalProperties)||((this.additionalProperties!= null)&&this.additionalProperties.equals(rhs.additionalProperties))))&&((this.status == rhs.status)||((this.status!= null)&&this.status.equals(rhs.status))));
     }
 
     public enum Destination {

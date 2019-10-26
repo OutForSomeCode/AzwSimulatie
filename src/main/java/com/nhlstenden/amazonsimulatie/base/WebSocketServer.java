@@ -5,8 +5,10 @@ import com.nhlstenden.amazonsimulatie.controllers.DocumentStoreHolder;
 import com.nhlstenden.amazonsimulatie.controllers.RESTController;
 import com.nhlstenden.amazonsimulatie.controllers.SimulationController;
 import com.nhlstenden.amazonsimulatie.views.WebAppView;
+import net.ravendb.client.documents.operations.DeleteByQueryOperation;
 import net.ravendb.client.documents.operations.Operation;
 import net.ravendb.client.documents.operations.PatchByQueryOperation;
+import net.ravendb.client.documents.queries.IndexQuery;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -70,6 +72,14 @@ public class WebSocketServer extends SpringBootServletInitializer implements Web
       );
 
     operation1.waitForCompletion();
+    Operation operation2 = DocumentStoreHolder.getStore().operations()
+      .sendAsync(
+        new DeleteByQueryOperation(new IndexQuery("from Waybills"))
+      );
+
+    operation2.waitForCompletion();
+
+
     SpringApplication.run(WebSocketServer.class, args);
   }
 
