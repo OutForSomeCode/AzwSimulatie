@@ -24,7 +24,6 @@ public class RobotDropStrategy implements RobotTaskStrategy {
       Robot robotP = session.load(Robot.class, robotImp.getId());
 
       robotP.setRack(null);
-      robotP.setStatus(Robot.Status.IDLE);
 
       rack.setStatus(Rack.Status.STORED);
       rack.setX(robotImp.getX());
