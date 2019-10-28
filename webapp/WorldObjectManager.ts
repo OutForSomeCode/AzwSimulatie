@@ -26,6 +26,7 @@ class WorldObjectManger {
   private worldObjects: Array<Group> = [];
   private preloadedModels: Record<string, Group> = {};
   private reqModels: Array<Array<string>> = [
+    ["Robot", "Robot_Robot"],
     ["Rack", "Rack_RackMat"],
     ["Warehouse", "Warehouse_Concrete"],
     ["Box", "BoxMat"],
@@ -176,40 +177,9 @@ class WorldObjectManger {
   }
 
   public createRobot(command): void {
-    const geometry = new BoxGeometry(0.9, 0.3, 0.9);
-    const cubeMaterials = [
-      new MeshBasicMaterial({
-        map: new TextureLoader().load('assets/textures/robot_side.png'),
-        side: DoubleSide
-      }), // LEFT
-      new MeshBasicMaterial({
-        map: new TextureLoader().load('assets/textures/robot_side.png'),
-        side: DoubleSide
-      }), // RIGHT
-      new MeshBasicMaterial({
-        map: new TextureLoader().load('assets/textures/robot_top.png'),
-        side: DoubleSide
-      }), // TOP
-      new MeshBasicMaterial({
-        map: new TextureLoader().load('assets/textures/robot_bottom.png'),
-        side: DoubleSide
-      }), // BOTTOM
-      new MeshBasicMaterial({
-        map: new TextureLoader().load('assets/textures/robot_front.png'),
-        side: DoubleSide
-      }), // FRONT
-      new MeshBasicMaterial({
-        map: new TextureLoader().load('assets/textures/robot_front.png'),
-        side: DoubleSide
-      }) // BACK
-    ];
-    const robot = new Mesh(geometry, cubeMaterials);
-    robot.position.y = 0.15;
-
-    const group = new Group();
-    group.add(robot);
-    this.scene.add(group);
-    this.worldObjects[command.parameters.id] = group;
+    let robot = this.getModel("Robot");
+    this.scene.add(robot);
+    this.worldObjects[command.parameters.id] = robot;
   }
 
   public createRack(command): void {
