@@ -21,7 +21,6 @@ import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
 import TWEEN from '@tweenjs/tween.js';
 import Dat from "dat.gui";
 import "three-dat.gui";
-import Table = WebAssembly.Table;
 
 class WorldObjectManger {
   private worldObjects: Array<Group> = [];
@@ -174,10 +173,6 @@ class WorldObjectManger {
       object.position.y = command.parameters.z;
       object.position.z = command.parameters.y;
     }
-
-    /*object.rotation.x = command.parameters.rotationX;
-    object.rotation.y = command.parameters.rotationY;
-    object.rotation.z = command.parameters.rotationZ;*/
   }
 
   public createRobot(command): void {
@@ -266,8 +261,6 @@ class WorldObjectManger {
     splineObject.rotation.x = Math.PI * .5;
     splineObject.position.y = 0.05;
     this.scene.add(splineObject);
-    const scene = this.scene;
-    const worldObjects = this.worldObjects;
     const tankTime = time * .05;
     curve.getPointAt(tankTime % 1, truckPosition);
     curve.getPointAt((tankTime + 0.01) % 1, tankTarget);

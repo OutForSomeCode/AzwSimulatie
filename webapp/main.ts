@@ -4,7 +4,6 @@ import {PerspectiveCamera, WebGLRenderer} from 'three';
 import {WorldObjectManger} from "./WorldObjectManager";
 import TWEEN from '@tweenjs/tween.js';
 
-let time = 0;
 let camera: PerspectiveCamera;
 let renderer: WebGLRenderer;
 
@@ -53,8 +52,6 @@ function frameStep() {
   cameraControls.update();
   renderer.render(_worldObjectManger.getScene(), camera);
   TWEEN.update();
-  //time += 0.01;
-  //_worldObjectManger.movetruck(time , 1);
 }
 
 window.onload = init;
