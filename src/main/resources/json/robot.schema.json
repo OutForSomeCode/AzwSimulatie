@@ -7,17 +7,20 @@
   "type": "object",
   "properties": {
     "rack": {
-      "$ref": "rack.schema.json"
+      "$ref": "rack.schema.json",
+      "description": "this reference to the rack.schema.json file"
     },
     "waybill": {
-      "$ref": "waybill.schema.json"
+      "$ref": "waybill.schema.json",
+      "description": "this reference to the waybill.schema.json file"
     },
     "status": {
       "type": "string",
       "enum": [
         "IDLE",
         "WORKING"
-      ]
+      ],
+      "description": "this determines the state of the object of the robot"
     }
   }
 }

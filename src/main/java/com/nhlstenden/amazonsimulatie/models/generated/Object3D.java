@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -22,88 +23,179 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 })
 public class Object3D {
 
+    /**
+     * dit is de object3D id
+     * 
+     */
     @JsonProperty("id")
+    @JsonPropertyDescription("dit is de object3D id")
     private String id;
+    /**
+     * this is the x coordinate of object3D
+     * 
+     */
     @JsonProperty("x")
+    @JsonPropertyDescription("this is the x coordinate of object3D")
     private int x;
+    /**
+     * this is the y coordinate of object3D
+     * 
+     */
     @JsonProperty("y")
+    @JsonPropertyDescription("this is the y coordinate of object3D")
     private int y;
+    /**
+     * this is the z coordinate of object3D
+     * 
+     */
     @JsonProperty("z")
+    @JsonPropertyDescription("this is the z coordinate of object3D")
     private int z;
+    /**
+     * this is the rotation of the x coordinate of object3D
+     * 
+     */
     @JsonProperty("rotationX")
+    @JsonPropertyDescription("this is the rotation of the x coordinate of object3D")
     private int rotationX;
+    /**
+     * this is the rotation of the y coordinate of object3D
+     * 
+     */
     @JsonProperty("rotationY")
+    @JsonPropertyDescription("this is the rotation of the y coordinate of object3D")
     private int rotationY;
+    /**
+     * this is the rotation of the z coordinate of object3D
+     * 
+     */
     @JsonProperty("rotationZ")
+    @JsonPropertyDescription("this is the rotation of the z coordinate of object3D")
     private int rotationZ;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
+    /**
+     * dit is de object3D id
+     * 
+     */
     @JsonProperty("id")
     public String getId() {
         return id;
     }
 
+    /**
+     * dit is de object3D id
+     * 
+     */
     @JsonProperty("id")
     public void setId(String id) {
         this.id = id;
     }
 
+    /**
+     * this is the x coordinate of object3D
+     * 
+     */
     @JsonProperty("x")
     public int getX() {
         return x;
     }
 
+    /**
+     * this is the x coordinate of object3D
+     * 
+     */
     @JsonProperty("x")
     public void setX(int x) {
         this.x = x;
     }
 
+    /**
+     * this is the y coordinate of object3D
+     * 
+     */
     @JsonProperty("y")
     public int getY() {
         return y;
     }
 
+    /**
+     * this is the y coordinate of object3D
+     * 
+     */
     @JsonProperty("y")
     public void setY(int y) {
         this.y = y;
     }
 
+    /**
+     * this is the z coordinate of object3D
+     * 
+     */
     @JsonProperty("z")
     public int getZ() {
         return z;
     }
 
+    /**
+     * this is the z coordinate of object3D
+     * 
+     */
     @JsonProperty("z")
     public void setZ(int z) {
         this.z = z;
     }
 
+    /**
+     * this is the rotation of the x coordinate of object3D
+     * 
+     */
     @JsonProperty("rotationX")
     public int getRotationX() {
         return rotationX;
     }
 
+    /**
+     * this is the rotation of the x coordinate of object3D
+     * 
+     */
     @JsonProperty("rotationX")
     public void setRotationX(int rotationX) {
         this.rotationX = rotationX;
     }
 
+    /**
+     * this is the rotation of the y coordinate of object3D
+     * 
+     */
     @JsonProperty("rotationY")
     public int getRotationY() {
         return rotationY;
     }
 
+    /**
+     * this is the rotation of the y coordinate of object3D
+     * 
+     */
     @JsonProperty("rotationY")
     public void setRotationY(int rotationY) {
         this.rotationY = rotationY;
     }
 
+    /**
+     * this is the rotation of the z coordinate of object3D
+     * 
+     */
     @JsonProperty("rotationZ")
     public int getRotationZ() {
         return rotationZ;
     }
 
+    /**
+     * this is the rotation of the z coordinate of object3D
+     * 
+     */
     @JsonProperty("rotationZ")
     public void setRotationZ(int rotationZ) {
         this.rotationZ = rotationZ;

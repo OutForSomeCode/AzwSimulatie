@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -31,7 +32,12 @@ public class Robot
     private Rack rack;
     @JsonProperty("waybill")
     private Waybill waybill;
+    /**
+     * this determines the state of the object of the robot
+     * 
+     */
     @JsonProperty("status")
+    @JsonPropertyDescription("this determines the state of the object of the robot")
     private Robot.Status status;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
@@ -56,11 +62,19 @@ public class Robot
         this.waybill = waybill;
     }
 
+    /**
+     * this determines the state of the object of the robot
+     * 
+     */
     @JsonProperty("status")
     public Robot.Status getStatus() {
         return status;
     }
 
+    /**
+     * this determines the state of the object of the robot
+     * 
+     */
     @JsonProperty("status")
     public void setStatus(Robot.Status status) {
         this.status = status;

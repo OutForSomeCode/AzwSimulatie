@@ -4,25 +4,32 @@
   "type": "object",
   "properties": {
     "id": {
-      "type": "string"
+      "type": "string",
+      "description": "dit is de object3D id"
     },
     "x": {
-      "type": "integer"
+      "type": "integer",
+      "description": "this is the x coordinate of object3D"
     },
     "y": {
-      "type": "integer"
+      "type": "integer",
+      "description": "this is the y coordinate of object3D"
     },
     "z": {
-      "type": "integer"
+      "type": "integer",
+      "description": "this is the z coordinate of object3D"
     },
     "rotationX": {
-      "type": "integer"
+      "type": "integer",
+      "description": "this is the rotation of the x coordinate of object3D"
     },
     "rotationY": {
-      "type": "integer"
+      "type": "integer",
+      "description": "this is the rotation of the y coordinate of object3D"
     },
     "rotationZ": {
-      "type": "integer"
+      "type": "integer",
+      "description": "this is the rotation of the z coordinate of object3D"
     }
   }
 }

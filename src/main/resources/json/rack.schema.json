@@ -6,7 +6,8 @@
   "type": "object",
   "properties": {
     "item": {
-      "type": "string"
+      "type": "string",
+      "description": "this is the item that is laying on the rack"
     },
     "status": {
       "type": "string",
@@ -15,7 +16,8 @@
         "POOLED",
         "STORED",
         "MOVING"
-      ]
+      ],
+      "description": "this are the status that the rack can have (waiting,pooled,stored,moving)"
     }
   }
 }

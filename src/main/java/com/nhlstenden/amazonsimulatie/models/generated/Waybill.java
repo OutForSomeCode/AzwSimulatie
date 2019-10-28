@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -24,64 +25,129 @@ import com.fasterxml.jackson.annotation.JsonValue;
 })
 public class Waybill {
 
+    /**
+     * this is the id of the waybill
+     * 
+     */
     @JsonProperty("id")
+    @JsonPropertyDescription("this is the id of the waybill")
     private String id;
+    /**
+     * this reference to the destination of the waybill , where do they need to go
+     * 
+     */
     @JsonProperty("destination")
+    @JsonPropertyDescription("this reference to the destination of the waybill , where do they need to go")
     private Waybill.Destination destination;
+    /**
+     * the deference types of state it can have
+     * 
+     */
     @JsonProperty("status")
+    @JsonPropertyDescription("the deference types of state it can have")
     private Waybill.Status status;
+    /**
+     * what types of racks it needs to ship to the warehouse
+     * 
+     */
     @JsonProperty("racks")
+    @JsonPropertyDescription("what types of racks it needs to ship to the warehouse")
     private List<String> racks = new ArrayList<String>();
+    /**
+     * the array of racks that are not on the right location
+     * 
+     */
     @JsonProperty("todoList")
+    @JsonPropertyDescription("the array of racks that are not on the right location")
     private List<String> todoList = new ArrayList<String>();
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
+    /**
+     * this is the id of the waybill
+     * 
+     */
     @JsonProperty("id")
     public String getId() {
         return id;
     }
 
+    /**
+     * this is the id of the waybill
+     * 
+     */
     @JsonProperty("id")
     public void setId(String id) {
         this.id = id;
     }
 
+    /**
+     * this reference to the destination of the waybill , where do they need to go
+     * 
+     */
     @JsonProperty("destination")
     public Waybill.Destination getDestination() {
         return destination;
     }
 
+    /**
+     * this reference to the destination of the waybill , where do they need to go
+     * 
+     */
     @JsonProperty("destination")
     public void setDestination(Waybill.Destination destination) {
         this.destination = destination;
     }
 
+    /**
+     * the deference types of state it can have
+     * 
+     */
     @JsonProperty("status")
     public Waybill.Status getStatus() {
         return status;
     }
 
+    /**
+     * the deference types of state it can have
+     * 
+     */
     @JsonProperty("status")
     public void setStatus(Waybill.Status status) {
         this.status = status;
     }
 
+    /**
+     * what types of racks it needs to ship to the warehouse
+     * 
+     */
     @JsonProperty("racks")
     public List<String> getRacks() {
         return racks;
     }
 
+    /**
+     * what types of racks it needs to ship to the warehouse
+     * 
+     */
     @JsonProperty("racks")
     public void setRacks(List<String> racks) {
         this.racks = racks;
     }
 
+    /**
+     * the array of racks that are not on the right location
+     * 
+     */
     @JsonProperty("todoList")
     public List<String> getTodoList() {
         return todoList;
     }
 
+    /**
+     * the array of racks that are not on the right location
+     * 
+     */
     @JsonProperty("todoList")
     public void setTodoList(List<String> todoList) {
         this.todoList = todoList;

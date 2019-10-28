@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -21,28 +22,54 @@ public class Rack
     extends Object3D
 {
 
+    /**
+     * this is the item that is laying on the rack
+     * 
+     */
     @JsonProperty("item")
+    @JsonPropertyDescription("this is the item that is laying on the rack")
     private String item;
+    /**
+     * this are the status that the rack can have (waiting,pooled,stored,moving)
+     * 
+     */
     @JsonProperty("status")
+    @JsonPropertyDescription("this are the status that the rack can have (waiting,pooled,stored,moving)")
     private Rack.Status status;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
+    /**
+     * this is the item that is laying on the rack
+     * 
+     */
     @JsonProperty("item")
     public String getItem() {
         return item;
     }
 
+    /**
+     * this is the item that is laying on the rack
+     * 
+     */
     @JsonProperty("item")
     public void setItem(String item) {
         this.item = item;
     }
 
+    /**
+     * this are the status that the rack can have (waiting,pooled,stored,moving)
+     * 
+     */
     @JsonProperty("status")
     public Rack.Status getStatus() {
         return status;
     }
 
+    /**
+     * this are the status that the rack can have (waiting,pooled,stored,moving)
+     * 
+     */
     @JsonProperty("status")
     public void setStatus(Rack.Status status) {
         this.status = status;
