@@ -107,8 +107,8 @@ class WorldObjectManger {
     obj.scale.z = 20;
     this.addScene(obj);
 
-    /*this.truck = this.getModel("Cone4D");
-    this.scene.add(this.truck);*/
+    this.truck = this.getModel("Cone4D");
+    this.scene.add(this.truck);
 
   }
 
@@ -194,10 +194,11 @@ class WorldObjectManger {
   }
 
 
-  public movetruck(time, modulePosition): void {
+  public moveTruck(time, modulePosition , move_:Boolean): void {
     const truckPosition = new Vector2();   // the x y coordinates of the truck
-    const tankTarget = new Vector2();  //the position where the front of the truck is
+    const truckTarget = new Vector2();  //the position where the front of the truck is
     var moduleMultiplier = modulePosition * 6;    // the difference distance between modules
+    let move: Boolean = move_;
 
     //creates the line where the truck moves over
     const curve = new SplineCurve([
@@ -231,18 +232,28 @@ class WorldObjectManger {
     splineObject.rotation.x = Math.PI * .5;
     splineObject.position.y = 0.05;
     this.scene.add(splineObject);
-    const tankTime = time * .05;
-    curve.getPointAt(tankTime % 1, truckPosition);
-    curve.getPointAt((tankTime + 0.01) % 1, tankTarget);
-    this.truck.position.set(truckPosition.x, 0, truckPosition.y); // put the tuck to the x y coordinates
-    let maxz = (-3.9 + moduleMultiplier);
-    let minz = (-3.38 + moduleMultiplier);
-    if (this.truck.position.x < 41 && this.truck.position.z >= maxz && this.truck.position.z <= minz) //checks if the truck is between the given parameters and make it look backwards
-    {
-      this.truck.lookAt(41, 0, -4.1 + moduleMultiplier);
-    } else //look at the line
-    {
-      this.truck.lookAt(tankTarget.x, 0, tankTarget.y);
+    if(move && truckPosition.x != 25 && truckPosition.y != moduleMultiplier + -3.7){
+      const truckTime = time * .05;
+      curve.getPointAt(truckTime % 1, truckPosition);
+      curve.getPointAt((truckTime + 0.01) % 1, truckTarget);
+      this.truck.position.set(truckPosition.x, 0, truckPosition.y); // put the tuck to the x y coordinates
+      let maxz = (-3.9 + moduleMultiplier);
+      let minz = (-3.38 + moduleMultiplier);
+
+      if (this.truck.position.x < 41 && this.truck.position.z >= maxz && this.truck.position.z <= minz) //checks if the truck is between the given parameters and make it look backwards
+      {
+        this.truck.lookAt(41, 0, -4.1 + moduleMultiplier);
+        if (this.truck.position.x < 28 && move == false) //checks if the truck is between the given parameters and make it look backwards
+        {
+          this.truck.position.x = 25;
+          this.truck.position.z = moduleMultiplier + -3.7;
+
+        }
+
+      } else //look at the line
+      {
+        this.truck.lookAt(truckTarget.x, 0, truckTarget.y);
+      }
     }
   }
 
