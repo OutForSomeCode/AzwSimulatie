@@ -3,6 +3,7 @@ package com.nhlstenden.amazonsimulatie.models;
 import com.nhlstenden.amazonsimulatie.controllers.MessageBroker;
 import com.nhlstenden.amazonsimulatie.controllers.RoutingEngine;
 import com.nhlstenden.amazonsimulatie.controllers.Warehouse;
+import com.nhlstenden.amazonsimulatie.models.generated.Node;
 import com.nhlstenden.amazonsimulatie.models.generated.Object3D;
 import com.nhlstenden.amazonsimulatie.models.generated.Rack;
 
@@ -58,7 +59,10 @@ public class RobotLogic extends Object3D {
 
   private void executeNextTask() {
     currentTask = taskQueue.remove();
-    pathToTask = routingEngine.generateRoute(new Node(getX(), getY()), currentTask.getDestination());
+    Node n = new Node();
+    n.setGridX(getX());
+    n.setGridY(getY());
+    pathToTask = routingEngine.generateRoute(n, currentTask.getDestination());
   }
 
   public void taskDone(RobotTaskStrategy task) {

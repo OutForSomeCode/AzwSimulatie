@@ -1,5 +1,7 @@
 package com.nhlstenden.amazonsimulatie.models;
 
+import com.nhlstenden.amazonsimulatie.models.generated.Node;
+
 public class RobotTask {
   private Node destination;
   private Task task;

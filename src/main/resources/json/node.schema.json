@@ -1,0 +1,17 @@
+{
+  "$id": "Node",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "javaType": "com.nhlstenden.amazonsimulatie.models.generated.Node",
+  "type": "object",
+  "properties": {
+    "gridX": {
+      "type": "integer"
+    },
+    "gridY": {
+      "type": "integer"
+    },
+    "occupied": {
+      "type": "boolean"
+    }
+  }
+}

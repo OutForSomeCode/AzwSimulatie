@@ -2,6 +2,7 @@ package com.nhlstenden.amazonsimulatie.models;
 
 import com.nhlstenden.amazonsimulatie.controllers.DocumentStoreHolder;
 import com.nhlstenden.amazonsimulatie.controllers.MessageBroker;
+import com.nhlstenden.amazonsimulatie.models.generated.Node;
 import com.nhlstenden.amazonsimulatie.models.generated.Rack;
 import com.nhlstenden.amazonsimulatie.models.generated.Robot;
 import net.ravendb.client.documents.session.IDocumentSession;

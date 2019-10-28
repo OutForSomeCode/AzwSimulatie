@@ -1,5 +1,7 @@
 package com.nhlstenden.amazonsimulatie.models;
 
+import com.nhlstenden.amazonsimulatie.models.generated.Node;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +26,10 @@ public class Grid {
 
     for (int x = 0; x < gridSizeX; x++) {
       for (int y = 0; y < gridSizeY; y++) {
-        grid[x][y] = new Node(x, y, false);
+        Node n = new Node();
+        n.setGridX(x);
+        n.setGridY(y);
+        grid[x][y] = n;
       }
     }
   }

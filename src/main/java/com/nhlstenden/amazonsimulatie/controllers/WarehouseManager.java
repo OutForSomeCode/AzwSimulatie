@@ -1,6 +1,7 @@
 package com.nhlstenden.amazonsimulatie.controllers;
 
 import com.nhlstenden.amazonsimulatie.models.*;
+import com.nhlstenden.amazonsimulatie.models.generated.Node;
 import com.nhlstenden.amazonsimulatie.models.generated.Rack;
 import com.nhlstenden.amazonsimulatie.models.generated.Robot;
 import com.nhlstenden.amazonsimulatie.models.generated.Waybill;
@@ -96,7 +97,7 @@ public class WarehouseManager implements Warehouse {
       }
       for (int x : Data.rackPositionsX) {
         if (!MessageBroker.Instance().getGrid().getNode(x, y).isOccupied()) {
-          MessageBroker.Instance().getGrid().getNode(x, y).updateOccupation(true);
+          MessageBroker.Instance().getGrid().getNode(x, y).setOccupied(true);
           return MessageBroker.Instance().getGrid().getNode(x, y);
         }
       }

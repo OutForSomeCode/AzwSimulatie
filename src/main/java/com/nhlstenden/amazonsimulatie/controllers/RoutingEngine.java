@@ -2,7 +2,7 @@ package com.nhlstenden.amazonsimulatie.controllers;
 
 import com.nhlstenden.amazonsimulatie.models.Data;
 import com.nhlstenden.amazonsimulatie.models.Grid;
-import com.nhlstenden.amazonsimulatie.models.Node;
+import com.nhlstenden.amazonsimulatie.models.generated.Node;
 
 import java.util.*;
 

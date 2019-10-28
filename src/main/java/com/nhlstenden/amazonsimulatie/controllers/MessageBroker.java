@@ -66,7 +66,7 @@ public class MessageBroker {
 
   public void addWall(int x, int y) {
     if (x < grid.getGridSizeX() && y < grid.getGridSizeY()) {
-      grid.getNode(x, y).updateOccupation(true);
+      grid.getNode(x, y).setOccupied(true);
     }
   }
 }
