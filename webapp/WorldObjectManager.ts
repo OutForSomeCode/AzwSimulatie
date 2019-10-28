@@ -29,13 +29,13 @@ class WorldObjectManger {
   private reqModels: Array<Array<string>> = [
     ["Rack", "Rack_RackMat"],
     ["Warehouse", "Warehouse_Concrete"],
-    //["Box", "BoxMat"],
+    ["Box", "BoxMat"],
     ["Table", "TableMat"],
     ["Cone4D", "ConeMat"]
   ];
   private scene = new Scene();
   private truck;
-  private objloader = new OBJLoader();
+  private objLoader = new OBJLoader();
   textureCube;
 
 
@@ -49,14 +49,14 @@ class WorldObjectManger {
 
     const promises = [];
     this.reqModels.forEach(e => {
-      promises.push(this.objloaderLoad(e));
+      promises.push(this.LoadObj(e));
     });
     Promise.all(promises).then(callback);
   }
 
-  private objloaderLoad(dat: Array<string>) {
+  private LoadObj(dat: Array<string>) {
     return new Promise(resolve => {
-      this.objloader.load(`assets/models/${dat[0]}.obj`, obj => {
+      this.objLoader.load(`assets/models/${dat[0]}.obj`, obj => {
         obj.traverse(m => {
           if (m instanceof Mesh)
             m.material = new MeshStandardMaterial({
@@ -77,10 +77,6 @@ class WorldObjectManger {
   public initWorld() {
 
     var gui = new Dat.GUI();
-    var geometry = new BoxGeometry(1, 1, 1);
-    var material = new MeshStandardMaterial();
-    var mesh = new Mesh(geometry, material);
-    this.scene.add(mesh);
     gui.addMaterial("amount of warehouse modules", 0, 20, 1);
     const sphericalSkyboxGeometry = new SphereGeometry(900, 32, 32);
     const sphericalSkyboxMaterial = new MeshBasicMaterial({
@@ -148,7 +144,7 @@ class WorldObjectManger {
     // dan wordt het 3D model eerst aangemaakt in de 3D wereld.
     if (Object.keys(this.worldObjects).indexOf(command.parameters.id) < 0) {
       // Wanneer het object een robot is, wordt de code hieronder uitgevoerd.
-      if (command.parameters.type === 'robotimp') {
+      if (command.parameters.type === 'robotlogic') {
         this.createRobot(command);
       }
       if (command.parameters.type === 'rack') {
@@ -163,7 +159,7 @@ class WorldObjectManger {
     if (object == null)
       return;
 
-    if (command.parameters.type === 'robotimp') {
+    if (command.parameters.type === 'robotlogic') {
       object.lookAt(command.parameters.x, command.parameters.z, command.parameters.y);
       var tween = new TWEEN.Tween(object.position)
         .to({

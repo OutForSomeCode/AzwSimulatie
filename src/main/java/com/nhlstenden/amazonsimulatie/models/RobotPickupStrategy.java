@@ -19,21 +19,21 @@ public class RobotPickupStrategy implements RobotTaskStrategy {
 
 
   @Override
-  public void execute(RobotImp robotImp) {
+  public void execute(RobotLogic robotLogic) {
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      Rack rack = session.load(Rack.class, robotImp.getRackUUID());
-      Robot robotP = session.load(Robot.class, robotImp.getId());
+      Rack rack = session.load(Rack.class, robotLogic.getRackUUID());
+      Robot robotP = session.load(Robot.class, robotLogic.getId());
 
       MessageBroker.Instance().getGrid().getNode(rack.getX(), rack.getY()).updateOccupation(false);
       robotP.setRack(rack);
       rack.setStatus(Rack.Status.MOVING);
-      rack.setX(robotImp.getX());
-      rack.setY(robotImp.getY());
+      rack.setX(robotLogic.getX());
+      rack.setY(robotLogic.getY());
       rack.setZ(-10);
-      MessageBroker.Instance().parentObject(robotImp.getId(), robotImp.getRackUUID());
+      MessageBroker.Instance().parentObject(robotLogic.getId(), robotLogic.getRackUUID());
 
       session.saveChanges();
-      robotImp.taskDone(this);
+      robotLogic.taskDone(this);
     }
   }
 }

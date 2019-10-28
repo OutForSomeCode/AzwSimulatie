@@ -16,14 +16,14 @@ public class RobotParkStrategy implements RobotTaskStrategy {
   }
 
   @Override
-  public void execute(RobotImp robotImp) {
+  public void execute(RobotLogic robotLogic) {
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      Robot robotP = session.load(Robot.class, robotImp.getId());
+      Robot robotP = session.load(Robot.class, robotLogic.getId());
 
       robotP.setStatus(Robot.Status.IDLE);
 
       session.saveChanges();
-      robotImp.taskDone(this);
+      robotLogic.taskDone(this);
     }
   }
 }

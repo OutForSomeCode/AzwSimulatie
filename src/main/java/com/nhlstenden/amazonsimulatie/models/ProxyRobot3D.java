@@ -36,7 +36,7 @@ public class ProxyRobot3D extends Object3D {
   }
 
   public String getType() {
-    return RobotImp.class.getSimpleName().toLowerCase();
+    return RobotLogic.class.getSimpleName().toLowerCase();
   }
 
   @Override

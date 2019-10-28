@@ -35,21 +35,23 @@ public class RoutingEngine {
   }
 
   private void scanGrid() {
-    Grid grid = MessageBroker.Instance().getGrid();
-    while (!frontier.isEmpty()) {
-      Node current = frontier.remove().getNode();
-      if (current == end) {
-        break;
-      }
-      for (Node next : grid.getNeighbours(current)) {
-        if (!next.isOccupied() || next == end) {
-          int newCost = currentCost.get(current) + 1;
+    synchronized (MessageBroker.Instance().getGrid()){
+      Grid grid = MessageBroker.Instance().getGrid();
+      while (!frontier.isEmpty()) {
+        Node current = frontier.remove().getNode();
+        if (current == end) {
+          break;
+        }
+        for (Node next : grid.getNeighbours(current)) {
+          if (!next.isOccupied() || next == end) {
+            int newCost = currentCost.get(current) + 1;
 
-          if (!currentCost.containsKey(next) || newCost < currentCost.get(next)) {
-            int priority = newCost + heuristic(next, end);
-            currentCost.put(next, newCost);
-            frontier.add(new Greedy(next, priority));
-            cameFrom.put(next, current);
+            if (!currentCost.containsKey(next) || newCost < currentCost.get(next)) {
+              int priority = newCost + heuristic(next, end);
+              currentCost.put(next, newCost);
+              frontier.add(new Greedy(next, priority));
+              cameFrom.put(next, current);
+            }
           }
         }
       }

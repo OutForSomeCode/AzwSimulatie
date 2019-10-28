@@ -14,6 +14,7 @@ import java.util.*;
 
 import static com.nhlstenden.amazonsimulatie.models.Data.truckpost;
 import static com.nhlstenden.amazonsimulatie.models.generated.Waybill.Destination.MELKFACTORY;
+import static com.nhlstenden.amazonsimulatie.models.generated.Waybill.Destination.WAREHOUSE;
 
 /*
  * Deze class is een versie van het model van de simulatie. In dit geval is het
@@ -30,7 +31,7 @@ public class WarehouseManager implements Warehouse {
    * Deze objecten moeten uiteindelijk ook in de lijst passen (overerving). Daarom is dit
    * een lijst van Object3D onderdelen. Deze kunnen in principe alles zijn. (Robots, vrachrtwagens, etc)
    */
-  private HashMap<String, RobotImp> robots = new HashMap<>();
+  private HashMap<String, RobotLogic> robots = new HashMap<>();
 
   /*
    * De wereld maakt een lege lijst voor worldObjects aan. Daarin wordt nu één robot gestopt.
@@ -51,13 +52,13 @@ public class WarehouseManager implements Warehouse {
             rp.setY(i);
             bulkInsert.store(rp);
 
-            RobotImp r = new RobotImp(session.advanced().getDocumentId(rp), 0, i);
+            RobotLogic r = new RobotLogic(session.advanced().getDocumentId(rp), 0, i);
             r.registerWarehouse(this);
           }
         }
 
       for (Robot rp : session.query(Robot.class).toList()) {
-        RobotImp r = new RobotImp(rp.getId(), rp.getX(), rp.getY());
+        RobotLogic r = new RobotLogic(rp.getId(), rp.getX(), rp.getY());
         r.registerWarehouse(this);
         robots.put(r.getId(), r);
         MessageBroker.Instance().addWall(rp.getX(), rp.getY());
@@ -77,20 +78,13 @@ public class WarehouseManager implements Warehouse {
     workerWBatch.run(batch -> {
       for (SubscriptionBatch.Item<Waybill> item : batch.getItems()) {
         if (item.getResult().getStatus() == Waybill.Status.UNRESOLVED)
-          switch (item.getResult().getDestination()) {
-            case WAREHOUSE:
-              StoreResource(item.getId());
-              break;
-            case MELKFACTORY:
-              RequestResource(item.getId());
-              break;
-          }
+          RequestResource(item.getId());
       }
     });
   }
 
   public void update() {
-    for (Map.Entry<String, RobotImp> r : robots.entrySet()) {
+    for (Map.Entry<String, RobotLogic> r : robots.entrySet()) {
       r.getValue().update();
     }
   }
@@ -125,63 +119,31 @@ public class WarehouseManager implements Warehouse {
 
       for (int i = 0; i < idleRobots.size(); i++) {
         Robot r = idleRobots.get(i);
-        RobotImp robotImp = robots.get(r.getId());
+        RobotLogic robotLogic = robots.get(r.getId());
 
         int x = truckpost[i][1] + 24,
           y = (truckpost[i][0] + (loadingBay * 6));
 
-        Rack rack = session.load(Rack.class, cargo.get(i));
-
         Queue<RobotTaskStrategy> tasks = new LinkedList<>();
-        tasks.add(new RobotPickupStrategy(MessageBroker.Instance().getGrid().getNode(rack.getX(), rack.getY())));
-        tasks.add(new RobotDropStrategy(MessageBroker.Instance().getGrid().getNode(x, y)));
-        tasks.add(new RobotParkStrategy(MessageBroker.Instance().getGrid().getNode(robotImp.getPx(), robotImp.getPy())));
-        robotImp.assignTask(tasks);
-
-        robotImp.setRack(rack);
-        robotImp.setWaybillUUID(waybill.getId());
-        r.setStatus(Robot.Status.WORKING);
-        r.setWaybill(waybill);
-      }
-      session.saveChanges();
-    }
-  }
-
-  void StoreResource(String waybillId) {
-    try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      Waybill waybill = session.load(Waybill.class, waybillId);
-      List<String> cargo = waybill.getRacks();
-      waybill.setStatus(Waybill.Status.RESOLVING);
-      waybill.setTodoList(cargo);
-      loadingBay++;
-      if (loadingBay > 9) loadingBay = 0;
-
-      List<Robot> idleRobots = session.query(Robot.class)
-        .whereEquals("status", Robot.Status.IDLE)
-        .take(cargo.size()).toList();
-
-      for (int i = 0; i < idleRobots.size(); i++) {
-        Robot r = idleRobots.get(i);
-        RobotImp robotImp = robots.get(r.getId());
-
-        int x = truckpost[i][1] + 24,
-          y = (truckpost[i][0] + (loadingBay * 6));
-
         Rack rack = session.load(Rack.class, cargo.get(i));
-        rack.setX(x);
-        rack.setY(y);
-        rack.setZ(0);
+        if (waybill.getDestination() == WAREHOUSE){
+          rack.setX(x);
+          rack.setY(y);
+          rack.setZ(0);
 
-        MessageBroker.Instance().updateObject(rack);
+          MessageBroker.Instance().updateObject(rack);
 
-        Queue<RobotTaskStrategy> tasks = new LinkedList<>();
-        tasks.add(new RobotPickupStrategy(MessageBroker.Instance().getGrid().getNode(x, y)));
-        tasks.add(new RobotDropStrategy(rackDropLocation()));
-        tasks.add(new RobotParkStrategy(MessageBroker.Instance().getGrid().getNode(robotImp.getPx(), robotImp.getPy())));
-        robotImp.assignTask(tasks);
+          tasks.add(new RobotPickupStrategy(MessageBroker.Instance().getGrid().getNode(x, y)));
+          tasks.add(new RobotDropStrategy(rackDropLocation()));
+        } else {
+          tasks.add(new RobotPickupStrategy(MessageBroker.Instance().getGrid().getNode(rack.getX(), rack.getY())));
+          tasks.add(new RobotDropStrategy(MessageBroker.Instance().getGrid().getNode(x, y)));
+        }
+        tasks.add(new RobotParkStrategy(MessageBroker.Instance().getGrid().getNode(robotLogic.getPx(), robotLogic.getPy())));
+        robotLogic.assignTask(tasks);
 
-        robotImp.setRack(rack);
-        robotImp.setWaybillUUID(waybill.getId());
+        robotLogic.setRack(rack);
+        robotLogic.setWaybillUUID(waybill.getId());
         r.setStatus(Robot.Status.WORKING);
         r.setWaybill(waybill);
       }
@@ -190,13 +152,13 @@ public class WarehouseManager implements Warehouse {
   }
 
   @Override
-  public void robotFinishedTask(RobotImp robotImp, RobotTaskStrategy task) {
+  public void robotFinishedTask(RobotLogic robotLogic, RobotTaskStrategy task) {
     if (task instanceof RobotDropStrategy) {
       try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-        Waybill w = session.load(Waybill.class, robotImp.getWaybillUUID());
+        Waybill w = session.load(Waybill.class, robotLogic.getWaybillUUID());
 
         if (w.getTodoList() != null)
-          w.getTodoList().remove(robotImp.getRackUUID());
+          w.getTodoList().remove(robotLogic.getRackUUID());
 
         if (w.getTodoList() == null || w.getTodoList().size() <= 0) {
           if (w.getDestination() == MELKFACTORY)

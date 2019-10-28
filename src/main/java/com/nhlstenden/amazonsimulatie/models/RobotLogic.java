@@ -15,7 +15,7 @@ import java.util.Queue;
  * 3D object is. Ook implementeerd deze class de interface Updatable. Dit is omdat
  * een robot geupdate kan worden binnen de 3D wereld om zich zo voort te bewegen.
  */
-public class RobotImp extends Object3D {
+public class RobotLogic extends Object3D {
   private RoutingEngine routingEngine;
   private Queue<RobotTaskStrategy> taskQueue = new LinkedList<>();
   private RobotTaskStrategy currentTask;
@@ -27,12 +27,12 @@ public class RobotImp extends Object3D {
   private int px = 0;
   private int py = 0;
 
-  public RobotImp(String uuid) {
+  public RobotLogic(String uuid) {
     this.setId(uuid);
     routingEngine = new RoutingEngine();
   }
 
-  public RobotImp(String uuid, Integer x, Integer y) {
+  public RobotLogic(String uuid, Integer x, Integer y) {
     this(uuid);
     this.setX(x);
     px = x;
@@ -54,7 +54,6 @@ public class RobotImp extends Object3D {
 
   public void assignTask(Queue<RobotTaskStrategy> tasks) {
     taskQueue = tasks;
-    executeNextTask();
   }
 
   private void executeNextTask() {
