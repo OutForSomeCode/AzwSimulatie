@@ -1,5 +1,6 @@
 package com.nhlstenden.amazonsimulatie.controllers;
 
+import com.nhlstenden.amazonsimulatie.models.Data;
 import com.nhlstenden.amazonsimulatie.models.Grid;
 import com.nhlstenden.amazonsimulatie.models.ProxyObject3D;
 import com.nhlstenden.amazonsimulatie.models.generated.Object3D;
@@ -27,7 +28,7 @@ public class MessageBroker {
 
   // private constructor restricted to this class itself
   private MessageBroker() {
-    grid = new Grid();
+    grid = new Grid(30, (6 * Data.modules));
   }
 
 

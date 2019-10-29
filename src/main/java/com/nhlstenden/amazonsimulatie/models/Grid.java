@@ -12,12 +12,13 @@ public class Grid {
     {0, -1},
     {-1, 0}
   };
-  private int gridSizeX = 30;
+  private int gridSizeX;//= 30;
   private int gridSizeY;
   private Node[][] grid;
 
-  public Grid() {
-    this.gridSizeY = (6 * Data.modules);
+  public Grid(int gridSizeX, int gridSizeY) {
+    this.gridSizeX = gridSizeX;
+    this.gridSizeY = gridSizeY;//(6 * Data.modules);
     createGrid();
   }
 

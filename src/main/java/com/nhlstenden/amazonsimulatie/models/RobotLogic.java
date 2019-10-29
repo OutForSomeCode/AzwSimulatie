@@ -30,7 +30,7 @@ public class RobotLogic extends Object3D {
 
   public RobotLogic(String uuid) {
     this.setId(uuid);
-    routingEngine = new RoutingEngine();
+    routingEngine = new RoutingEngine(MessageBroker.Instance().getGrid());
   }
 
   public RobotLogic(String uuid, Integer x, Integer y) {

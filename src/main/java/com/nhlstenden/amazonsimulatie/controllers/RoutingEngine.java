@@ -7,6 +7,7 @@ import com.nhlstenden.amazonsimulatie.models.generated.Node;
 import java.util.*;
 
 public class RoutingEngine {
+  private Grid grid;
   private Node start;
   private Node end;
   private PriorityQueue<Greedy> frontier = new PriorityQueue<>(180 * Data.modules, new GreedyComparator());
@@ -14,6 +15,10 @@ public class RoutingEngine {
   private HashMap<Node, Node> cameFrom = new HashMap<>();
   private HashMap<Node, Integer> currentCost = new HashMap<>();
 
+
+  public RoutingEngine(Grid grid) {
+    this.grid = grid;
+  }
 
   public Deque<Node> generateRoute(Node start, Node end) {
     frontier.clear();
@@ -35,23 +40,20 @@ public class RoutingEngine {
   }
 
   private void scanGrid() {
-    synchronized (MessageBroker.Instance().getGrid()){
-      Grid grid = MessageBroker.Instance().getGrid();
-      while (!frontier.isEmpty()) {
-        Node current = frontier.remove().getNode();
-        if (current == end) {
-          break;
-        }
-        for (Node next : grid.getNeighbours(current)) {
-          if (!next.isOccupied() || next == end) {
-            int newCost = currentCost.get(current) + 1;
+    while (!frontier.isEmpty()) {
+      Node current = frontier.remove().getNode();
+      if (current == end) {
+        break;
+      }
+      for (Node next : grid.getNeighbours(current)) {
+        if (!next.isOccupied() || next == end) {
+          int newCost = currentCost.get(current) + 1;
 
-            if (!currentCost.containsKey(next) || newCost < currentCost.get(next)) {
-              int priority = newCost + heuristic(next, end);
-              currentCost.put(next, newCost);
-              frontier.add(new Greedy(next, priority));
-              cameFrom.put(next, current);
-            }
+          if (!currentCost.containsKey(next) || newCost < currentCost.get(next)) {
+            int priority = newCost + heuristic(next, end);
+            currentCost.put(next, newCost);
+            frontier.add(new Greedy(next, priority));
+            cameFrom.put(next, current);
           }
         }
       }
