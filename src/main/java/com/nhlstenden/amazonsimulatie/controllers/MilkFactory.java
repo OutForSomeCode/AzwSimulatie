@@ -1,6 +1,7 @@
 package com.nhlstenden.amazonsimulatie.controllers;
 
 import com.nhlstenden.amazonsimulatie.models.CreateWaybill;
+import com.nhlstenden.amazonsimulatie.models.Data;
 import com.nhlstenden.amazonsimulatie.models.Factory;
 import com.nhlstenden.amazonsimulatie.models.generated.Rack;
 import com.nhlstenden.amazonsimulatie.models.generated.Waybill;
@@ -10,7 +11,7 @@ import net.ravendb.client.documents.session.IDocumentSession;
 import java.util.List;
 import java.util.Random;
 
-public class MilkCreateWaybill extends CreateWaybill implements Factory {
+public class MilkFactory extends CreateWaybill implements Factory {
   private boolean flipFlop;
   private int time = 0;
   private Random ran = new Random();
@@ -24,10 +25,10 @@ public class MilkCreateWaybill extends CreateWaybill implements Factory {
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
       int storedRacks = session.query(Rack.class).whereEquals("status", Rack.Status.STORED).count();
       if (flipFlop) {
-        if (storedRacks < (150))
+        if (storedRacks < (Data.modules * 30))
           sendWaybill();
       } else {
-        if (storedRacks > (50))
+        if (storedRacks > (Data.modules * 10))
           requestWaybill();
       }
     }

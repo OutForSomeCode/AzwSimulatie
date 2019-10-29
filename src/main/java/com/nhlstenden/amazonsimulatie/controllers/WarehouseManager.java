@@ -13,7 +13,7 @@ import net.ravendb.client.documents.subscriptions.SubscriptionWorker;
 import java.util.Queue;
 import java.util.*;
 
-import static com.nhlstenden.amazonsimulatie.models.Data.truckpost;
+import static com.nhlstenden.amazonsimulatie.models.Data.rackSpawnPositions;
 import static com.nhlstenden.amazonsimulatie.models.generated.Waybill.Destination.MELKFACTORY;
 import static com.nhlstenden.amazonsimulatie.models.generated.Waybill.Destination.WAREHOUSE;
 
@@ -33,12 +33,13 @@ public class WarehouseManager implements Warehouse {
    * een lijst van Object3D onderdelen. Deze kunnen in principe alles zijn. (Robots, vrachrtwagens, etc)
    */
   private HashMap<String, RobotLogic> robots = new HashMap<>();
-
+  private Grid grid;
   /*
    * De wereld maakt een lege lijst voor worldObjects aan. Daarin wordt nu één robot gestopt.
    * Deze methode moet uitgebreid worden zodat alle objecten van de 3D wereld hier worden gemaakt.
    */
   public WarehouseManager() {
+    grid = new Grid(30, (6 * Data.modules));
     int rAmount = Data.modules * 6;
 
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
@@ -53,23 +54,23 @@ public class WarehouseManager implements Warehouse {
             rp.setY(i);
             bulkInsert.store(rp);
 
-            RobotLogic r = new RobotLogic(session.advanced().getDocumentId(rp), 0, i);
+            RobotLogic r = new RobotLogic(session.advanced().getDocumentId(rp), grid, 0, i);
             r.registerWarehouse(this);
           }
         }
 
       for (Robot rp : session.query(Robot.class).toList()) {
-        RobotLogic r = new RobotLogic(rp.getId(), rp.getX(), rp.getY());
+        RobotLogic r = new RobotLogic(rp.getId(),grid, rp.getX(), rp.getY());
         r.registerWarehouse(this);
         robots.put(r.getId(), r);
-        MessageBroker.Instance().addWall(rp.getX(), rp.getY());
+        grid.addWall(rp.getX(), rp.getY());
       }
     }
 
     for (int y = 0; y < (6 * Data.modules); y++) {
       if (y % 6 == 0 || y % 6 == 1 || y % 6 == 4 || y % 6 == 5) {
         for (int x = 0; x < 6; x++) {
-          MessageBroker.Instance().addWall((29 - x), y);
+          grid.addWall((29 - x), y);
         }
       }
     }
@@ -96,9 +97,9 @@ public class WarehouseManager implements Warehouse {
         continue;
       }
       for (int x : Data.rackPositionsX) {
-        if (!MessageBroker.Instance().getGrid().getNode(x, y).isOccupied()) {
-          MessageBroker.Instance().getGrid().getNode(x, y).setOccupied(true);
-          return MessageBroker.Instance().getGrid().getNode(x, y);
+        if (!grid.getNode(x, y).isOccupied()) {
+          grid.getNode(x, y).setOccupied(true);
+          return grid.getNode(x, y);
         }
       }
     }
@@ -122,8 +123,8 @@ public class WarehouseManager implements Warehouse {
         Robot r = idleRobots.get(i);
         RobotLogic robotLogic = robots.get(r.getId());
 
-        int x = truckpost[i][1] + 24,
-          y = (truckpost[i][0] + (loadingBay * 6));
+        int x = rackSpawnPositions[i][1] + 24,
+          y = (rackSpawnPositions[i][0] + (loadingBay * 6));
 
         Queue<RobotTaskStrategy> tasks = new LinkedList<>();
         Rack rack = session.load(Rack.class, cargo.get(i));
@@ -134,13 +135,13 @@ public class WarehouseManager implements Warehouse {
 
           MessageBroker.Instance().updateObject(rack);
 
-          tasks.add(new RobotPickupStrategy(MessageBroker.Instance().getGrid().getNode(x, y)));
+          tasks.add(new RobotPickupStrategy(grid.getNode(x, y)));
           tasks.add(new RobotDropStrategy(rackDropLocation()));
         } else {
-          tasks.add(new RobotPickupStrategy(MessageBroker.Instance().getGrid().getNode(rack.getX(), rack.getY())));
-          tasks.add(new RobotDropStrategy(MessageBroker.Instance().getGrid().getNode(x, y)));
+          tasks.add(new RobotPickupStrategy(grid.getNode(rack.getX(), rack.getY())));
+          tasks.add(new RobotDropStrategy(grid.getNode(x, y)));
         }
-        tasks.add(new RobotParkStrategy(MessageBroker.Instance().getGrid().getNode(robotLogic.getPx(), robotLogic.getPy())));
+        tasks.add(new RobotParkStrategy(grid.getNode(robotLogic.getPx(), robotLogic.getPy())));
         robotLogic.assignTask(tasks);
 
         robotLogic.setRack(rack);

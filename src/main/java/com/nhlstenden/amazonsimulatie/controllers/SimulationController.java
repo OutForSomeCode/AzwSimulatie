@@ -16,11 +16,11 @@ import java.beans.PropertyChangeEvent;
  */
 public class SimulationController extends Controller {
   private WarehouseManager warehouseManager;
-  private MilkCreateWaybill milkFactory;
+  private MilkFactory milkFactory;
 
   public SimulationController() {
     this.warehouseManager = new WarehouseManager();
-    this.milkFactory = new MilkCreateWaybill();
+    this.milkFactory = new MilkFactory();
     //WaybillResolver.Instance().Register(this.warehouseManager);
     //WaybillResolver.Instance().Register(this.melkFactory);
   }

@@ -27,14 +27,16 @@ public class RobotLogic extends Object3D {
   private boolean executeTask = false;
   private int px = 0;
   private int py = 0;
+  private Grid grid;
 
-  public RobotLogic(String uuid) {
+  public RobotLogic(String uuid, Grid grid) {
     this.setId(uuid);
-    routingEngine = new RoutingEngine(MessageBroker.Instance().getGrid());
+    this.grid = grid;
+    routingEngine = new RoutingEngine(this.grid);
   }
 
-  public RobotLogic(String uuid, Integer x, Integer y) {
-    this(uuid);
+  public RobotLogic(String uuid, Grid grid,  Integer x, Integer y) {
+    this(uuid, grid);
     this.setX(x);
     px = x;
     this.setY(y);
@@ -114,5 +116,9 @@ public class RobotLogic extends Object3D {
 
   public void setRack(Rack rack) {
     this.rackUUID = rack.getId();
+  }
+
+  public Grid getGrid() {
+    return this.grid;
   }
 }

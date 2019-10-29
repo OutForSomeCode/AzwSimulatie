@@ -1,4 +1,3 @@
-const Path = require('path');
 const Webpack = require('webpack');
 const merge = require('webpack-merge');
 const common = require('./webpack.common.js');
@@ -14,7 +13,8 @@ module.exports = merge(common, {
   plugins: [
     new Webpack.DefinePlugin({
       'WEBSOCKETHOST': JSON.stringify('wss://sim.a-random-vps.cf/connectToSimulation'),
-      'process.env.NODE_ENV': JSON.stringify('production')
+      'process.env.NODE_ENV': JSON.stringify('production'),
+      'HOST': JSON.stringify('http://sim.a-random-vps.cf/')
     }),
     new Webpack.optimize.ModuleConcatenationPlugin(),
     /*new MiniCssExtractPlugin({

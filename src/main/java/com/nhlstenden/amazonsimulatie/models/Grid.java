@@ -18,7 +18,7 @@ public class Grid {
 
   public Grid(int gridSizeX, int gridSizeY) {
     this.gridSizeX = gridSizeX;
-    this.gridSizeY = gridSizeY;//(6 * Data.modules);
+    this.gridSizeY = gridSizeY;
     createGrid();
   }
 
@@ -45,6 +45,12 @@ public class Grid {
       }
     }
     return neighbours;
+  }
+
+  public void addWall(int x, int y) {
+    if (x < gridSizeX && y < gridSizeY) {
+      getNode(x, y).setOccupied(true);
+    }
   }
 
   public int getGridSizeX() {

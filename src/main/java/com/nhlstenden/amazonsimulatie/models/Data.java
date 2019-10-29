@@ -7,7 +7,7 @@ public final class Data {
   public static final int modules = 5;
   public static final int[] rackPositionsX = {3, 4, 7, 8, 11, 12, 15, 16, 19, 20};
 
-  public static final int[][] truckpost = {
+  public static final int[][] rackSpawnPositions = {
     {2, 1}, {3, 1},
     {2, 2}, {3, 2},
     {2, 3}, {3, 3},

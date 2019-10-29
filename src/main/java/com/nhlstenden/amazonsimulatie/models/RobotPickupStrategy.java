@@ -25,7 +25,7 @@ public class RobotPickupStrategy implements RobotTaskStrategy {
       Rack rack = session.load(Rack.class, robotLogic.getRackUUID());
       Robot robotP = session.load(Robot.class, robotLogic.getId());
 
-      MessageBroker.Instance().getGrid().getNode(rack.getX(), rack.getY()).setOccupied(false);
+      robotLogic.getGrid().getNode(rack.getX(), rack.getY()).setOccupied(false);
       robotP.setRack(rack);
       rack.setStatus(Rack.Status.MOVING);
       rack.setX(robotLogic.getX());

@@ -1,4 +1,3 @@
-const Path = require('path');
 const webpack = require('webpack');
 const merge = require('webpack-merge');
 const common = require('./webpack.common.js');
@@ -17,7 +16,8 @@ module.exports = merge(common, {
     new webpack.HotModuleReplacementPlugin(),
     new webpack.DefinePlugin({
       'WEBSOCKETHOST': JSON.stringify('ws://localhost:8081/connectToSimulation'),
-      'process.env.NODE_ENV': JSON.stringify('development')
+      'process.env.NODE_ENV': JSON.stringify('development'),
+      'HOST': JSON.stringify('http://localhost:8081/')
     })
   ]
 });

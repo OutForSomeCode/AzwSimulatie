@@ -1,6 +1,8 @@
+// @ts-ignore Word geinject vanuit webpack
+const apiHost = HOST;
+
 import {
   AmbientLight,
-  BoxGeometry,
   BufferGeometry,
   CubeTextureLoader,
   DoubleSide,
@@ -21,6 +23,7 @@ import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
 import TWEEN from '@tweenjs/tween.js';
 import Dat from "dat.gui";
 import "three-dat.gui";
+import axios from "axios";
 
 class WorldObjectManger {
   private worldObjects: Array<Group> = [];
@@ -86,7 +89,9 @@ class WorldObjectManger {
     const sphericalSkybox = new Mesh(sphericalSkyboxGeometry, sphericalSkyboxMaterial);
     this.scene.add(sphericalSkybox);
 
-    this.createWarehouse(5);
+    axios.get(apiHost + "getNumberOfModules").then(e => {
+      this.createWarehouse(e.data);
+    });
 
     const gridHelper = new GridHelper(42, 42);
     gridHelper.position.x = 21;
@@ -94,7 +99,7 @@ class WorldObjectManger {
     this.scene.add(gridHelper);
 
     const light = new AmbientLight(0x404040);
-    light.intensity = 2;
+    light.intensity = 4;
     this.scene.add(light);
 
     let obj = this.getModel("Table");
