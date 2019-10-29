@@ -86,7 +86,7 @@ class WorldObjectManger {
     const sphericalSkybox = new Mesh(sphericalSkyboxGeometry, sphericalSkyboxMaterial);
     this.scene.add(sphericalSkybox);
 
-    this.createWarehouse(10);
+    this.createWarehouse(5);
 
     const gridHelper = new GridHelper(42, 42);
     gridHelper.position.x = 21;
@@ -94,7 +94,7 @@ class WorldObjectManger {
     this.scene.add(gridHelper);
 
     const light = new AmbientLight(0x404040);
-    light.intensity = 4;
+    light.intensity = 2;
     this.scene.add(light);
 
     let obj = this.getModel("Table");

@@ -112,7 +112,7 @@ public class WarehouseManager implements Warehouse {
       waybill.setStatus(Waybill.Status.RESOLVING);
       waybill.setTodoList(cargo);
       loadingBay++;
-      if (loadingBay > 9) loadingBay = 0;
+      if (loadingBay > Data.modules - 1) loadingBay = 0;
 
       List<Robot> idleRobots = session.query(Robot.class)
         .whereEquals("status", Robot.Status.IDLE)

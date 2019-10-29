@@ -16,11 +16,11 @@ import java.beans.PropertyChangeEvent;
  */
 public class SimulationController extends Controller {
   private WarehouseManager warehouseManager;
-  private MelkFactory melkFactory;
+  private MilkCreateWaybill milkFactory;
 
   public SimulationController() {
     this.warehouseManager = new WarehouseManager();
-    this.melkFactory = new MelkFactory();
+    this.milkFactory = new MilkCreateWaybill();
     //WaybillResolver.Instance().Register(this.warehouseManager);
     //WaybillResolver.Instance().Register(this.melkFactory);
   }
@@ -36,7 +36,7 @@ public class SimulationController extends Controller {
   @Override
   public void run() {
     while (true) {
-      this.melkFactory.update();
+      this.milkFactory.update();
       this.warehouseManager.update();
       this.getQueue().flush(this.getViews());
       try {
@@ -67,9 +67,8 @@ public class SimulationController extends Controller {
      * dat de view alleen objecten ziet die worden geupdate (bijvoorbeeld bewegen).
      */
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      for (Rack rack : session.query(Rack.class).toList()) {
-        if (rack.getStatus() != Rack.Status.POOLED)
-          this.getQueue().addCommandToQueue(MessageBroker.UPDATE_COMMAND, new ProxyObject3D(rack));
+      for (Rack rack : session.query(Rack.class).whereNotEquals("status", Rack.Status.POOLED).toList()) {
+        this.getQueue().addCommandToQueue(MessageBroker.UPDATE_COMMAND, new ProxyObject3D(rack));
       }
       for (Robot robot : session.query(Robot.class).toList()) {
         this.getQueue().addCommandToQueue(MessageBroker.UPDATE_COMMAND, new ProxyRobot3D(robot));
