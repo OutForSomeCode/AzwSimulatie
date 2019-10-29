@@ -14,7 +14,7 @@ module.exports = merge(common, {
     new Webpack.DefinePlugin({
       'WEBSOCKETHOST': JSON.stringify('wss://sim.a-random-vps.cf/connectToSimulation'),
       'process.env.NODE_ENV': JSON.stringify('production'),
-      'HOST': JSON.stringify('http://sim.a-random-vps.cf/')
+      'HOST': JSON.stringify('https://sim.a-random-vps.cf/')
     }),
     new Webpack.optimize.ModuleConcatenationPlugin(),
     /*new MiniCssExtractPlugin({
