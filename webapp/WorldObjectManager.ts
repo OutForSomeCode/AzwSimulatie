@@ -183,6 +183,7 @@ class WorldObjectManger {
 
   public createRobot(command): void {
     let robot = this.getModel("Robot");
+    robot.position.set(command.parameters.x, command.parameters.z, command.parameters.y);
     this.scene.add(robot);
     this.worldObjects[command.parameters.id] = robot;
   }

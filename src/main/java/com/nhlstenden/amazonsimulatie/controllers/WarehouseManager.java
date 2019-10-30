@@ -6,7 +6,9 @@ import com.nhlstenden.amazonsimulatie.models.generated.Rack;
 import com.nhlstenden.amazonsimulatie.models.generated.Robot;
 import com.nhlstenden.amazonsimulatie.models.generated.Waybill;
 import net.ravendb.client.documents.BulkInsertOperation;
+import net.ravendb.client.documents.queries.spatial.PointField;
 import net.ravendb.client.documents.session.IDocumentSession;
+import net.ravendb.client.documents.session.OrderingType;
 import net.ravendb.client.documents.subscriptions.SubscriptionBatch;
 import net.ravendb.client.documents.subscriptions.SubscriptionWorker;
 
@@ -34,36 +36,47 @@ public class WarehouseManager implements Warehouse {
    */
   private HashMap<String, RobotLogic> robots = new HashMap<>();
   private Grid grid;
+
   /*
    * De wereld maakt een lege lijst voor worldObjects aan. Daarin wordt nu één robot gestopt.
    * Deze methode moet uitgebreid worden zodat alle objecten van de 3D wereld hier worden gemaakt.
    */
   public WarehouseManager() {
-    grid = new Grid(30, (6 * Data.modules));
-    int rAmount = Data.modules * 6;
+    grid = new Grid(Data.moduleLength, (6 * Data.modules));
+    int numberOfRobots = Data.modules * 10;
+    numberOfRobots -= (int) Math.ceil(Data.modules / 5.0) * 10;
 
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      rAmount -= session.query(Robot.class).count();
+      numberOfRobots -= session.query(Robot.class).count();
 
-      if (rAmount > 0)
+      if (numberOfRobots > 0)
         try (BulkInsertOperation bulkInsert = DocumentStoreHolder.getStore().bulkInsert()) {
-          for (int i = 0; i < rAmount; i++) {
-            Robot rp = new Robot();
-            rp.setStatus(Robot.Status.IDLE);
-            rp.setX(0);
-            rp.setY(i);
-            bulkInsert.store(rp);
+          for (int m = 0; m < Data.modules; m++) {
+            if (m % 5 == 2) {
+              for (int y : Data.rackPositionsY) {
+                for (int x : Data.rackPositionsX) {
+                  if (numberOfRobots > 0) {
+                    Robot robot = new Robot();
+                    robot.setStatus(Robot.Status.IDLE);
+                    robot.setX(x);
+                    robot.setY(y + (m * 6));
+                    bulkInsert.store(robot);
 
-            RobotLogic r = new RobotLogic(session.advanced().getDocumentId(rp), grid, 0, i);
-            r.registerWarehouse(this);
+                    RobotLogic logic = new RobotLogic(session.advanced().getDocumentId(robot), grid, x, y + (m * 6));
+                    logic.registerWarehouse(this);
+                    numberOfRobots -= 1;
+                  }
+                }
+              }
+            }
           }
         }
 
-      for (Robot rp : session.query(Robot.class).toList()) {
-        RobotLogic r = new RobotLogic(rp.getId(),grid, rp.getX(), rp.getY());
-        r.registerWarehouse(this);
-        robots.put(r.getId(), r);
-        grid.addWall(rp.getX(), rp.getY());
+      for (Robot robot : session.query(Robot.class).toList()) {
+        RobotLogic logic = new RobotLogic(robot.getId(), grid, robot.getX(), robot.getY());
+        logic.registerWarehouse(this);
+        robots.put(logic.getId(), logic);
+        grid.addWall(robot.getX(), robot.getY());
       }
     }
 
@@ -86,20 +99,21 @@ public class WarehouseManager implements Warehouse {
   }
 
   public void update() {
-    for (Map.Entry<String, RobotLogic> r : robots.entrySet()) {
-      r.getValue().update();
+    for (Map.Entry<String, RobotLogic> logicEntry : robots.entrySet()) {
+      logicEntry.getValue().update();
     }
   }
 
   private Node rackDropLocation() {
-    for (int y = 0; y < (6 * Data.modules); y++) {
-      if (y % 6 != 1 && y % 6 != 2 && y % 6 != 3 && y % 6 != 4) {
-        continue;
-      }
-      for (int x : Data.rackPositionsX) {
-        if (!grid.getNode(x, y).isOccupied()) {
-          grid.getNode(x, y).setOccupied(true);
-          return grid.getNode(x, y);
+    for (int m = 0; m < Data.modules; m++) {
+      if (m % 5 != 2) {
+        for (int y : Data.rackPositionsY) {
+          for (int x : Data.rackPositionsX) {
+            if (!grid.getNode(x, (m * 6) + y).isOccupied()) {
+              grid.getNode(x, (m * 6) + y).setOccupied(true);
+              return grid.getNode(x, (m * 6) + y);
+            }
+          }
         }
       }
     }
@@ -113,22 +127,25 @@ public class WarehouseManager implements Warehouse {
       waybill.setStatus(Waybill.Status.RESOLVING);
       waybill.setTodoList(cargo);
       loadingBay++;
-      if (loadingBay > Data.modules - 1) loadingBay = 0;
+      if (loadingBay >= Data.modules)
+        loadingBay = 0;
 
       List<Robot> idleRobots = session.query(Robot.class)
         .whereEquals("status", Robot.Status.IDLE)
+        .whereBetween("y",(loadingBay * 6) - 12,(loadingBay * 6) + 18)
+        .orderByDescending("x", OrderingType.LONG)
         .take(cargo.size()).toList();
 
       for (int i = 0; i < idleRobots.size(); i++) {
-        Robot r = idleRobots.get(i);
-        RobotLogic robotLogic = robots.get(r.getId());
+        Robot idleRobot = idleRobots.get(i);
+        RobotLogic robotLogic = robots.get(idleRobot.getId());
 
         int x = rackSpawnPositions[i][1] + 24,
           y = (rackSpawnPositions[i][0] + (loadingBay * 6));
 
         Queue<RobotTaskStrategy> tasks = new LinkedList<>();
         Rack rack = session.load(Rack.class, cargo.get(i));
-        if (waybill.getDestination() == WAREHOUSE){
+        if (waybill.getDestination() == WAREHOUSE) {
           rack.setX(x);
           rack.setY(y);
           rack.setZ(0);
@@ -146,8 +163,8 @@ public class WarehouseManager implements Warehouse {
 
         robotLogic.setRack(rack);
         robotLogic.setWaybillUUID(waybill.getId());
-        r.setStatus(Robot.Status.WORKING);
-        r.setWaybill(waybill);
+        idleRobot.setStatus(Robot.Status.WORKING);
+        idleRobot.setWaybill(waybill);
       }
       session.saveChanges();
     }
@@ -157,20 +174,20 @@ public class WarehouseManager implements Warehouse {
   public void robotFinishedTask(RobotLogic robotLogic, RobotTaskStrategy task) {
     if (task instanceof RobotDropStrategy) {
       try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-        Waybill w = session.load(Waybill.class, robotLogic.getWaybillUUID());
+        Waybill waybill = session.load(Waybill.class, robotLogic.getWaybillUUID());
 
-        if (w.getTodoList() != null)
-          w.getTodoList().remove(robotLogic.getRackUUID());
+        if (waybill.getTodoList() != null)
+          waybill.getTodoList().remove(robotLogic.getRackUUID());
 
-        if (w.getTodoList() == null || w.getTodoList().size() <= 0) {
-          if (w.getDestination() == MELKFACTORY)
-            for (String id : w.getRacks()) {
-              Rack r = session.load(Rack.class, id);
-              r.setZ(-10);
-              r.setStatus(Rack.Status.POOLED);
-              MessageBroker.Instance().updateObject(r);
+        if (waybill.getTodoList() == null || waybill.getTodoList().size() <= 0) {
+          if (waybill.getDestination() == MELKFACTORY)
+            for (String id : waybill.getRacks()) {
+              Rack rack = session.load(Rack.class, id);
+              rack.setZ(-10);
+              rack.setStatus(Rack.Status.POOLED);
+              MessageBroker.Instance().updateObject(rack);
             }
-          session.delete(w);
+          session.delete(waybill);
         }
 
         session.saveChanges();

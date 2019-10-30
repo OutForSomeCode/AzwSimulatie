@@ -19,7 +19,7 @@ public class MilkFactory extends CreateWaybill implements Factory {
   @Override
   public void update() {
     time++;
-    if (time < 20)
+    if (time < 30)
       return;
     flipFlop = !flipFlop;
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
@@ -37,7 +37,7 @@ public class MilkFactory extends CreateWaybill implements Factory {
 
   @Override
   public void sendWaybill() {
-    int numberOfRacks = ran.nextInt(9) + 1;
+    int numberOfRacks = ran.nextInt(5) + 5;
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
       List<Rack> pooledRacks = session.query(Rack.class)
         .whereEquals("status", Rack.Status.POOLED)
@@ -62,7 +62,7 @@ public class MilkFactory extends CreateWaybill implements Factory {
 
   @Override
   public void requestWaybill() {
-    int numberOfRacks = ran.nextInt(9) + 1;
+    int numberOfRacks = ran.nextInt(5) + 5;
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
       List<Rack> storedRacks = session.query(Rack.class)
         .whereEquals("status", Rack.Status.STORED)
