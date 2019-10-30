@@ -28,7 +28,7 @@ public class MilkFactory extends CreateWaybill implements Factory {
         if (storedRacks < (Data.modules * 30))
           sendWaybill();
       } else {
-        if (storedRacks > (Data.modules * 10))
+        if (storedRacks > (Data.modules * 20))
           requestWaybill();
       }
     }
