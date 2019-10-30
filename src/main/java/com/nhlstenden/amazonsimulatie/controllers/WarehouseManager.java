@@ -187,7 +187,7 @@ public class WarehouseManager implements Warehouse {
               rack.setStatus(Rack.Status.POOLED);
               MessageBroker.Instance().updateObject(rack);
             }
-          session.delete(waybill);
+          waybill.setStatus(Waybill.Status.POOLED);
         }
 
         session.saveChanges();

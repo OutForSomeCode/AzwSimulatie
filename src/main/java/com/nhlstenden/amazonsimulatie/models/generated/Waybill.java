@@ -264,6 +264,7 @@ public class Waybill {
 
     public enum Status {
 
+        POOLED("POOLED"),
         UNRESOLVED("UNRESOLVED"),
         RESOLVING("RESOLVING"),
         RESOLVED("RESOLVED");
