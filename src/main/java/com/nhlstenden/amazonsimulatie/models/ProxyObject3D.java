@@ -1,6 +1,7 @@
 package com.nhlstenden.amazonsimulatie.models;
 
 import com.nhlstenden.amazonsimulatie.models.generated.Object3D;
+import com.nhlstenden.amazonsimulatie.models.generated.Rack;
 
 /*
  * Deze class wordt gebruikt om informatie van het model aan de view te kunnen geven. Dit
@@ -31,6 +32,13 @@ public class ProxyObject3D extends Object3D {
 
   public String getType() {
     return this.object.getClass().getSimpleName().toLowerCase();
+  }
+
+  public String getItem() {
+    if(object instanceof Rack)
+      return ((Rack) object).getItem();
+    else
+      return null;
   }
 
   @Override

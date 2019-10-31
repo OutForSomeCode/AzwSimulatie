@@ -3,21 +3,14 @@ const apiHost = HOST;
 
 import {
   AmbientLight,
-  BufferGeometry,
   CubeTextureLoader,
-  DoubleSide,
   GridHelper,
   Group,
-  Line,
-  LineBasicMaterial,
   Mesh,
-  MeshBasicMaterial,
   MeshStandardMaterial,
+  Renderer,
   Scene,
-  SphereGeometry,
-  SplineCurve,
-  TextureLoader,
-  Vector2
+  TextureLoader
 } from "three";
 import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
 import TWEEN from '@tweenjs/tween.js';
@@ -34,7 +27,8 @@ class WorldObjectManger {
     ["Warehouse", "Warehouse_Concrete"],
     ["Box", "BoxMat"],
     ["Table", "TableMat"],
-    ["Cone4D", "ConeMat"]
+    ["Cone4D", "ConeMat"],
+    ["kaas", "CheeseMat"]
   ];
   private scene = new Scene();
   private truck;
@@ -42,13 +36,32 @@ class WorldObjectManger {
   textureCube;
 
 
-  public loadModels(callback: () => void) {
-    const r = "https://threejs.org/examples/textures/cube/Bridge2/";
-    const urls = [r + "posx.jpg", r + "negx.jpg",
-      r + "posy.jpg", r + "negy.jpg",
-      r + "posz.jpg", r + "negz.jpg"];
+  public loadModels(renderer: Renderer, callback: () => void) {
+    const r = "https://threejs.org/examples/textures/cube/skyboxsun25deg/";
+    const urls = [r + "px.jpg", r + "nx.jpg",
+      r + "py.jpg", r + "ny.jpg",
+      r + "pz.jpg", r + "nz.jpg"];
 
     this.textureCube = new CubeTextureLoader().load(urls);
+
+    /*const hdrUrls = ['px.hdr', 'nx.hdr', 'py.hdr', 'ny.hdr', 'pz.hdr', 'nz.hdr'];
+    let kaas = this.textureCube;
+    this.textureCube = new HDRCubeTextureLoader()
+      .setPath( 'https://threejs.org/examples/textures/cube/pisaHDR/' )
+      .setDataType( UnsignedByteType )
+      .load( hdrUrls, function () {
+        var pmremGenerator = new PMREMGenerator(  kaas );
+        pmremGenerator.update( renderer );
+        var pmremCubeUVPacker = new PMREMCubeUVPacker( pmremGenerator.cubeLods );
+        pmremCubeUVPacker.update( renderer );
+        //hdrCubeRenderTarget = pmremCubeUVPacker.CubeUVRenderTarget;
+        kaas.magFilter = LinearFilter;
+        kaas.needsUpdate = true;
+        pmremGenerator.dispose();
+        pmremCubeUVPacker.dispose();
+      } );*/
+
+    this.scene.background = this.textureCube;
 
     const promises = [];
     this.reqModels.forEach(e => {
@@ -81,13 +94,6 @@ class WorldObjectManger {
 
     var gui = new Dat.GUI();
     gui.addMaterial("amount of warehouse modules", 0, 20, 1);
-    const sphericalSkyboxGeometry = new SphereGeometry(900, 32, 32);
-    const sphericalSkyboxMaterial = new MeshBasicMaterial({
-      map: new TextureLoader().load('assets/textures/lebombo_2k.jpg'),
-      side: DoubleSide
-    });
-    const sphericalSkybox = new Mesh(sphericalSkyboxGeometry, sphericalSkyboxMaterial);
-    this.scene.add(sphericalSkybox);
 
     axios.get(apiHost + "getNumberOfModules").then(e => {
       this.createWarehouse(e.data);
@@ -189,14 +195,20 @@ class WorldObjectManger {
   }
 
   public createRack(command): void {
-    const scene = this.scene;
-    const worldObjects = this.worldObjects;
-
+    let rackItemPos = [0.65, 1.15, 1.65, 2.15];
     let rack = this.getModel("Rack");
-    //initial spawn position of the racks
+
+    for (let p of rackItemPos) {
+      let item = this.getModel(command.parameters.item);
+      item.scale.set(0.45, 0.45, 0.45);
+      item.rotateY(Math.floor((Math.random() * 10) + 1));
+      item.position.y = p;
+      rack.add(item);
+    }
+
     rack.position.y = -1000;
-    scene.add(rack);
-    worldObjects[command.parameters.id] = rack;
+    this.scene.add(rack);
+    this.worldObjects[command.parameters.id] = rack;
   }
 
   parentObject(command) {

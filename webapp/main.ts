@@ -17,7 +17,7 @@ let _worldObjectManger: WorldObjectManger;
  */
 function init() {
   _worldObjectManger = new WorldObjectManger();
-  _worldObjectManger.loadModels(() => {
+  _worldObjectManger.loadModels(renderer, () => {
     _worldObjectManger.initWorld();
     _socketService = new SocketService(_worldObjectManger);
     _socketService.connect();
