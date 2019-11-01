@@ -189,6 +189,7 @@ public class WarehouseManager implements Warehouse {
 
       waybill.setStatus(Waybill.Status.RESOLVING);
       waybill.setTodoList(cargo);
+      waybill.getRacks().clear();
 
       List<Robot> idleRobots = session.query(Robot.class)
         .whereEquals("status", Robot.Status.IDLE)
