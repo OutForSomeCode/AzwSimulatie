@@ -4,11 +4,9 @@ const apiHost = HOST;
 import {
   AmbientLight,
   CubeTextureLoader,
-  GridHelper,
   Group,
   Mesh,
   MeshStandardMaterial,
-  PointLightHelper,
   Renderer,
   Scene,
   SpotLight,
@@ -89,11 +87,6 @@ class WorldObjectManger {
       this.addLights(e.data);
     });
 
-    const gridHelper = new GridHelper(42, 42);
-    gridHelper.position.x = 21;
-    gridHelper.position.z = 21;
-    this.scene.add(gridHelper);
-
     let obj = this.getModel("Table");
     obj.position.x = 21;
     obj.position.y = -35;
@@ -167,6 +160,7 @@ class WorldObjectManger {
     this.scene.add(robot);
     this.worldObjects[command.parameters.id] = robot;
   }
+
   /**
    * creates a rack
    * @param command is used to set and define the values for the rack
@@ -246,8 +240,8 @@ class WorldObjectManger {
   private addLights(numberofmodules): void {
     const ambientlight = new AmbientLight(0xffffff, 0.2);
     this.scene.add(ambientlight);
-    this.addPointLighters(6, numberofmodules);
-    this.addPointLighters(18, numberofmodules);
+    this.addPointLighters(6, (numberofmodules / 2) + 1);
+    this.addPointLighters(18, (numberofmodules / 2) + 1);
   }
 
   /**
@@ -265,9 +259,9 @@ class WorldObjectManger {
       light.shadow.camera.far = 5;
       modulemultiplier += 12;
       var sphereSize = 1;
-      var pointLightHelper = new PointLightHelper(light, sphereSize);
       this.scene.add(light);
-      this.scene.add(pointLightHelper);
+      // var pointLightHelper = new PointLightHelper(light, sphereSize);
+      // this.scene.add(pointLightHelper);
     }
   }
 
