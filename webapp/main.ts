@@ -15,6 +15,9 @@ let _worldObjectManger: WorldObjectManger;
 /*
   function init initialized the world and all its objects
  */
+/**
+ * initializes all components
+ */
 function init() {
   _worldObjectManger = new WorldObjectManger();
   _worldObjectManger.loadModels(renderer, () => {
@@ -42,14 +45,17 @@ function init() {
   window.addEventListener('resize', onWindowResize, false);
 }
 
+/**
+ * resize the window
+ */
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-/*
-frameStep is updates every frame
+/**
+ * framestep updates every frame
  */
 function frameStep() {
   requestAnimationFrame(frameStep);

@@ -34,9 +34,13 @@ class WorldObjectManger {
     ["kaas", "CheeseMat"]
   ];
   private scene = new Scene();
-  private truck;
   private objLoader = new OBJLoader();
 
+  /**
+   *
+   * @param renderer to load HDR map
+   * @param callback if all promises are done then call it back
+   */
   public loadModels(renderer: Renderer, callback: () => void) {
     const r = "https://threejs.org/examples/textures/cube/skyboxsun25deg/";
     const urls = [r + "px.jpg", r + "nx.jpg",
@@ -72,6 +76,9 @@ class WorldObjectManger {
     Promise.all(promises).then(callback);
   }
 
+  /**
+   * initialize the world
+   */
   public initWorld() {
 
     var gui = new Dat.GUI();
@@ -102,10 +109,17 @@ class WorldObjectManger {
     return this.worldObjects;
   }
 
+  /**
+   * Gets the scene
+   */
   public getScene(): Scene {
     return this.scene;
   }
 
+  /**
+   * Updates the object that is given
+   * @param command is used to divine witch object should be updated
+   */
   public updateObject(command): void {
     // Wanneer het object dat moet worden geupdate nog niet bestaat (komt niet voor in de lijst met worldObjects op de client),
     // dan wordt het 3D model eerst aangemaakt in de 3D wereld.
@@ -143,13 +157,20 @@ class WorldObjectManger {
     }
   }
 
+  /**
+   * creates a robot
+   * @param command is used to set and define the values for the robot
+   */
   public createRobot(command): void {
     let robot = this.getModel("Robot");
     robot.position.set(command.parameters.x, command.parameters.z, command.parameters.y);
     this.scene.add(robot);
     this.worldObjects[command.parameters.id] = robot;
   }
-
+  /**
+   * creates a rack
+   * @param command is used to set and define the values for the rack
+   */
   public createRack(command): void {
     let rackItemPos = [0.65, 1.15, 1.65, 2.15];
     let rack = this.getModel("Rack");
@@ -167,6 +188,10 @@ class WorldObjectManger {
     this.worldObjects[command.parameters.id] = rack;
   }
 
+  /**
+   * parents a rack to a robot
+   * @param command is used to give the values for the robot and the rack
+   */
   parentObject(command) {
     var objs = command.parameters.split("|");
     let robot = this.worldObjects[objs[0]];
@@ -176,6 +201,10 @@ class WorldObjectManger {
     rack.position.set(0, 0.1, 0);
   }
 
+  /**
+   * to unparent the rack from a robot
+   * @param command to give the values for the robot and the rack
+   */
   unparentObject(command) {
     var objs = command.parameters.split("|");
     let robot = this.worldObjects[objs[0]];
@@ -184,6 +213,11 @@ class WorldObjectManger {
     rack.position.set(robot.position.x, robot.position.y, robot.position.z);
   }
 
+  /**
+   *
+   * @param dat multiple dimensional array 1 key is the model and 2nd key texture name
+   * @constructor
+   */
   private LoadObj(dat: Array<string>) {
     return new Promise(resolve => {
       this.objLoader.load(`assets/models/${dat[0]}.obj`, obj => {
@@ -204,6 +238,11 @@ class WorldObjectManger {
     });
   }
 
+
+  /**
+   * adds all lights
+   * @param numberofmodules the number of modules that the warehouse
+   */
   private addLights(numberofmodules): void {
     const ambientlight = new AmbientLight(0xffffff, 0.2);
     this.scene.add(ambientlight);
@@ -211,6 +250,11 @@ class WorldObjectManger {
     this.addPointLighters(18, numberofmodules);
   }
 
+  /**
+   * adds the pointers lights in the warehouse
+   * @param xcord the x coordinates where the lights must be placed
+   * @param numberofmodules the number of modules that the warehouse
+   */
   private addPointLighters(xcord, numberofmodules): void {
     var modulemultiplier = 0;
     for (var i = 0; i < numberofmodules; i++) {
@@ -227,10 +271,18 @@ class WorldObjectManger {
     }
   }
 
+  /**
+   * gets the models
+   * @param name the name of the model
+   */
   private getModel(name: string) {
     return this.preloadedModels[name].clone();
   }
 
+  /**
+   * creates the warehouse
+   * @param numberOfModules  the number of modules that the warehouse
+   */
   private createWarehouse(numberOfModules) {
     for (let i = 0; i < numberOfModules; i++) {
       let obj = this.getModel("Warehouse");
@@ -242,6 +294,10 @@ class WorldObjectManger {
     }
   }
 
+  /**
+   * adds the objects to the scene
+   * @param obj are the objects that are added
+   */
   private addScene(obj) {
     this.scene.add(obj);
   }

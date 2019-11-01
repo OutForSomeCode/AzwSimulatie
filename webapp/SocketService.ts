@@ -10,6 +10,10 @@ class SocketService {
   private _worldObjectManger: WorldObjectManger;
   private messagePack;
 
+  /**
+   * the constructor of the socket service
+   * @param w gives the world object manger and making use of object injection
+   */
   constructor(w) {
     this._worldObjectManger = w; // making use of Object injection
     this.messagePack = MessagePack.initialize(2 ** 20);
