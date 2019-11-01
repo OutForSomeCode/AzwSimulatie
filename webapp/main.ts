@@ -24,16 +24,18 @@ function init() {
     frameStep();
   });
   camera = new PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
-  cameraControls = new OrbitControls(camera);
+
   camera.position.z = 15;
   camera.position.y = 5;
   camera.position.x = 15;
-  cameraControls.update();
 
   renderer = new WebGLRenderer({antialias: true});
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight + 5);
   document.body.appendChild(renderer.domElement);
+
+  cameraControls = new OrbitControls(camera, renderer.domElement);
+  cameraControls.update();
 
   window.addEventListener('resize', onWindowResize, false);
 }
