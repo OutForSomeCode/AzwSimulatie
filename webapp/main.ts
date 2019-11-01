@@ -3,6 +3,7 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import {BasicShadowMap, PerspectiveCamera, WebGLRenderer} from 'three';
 import {WorldObjectManger} from "./WorldObjectManager";
 import TWEEN from '@tweenjs/tween.js';
+import * as Stats from "stats.js";
 
 let camera: PerspectiveCamera;
 let renderer: WebGLRenderer;
@@ -10,15 +11,17 @@ let renderer: WebGLRenderer;
 let cameraControls: OrbitControls;
 let _socketService: SocketService;
 let _worldObjectManger: WorldObjectManger;
+let stats: Stats;
 
-
-/*
-  function init initialized the world and all its objects
- */
 /**
  * initializes all components
  */
 function init() {
+
+  stats = new Stats();
+  stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+  document.body.appendChild(stats.dom);
+
   _worldObjectManger = new WorldObjectManger();
   _worldObjectManger.loadModels(renderer, () => {
     _worldObjectManger.initWorld();
@@ -58,10 +61,12 @@ function onWindowResize() {
  * framestep updates every frame
  */
 function frameStep() {
-  requestAnimationFrame(frameStep);
+  stats.begin();
   cameraControls.update();
   renderer.render(_worldObjectManger.getScene(), camera);
   TWEEN.update();
+  stats.end();
+  requestAnimationFrame(frameStep);
 }
 
 window.onload = init;
