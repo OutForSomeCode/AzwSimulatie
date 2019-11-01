@@ -14,6 +14,10 @@
       "$ref": "waybill.schema.json",
       "description": "this reference to the waybill.schema.json file"
     },
+    "wkt": {
+      "type": "string",
+      "description": "pos"
+    },
     "status": {
       "type": "string",
       "enum": [

@@ -6,7 +6,9 @@ import com.nhlstenden.amazonsimulatie.models.generated.Rack;
 import com.nhlstenden.amazonsimulatie.models.generated.Robot;
 import com.nhlstenden.amazonsimulatie.models.generated.Waybill;
 import net.ravendb.client.documents.BulkInsertOperation;
+import net.ravendb.client.documents.indexes.spatial.SpatialRelation;
 import net.ravendb.client.documents.queries.spatial.PointField;
+import net.ravendb.client.documents.queries.spatial.WktField;
 import net.ravendb.client.documents.session.IDocumentSession;
 import net.ravendb.client.documents.session.OrderingType;
 import net.ravendb.client.documents.subscriptions.SubscriptionBatch;
@@ -59,7 +61,11 @@ public class WarehouseManager implements Warehouse {
                     Robot robot = new Robot();
                     robot.setStatus(Robot.Status.IDLE);
                     robot.setX(x);
-                    robot.setY(y + (m * 6));
+                    int yf = y + (m * 6);
+                    robot.setY(yf);
+
+                    robot.setWkt(formatWtk(x, yf));
+
                     bulkInsert.store(robot);
 
                     RobotLogic logic = new RobotLogic(session.advanced().getDocumentId(robot), grid, x, y + (m * 6));
@@ -78,6 +84,14 @@ public class WarehouseManager implements Warehouse {
         robots.put(logic.getId(), logic);
         grid.addWall(robot.getX(), robot.getY());
       }
+
+      List<Robot> results = session
+        .query(Robot.class)
+        .spatial(
+          new WktField("wkt"),
+          f -> f.relatesToShape("Circle(53.000000 6.000000 d=10.0000)", SpatialRelation.WITHIN)
+        )
+        .toList();
     }
 
     for (int y = 0; y < (6 * Data.modules); y++) {
@@ -102,6 +116,10 @@ public class WarehouseManager implements Warehouse {
     for (Map.Entry<String, RobotLogic> logicEntry : robots.entrySet()) {
       logicEntry.getValue().update();
     }
+  }
+
+  private String formatWtk(int x, int y) {
+    return String.format("POINT (53.%03d000 6.%03d000)", x, y);
   }
 
   private Node rackDropLocation() {
@@ -132,8 +150,7 @@ public class WarehouseManager implements Warehouse {
 
       List<Robot> idleRobots = session.query(Robot.class)
         .whereEquals("status", Robot.Status.IDLE)
-        .whereBetween("y",(loadingBay * 6) - 12,(loadingBay * 6) + 18)
-        .orderByDescending("x", OrderingType.LONG)
+        .orderByDistance("wkt", formatWtk(24, (loadingBay * 6)))
         .take(cargo.size()).toList();
 
       for (int i = 0; i < idleRobots.size(); i++) {

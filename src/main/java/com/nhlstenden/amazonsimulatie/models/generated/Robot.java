@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 @JsonPropertyOrder({
     "rack",
     "waybill",
+    "wkt",
     "status"
 })
 public class Robot
@@ -32,6 +33,13 @@ public class Robot
     private Rack rack;
     @JsonProperty("waybill")
     private Waybill waybill;
+    /**
+     * pos
+     * 
+     */
+    @JsonProperty("wkt")
+    @JsonPropertyDescription("pos")
+    private String wkt;
     /**
      * this determines the state of the object of the robot
      * 
@@ -60,6 +68,24 @@ public class Robot
     @JsonProperty("waybill")
     public void setWaybill(Waybill waybill) {
         this.waybill = waybill;
+    }
+
+    /**
+     * pos
+     * 
+     */
+    @JsonProperty("wkt")
+    public String getWkt() {
+        return wkt;
+    }
+
+    /**
+     * pos
+     * 
+     */
+    @JsonProperty("wkt")
+    public void setWkt(String wkt) {
+        this.wkt = wkt;
     }
 
     /**
@@ -116,6 +142,10 @@ public class Robot
         sb.append('=');
         sb.append(((this.waybill == null)?"<null>":this.waybill));
         sb.append(',');
+        sb.append("wkt");
+        sb.append('=');
+        sb.append(((this.wkt == null)?"<null>":this.wkt));
+        sb.append(',');
         sb.append("status");
         sb.append('=');
         sb.append(((this.status == null)?"<null>":this.status));
@@ -135,6 +165,7 @@ public class Robot
     @Override
     public int hashCode() {
         int result = 1;
+        result = ((result* 31)+((this.wkt == null)? 0 :this.wkt.hashCode()));
         result = ((result* 31)+((this.rack == null)? 0 :this.rack.hashCode()));
         result = ((result* 31)+((this.additionalProperties == null)? 0 :this.additionalProperties.hashCode()));
         result = ((result* 31)+((this.waybill == null)? 0 :this.waybill.hashCode()));
@@ -152,7 +183,7 @@ public class Robot
             return false;
         }
         Robot rhs = ((Robot) other);
-        return ((((super.equals(rhs)&&((this.rack == rhs.rack)||((this.rack!= null)&&this.rack.equals(rhs.rack))))&&((this.additionalProperties == rhs.additionalProperties)||((this.additionalProperties!= null)&&this.additionalProperties.equals(rhs.additionalProperties))))&&((this.waybill == rhs.waybill)||((this.waybill!= null)&&this.waybill.equals(rhs.waybill))))&&((this.status == rhs.status)||((this.status!= null)&&this.status.equals(rhs.status))));
+        return (((((super.equals(rhs)&&((this.wkt == rhs.wkt)||((this.wkt!= null)&&this.wkt.equals(rhs.wkt))))&&((this.rack == rhs.rack)||((this.rack!= null)&&this.rack.equals(rhs.rack))))&&((this.additionalProperties == rhs.additionalProperties)||((this.additionalProperties!= null)&&this.additionalProperties.equals(rhs.additionalProperties))))&&((this.waybill == rhs.waybill)||((this.waybill!= null)&&this.waybill.equals(rhs.waybill))))&&((this.status == rhs.status)||((this.status!= null)&&this.status.equals(rhs.status))));
     }
 
     public enum Status {
