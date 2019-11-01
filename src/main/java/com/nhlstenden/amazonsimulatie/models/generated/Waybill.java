@@ -20,8 +20,10 @@ import com.fasterxml.jackson.annotation.JsonValue;
     "id",
     "destination",
     "status",
-    "racks",
-    "todoList"
+    "racksAmount",
+    "racksType",
+    "todoList",
+    "racks"
 })
 public class Waybill {
 
@@ -50,9 +52,16 @@ public class Waybill {
      * what types of racks it needs to ship to the warehouse
      * 
      */
-    @JsonProperty("racks")
+    @JsonProperty("racksAmount")
     @JsonPropertyDescription("what types of racks it needs to ship to the warehouse")
-    private List<String> racks = new ArrayList<String>();
+    private int racksAmount;
+    /**
+     * what types of racks it needs to ship to the warehouse
+     * 
+     */
+    @JsonProperty("racksType")
+    @JsonPropertyDescription("what types of racks it needs to ship to the warehouse")
+    private String racksType;
     /**
      * the array of racks that are not on the right location
      * 
@@ -60,6 +69,13 @@ public class Waybill {
     @JsonProperty("todoList")
     @JsonPropertyDescription("the array of racks that are not on the right location")
     private List<String> todoList = new ArrayList<String>();
+    /**
+     * what types of racks it needs to ship to the warehouse
+     * 
+     */
+    @JsonProperty("racks")
+    @JsonPropertyDescription("what types of racks it needs to ship to the warehouse")
+    private List<String> racks = new ArrayList<String>();
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -121,18 +137,36 @@ public class Waybill {
      * what types of racks it needs to ship to the warehouse
      * 
      */
-    @JsonProperty("racks")
-    public List<String> getRacks() {
-        return racks;
+    @JsonProperty("racksAmount")
+    public int getRacksAmount() {
+        return racksAmount;
     }
 
     /**
      * what types of racks it needs to ship to the warehouse
      * 
      */
-    @JsonProperty("racks")
-    public void setRacks(List<String> racks) {
-        this.racks = racks;
+    @JsonProperty("racksAmount")
+    public void setRacksAmount(int racksAmount) {
+        this.racksAmount = racksAmount;
+    }
+
+    /**
+     * what types of racks it needs to ship to the warehouse
+     * 
+     */
+    @JsonProperty("racksType")
+    public String getRacksType() {
+        return racksType;
+    }
+
+    /**
+     * what types of racks it needs to ship to the warehouse
+     * 
+     */
+    @JsonProperty("racksType")
+    public void setRacksType(String racksType) {
+        this.racksType = racksType;
     }
 
     /**
@@ -151,6 +185,24 @@ public class Waybill {
     @JsonProperty("todoList")
     public void setTodoList(List<String> todoList) {
         this.todoList = todoList;
+    }
+
+    /**
+     * what types of racks it needs to ship to the warehouse
+     * 
+     */
+    @JsonProperty("racks")
+    public List<String> getRacks() {
+        return racks;
+    }
+
+    /**
+     * what types of racks it needs to ship to the warehouse
+     * 
+     */
+    @JsonProperty("racks")
+    public void setRacks(List<String> racks) {
+        this.racks = racks;
     }
 
     @JsonAnyGetter
@@ -179,13 +231,21 @@ public class Waybill {
         sb.append('=');
         sb.append(((this.status == null)?"<null>":this.status));
         sb.append(',');
-        sb.append("racks");
+        sb.append("racksAmount");
         sb.append('=');
-        sb.append(((this.racks == null)?"<null>":this.racks));
+        sb.append(this.racksAmount);
+        sb.append(',');
+        sb.append("racksType");
+        sb.append('=');
+        sb.append(((this.racksType == null)?"<null>":this.racksType));
         sb.append(',');
         sb.append("todoList");
         sb.append('=');
         sb.append(((this.todoList == null)?"<null>":this.todoList));
+        sb.append(',');
+        sb.append("racks");
+        sb.append('=');
+        sb.append(((this.racks == null)?"<null>":this.racks));
         sb.append(',');
         sb.append("additionalProperties");
         sb.append('=');
@@ -202,12 +262,14 @@ public class Waybill {
     @Override
     public int hashCode() {
         int result = 1;
+        result = ((result* 31)+((this.racksType == null)? 0 :this.racksType.hashCode()));
         result = ((result* 31)+((this.todoList == null)? 0 :this.todoList.hashCode()));
         result = ((result* 31)+((this.destination == null)? 0 :this.destination.hashCode()));
         result = ((result* 31)+((this.racks == null)? 0 :this.racks.hashCode()));
         result = ((result* 31)+((this.id == null)? 0 :this.id.hashCode()));
         result = ((result* 31)+((this.additionalProperties == null)? 0 :this.additionalProperties.hashCode()));
         result = ((result* 31)+((this.status == null)? 0 :this.status.hashCode()));
+        result = ((result* 31)+ this.racksAmount);
         return result;
     }
 
@@ -220,7 +282,7 @@ public class Waybill {
             return false;
         }
         Waybill rhs = ((Waybill) other);
-        return (((((((this.todoList == rhs.todoList)||((this.todoList!= null)&&this.todoList.equals(rhs.todoList)))&&((this.destination == rhs.destination)||((this.destination!= null)&&this.destination.equals(rhs.destination))))&&((this.racks == rhs.racks)||((this.racks!= null)&&this.racks.equals(rhs.racks))))&&((this.id == rhs.id)||((this.id!= null)&&this.id.equals(rhs.id))))&&((this.additionalProperties == rhs.additionalProperties)||((this.additionalProperties!= null)&&this.additionalProperties.equals(rhs.additionalProperties))))&&((this.status == rhs.status)||((this.status!= null)&&this.status.equals(rhs.status))));
+        return (((((((((this.racksType == rhs.racksType)||((this.racksType!= null)&&this.racksType.equals(rhs.racksType)))&&((this.todoList == rhs.todoList)||((this.todoList!= null)&&this.todoList.equals(rhs.todoList))))&&((this.destination == rhs.destination)||((this.destination!= null)&&this.destination.equals(rhs.destination))))&&((this.racks == rhs.racks)||((this.racks!= null)&&this.racks.equals(rhs.racks))))&&((this.id == rhs.id)||((this.id!= null)&&this.id.equals(rhs.id))))&&((this.additionalProperties == rhs.additionalProperties)||((this.additionalProperties!= null)&&this.additionalProperties.equals(rhs.additionalProperties))))&&((this.status == rhs.status)||((this.status!= null)&&this.status.equals(rhs.status))))&&(this.racksAmount == rhs.racksAmount));
     }
 
     public enum Destination {

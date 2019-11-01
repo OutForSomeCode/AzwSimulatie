@@ -26,11 +26,12 @@
       ],
       "description": "the deference types of state it can have"
     },
-    "racks": {
-      "type": "array",
-      "items": {
-        "type" : "string"
-      },
+    "racksAmount": {
+      "type": "integer",
+      "description": "what types of racks it needs to ship to the warehouse"
+    },
+    "racksType": {
+      "type": "string",
       "description": "what types of racks it needs to ship to the warehouse"
     },
     "todoList": {
@@ -40,6 +41,13 @@
         "description": "these are the racks"
       },
       "description": "the array of racks that are not on the right location"
+    },
+    "racks": {
+      "type": "array",
+      "items": {
+        "type" : "string"
+      },
+      "description": "what types of racks it needs to ship to the warehouse"
     }
   }
 }

@@ -16,6 +16,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
     "item",
+    "wkt",
     "status"
 })
 public class Rack
@@ -29,6 +30,13 @@ public class Rack
     @JsonProperty("item")
     @JsonPropertyDescription("this is the item that is laying on the rack")
     private String item;
+    /**
+     * pos
+     * 
+     */
+    @JsonProperty("wkt")
+    @JsonPropertyDescription("pos")
+    private String wkt;
     /**
      * this are the status that the rack can have (waiting,pooled,stored,moving)
      * 
@@ -55,6 +63,24 @@ public class Rack
     @JsonProperty("item")
     public void setItem(String item) {
         this.item = item;
+    }
+
+    /**
+     * pos
+     * 
+     */
+    @JsonProperty("wkt")
+    public String getWkt() {
+        return wkt;
+    }
+
+    /**
+     * pos
+     * 
+     */
+    @JsonProperty("wkt")
+    public void setWkt(String wkt) {
+        this.wkt = wkt;
     }
 
     /**
@@ -107,6 +133,10 @@ public class Rack
         sb.append('=');
         sb.append(((this.item == null)?"<null>":this.item));
         sb.append(',');
+        sb.append("wkt");
+        sb.append('=');
+        sb.append(((this.wkt == null)?"<null>":this.wkt));
+        sb.append(',');
         sb.append("status");
         sb.append('=');
         sb.append(((this.status == null)?"<null>":this.status));
@@ -126,6 +156,7 @@ public class Rack
     @Override
     public int hashCode() {
         int result = 1;
+        result = ((result* 31)+((this.wkt == null)? 0 :this.wkt.hashCode()));
         result = ((result* 31)+((this.item == null)? 0 :this.item.hashCode()));
         result = ((result* 31)+((this.additionalProperties == null)? 0 :this.additionalProperties.hashCode()));
         result = ((result* 31)+((this.status == null)? 0 :this.status.hashCode()));
@@ -142,7 +173,7 @@ public class Rack
             return false;
         }
         Rack rhs = ((Rack) other);
-        return (((super.equals(rhs)&&((this.item == rhs.item)||((this.item!= null)&&this.item.equals(rhs.item))))&&((this.additionalProperties == rhs.additionalProperties)||((this.additionalProperties!= null)&&this.additionalProperties.equals(rhs.additionalProperties))))&&((this.status == rhs.status)||((this.status!= null)&&this.status.equals(rhs.status))));
+        return ((((super.equals(rhs)&&((this.wkt == rhs.wkt)||((this.wkt!= null)&&this.wkt.equals(rhs.wkt))))&&((this.item == rhs.item)||((this.item!= null)&&this.item.equals(rhs.item))))&&((this.additionalProperties == rhs.additionalProperties)||((this.additionalProperties!= null)&&this.additionalProperties.equals(rhs.additionalProperties))))&&((this.status == rhs.status)||((this.status!= null)&&this.status.equals(rhs.status))));
     }
 
     public enum Status {

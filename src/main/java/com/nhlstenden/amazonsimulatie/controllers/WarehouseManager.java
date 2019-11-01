@@ -7,10 +7,8 @@ import com.nhlstenden.amazonsimulatie.models.generated.Robot;
 import com.nhlstenden.amazonsimulatie.models.generated.Waybill;
 import net.ravendb.client.documents.BulkInsertOperation;
 import net.ravendb.client.documents.indexes.spatial.SpatialRelation;
-import net.ravendb.client.documents.queries.spatial.PointField;
 import net.ravendb.client.documents.queries.spatial.WktField;
 import net.ravendb.client.documents.session.IDocumentSession;
-import net.ravendb.client.documents.session.OrderingType;
 import net.ravendb.client.documents.subscriptions.SubscriptionBatch;
 import net.ravendb.client.documents.subscriptions.SubscriptionWorker;
 
@@ -28,7 +26,7 @@ import static com.nhlstenden.amazonsimulatie.models.generated.Waybill.Destinatio
  * in het model. Dit betekent dus de logica die het magazijn simuleert.
  */
 public class WarehouseManager implements Warehouse {
-  private int loadingBay = 0;
+  private int loadingBay = 99999;
   /*
    * De wereld bestaat uit objecten, vandaar de naam worldObjects. Dit is een lijst
    * van alle objecten in de 3D wereld. Deze objecten zijn in deze voorbeeldcode alleen
@@ -64,7 +62,7 @@ public class WarehouseManager implements Warehouse {
                     int yf = y + (m * 6);
                     robot.setY(yf);
 
-                    robot.setWkt(formatWtk(x, yf));
+                    robot.setWkt(DocumentStoreHolder.formatWtk(x, yf));
 
                     bulkInsert.store(robot);
 
@@ -107,7 +105,7 @@ public class WarehouseManager implements Warehouse {
     workerWBatch.run(batch -> {
       for (SubscriptionBatch.Item<Waybill> item : batch.getItems()) {
         if (item.getResult().getStatus() == Waybill.Status.UNRESOLVED)
-          RequestResource(item.getId());
+          processWaybill(item.getId());
       }
     });
   }
@@ -118,9 +116,7 @@ public class WarehouseManager implements Warehouse {
     }
   }
 
-  private String formatWtk(int x, int y) {
-    return String.format("POINT (53.%03d000 6.%03d000)", x, y);
-  }
+
 
   private Node rackDropLocation() {
     for (int m = 0; m < Data.modules; m++) {
@@ -138,30 +134,76 @@ public class WarehouseManager implements Warehouse {
     return null;
   }
 
-  private void RequestResource(String waybillId) {
+  private void processWaybill(String waybillId) {
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      Waybill waybill = session.load(Waybill.class, waybillId);
-      List<String> cargo = waybill.getRacks();
-      waybill.setStatus(Waybill.Status.RESOLVING);
-      waybill.setTodoList(cargo);
       loadingBay++;
       if (loadingBay >= Data.modules)
         loadingBay = 0;
 
+      int truckPosX = 24,
+        truckPosY = (loadingBay * 6);
+
+      Waybill waybill = session.load(Waybill.class, waybillId);
+      List<String> cargo = new ArrayList<>();//waybill.getRacks();
+
+      int numberOfRacks = waybill.getRacksAmount();
+      List<Rack> racks;
+
+      if (waybill.getDestination() == WAREHOUSE) {
+        racks = session.query(Rack.class)
+          .whereEquals("status", Rack.Status.POOLED)
+          .take(numberOfRacks).toList();
+
+        if (racks.size() <= numberOfRacks) {
+          numberOfRacks -= racks.size();
+
+          try (BulkInsertOperation bulkInsert = DocumentStoreHolder.getStore().bulkInsert()) {
+            for (int i = 0; i < numberOfRacks; i++) {
+              Rack rack = new Rack();
+              rack.setItem("kaas");
+              rack.setWkt(DocumentStoreHolder.formatWtk(truckPosX, truckPosY));
+              rack.setStatus(Rack.Status.WAITING);
+              bulkInsert.store(rack);
+              racks.add(rack);
+            }
+          }
+
+          List<Rack> results = session
+            .query(Rack.class)
+            .spatial(
+              new WktField("wkt"),
+              f -> f.relatesToShape("Circle(53.000000 6.000000 d=10.0000)", SpatialRelation.WITHIN)
+            )
+            .toList();
+        }
+      } else {
+        racks = session.query(Rack.class)
+          .whereEquals("status", Rack.Status.STORED)
+          .orderByDistance("wkt", DocumentStoreHolder.formatWtk(truckPosX, truckPosY))
+          .take(numberOfRacks).toList();
+      }
+
+      for (Rack rack : racks) {
+        cargo.add(rack.getId());
+      }
+
+      waybill.setStatus(Waybill.Status.RESOLVING);
+      waybill.setTodoList(cargo);
+
       List<Robot> idleRobots = session.query(Robot.class)
         .whereEquals("status", Robot.Status.IDLE)
-        .orderByDistance("wkt", formatWtk(24, (loadingBay * 6)))
+        .orderByDistance("wkt", DocumentStoreHolder.formatWtk(truckPosX, truckPosY))
         .take(cargo.size()).toList();
 
       for (int i = 0; i < idleRobots.size(); i++) {
         Robot idleRobot = idleRobots.get(i);
         RobotLogic robotLogic = robots.get(idleRobot.getId());
 
-        int x = rackSpawnPositions[i][1] + 24,
-          y = (rackSpawnPositions[i][0] + (loadingBay * 6));
+        int x = rackSpawnPositions[i][1] + truckPosX,
+          y = (rackSpawnPositions[i][0] + truckPosY);
 
         Queue<RobotTaskStrategy> tasks = new LinkedList<>();
-        Rack rack = session.load(Rack.class, cargo.get(i));
+        Rack rack = racks.get(i);//session.load(Rack.class, );//cargo.get(i)
         if (waybill.getDestination() == WAREHOUSE) {
           rack.setX(x);
           rack.setY(y);
@@ -193,8 +235,10 @@ public class WarehouseManager implements Warehouse {
       try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
         Waybill waybill = session.load(Waybill.class, robotLogic.getWaybillUUID());
 
-        if (waybill.getTodoList() != null)
+        if (waybill.getTodoList() != null) {
           waybill.getTodoList().remove(robotLogic.getRackUUID());
+          waybill.getRacks().add(robotLogic.getRackUUID());
+        }
 
         if (waybill.getTodoList() == null || waybill.getTodoList().size() <= 0) {
           if (waybill.getDestination() == MELKFACTORY)

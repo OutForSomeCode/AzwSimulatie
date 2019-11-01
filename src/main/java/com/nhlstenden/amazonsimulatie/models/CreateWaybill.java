@@ -1,5 +1,6 @@
 package com.nhlstenden.amazonsimulatie.models;
 
+import com.nhlstenden.amazonsimulatie.controllers.DocumentStoreHolder;
 import com.nhlstenden.amazonsimulatie.models.generated.Rack;
 import com.nhlstenden.amazonsimulatie.models.generated.Waybill;
 import net.ravendb.client.documents.session.IDocumentSession;
@@ -8,27 +9,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class CreateWaybill {
-    protected void createWaybill(List<Rack> racks, IDocumentSession session, Waybill.Destination destination) {
+  protected void createWaybill(int racksAmount, String racksType, Waybill.Destination destination) {
+    try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
       Waybill pooledWaybill = session.query(Waybill.class)
         .whereEquals("status", Waybill.Status.POOLED)
         .firstOrDefault();
-      List<String> tmp = new ArrayList<>();
-      if(pooledWaybill == null){
+      if (pooledWaybill == null) {
         Waybill dump = new Waybill();
         session.store(dump);
-        dump.setRacks(tmp);
+        //dump.setRacks(racks);
+        dump.setRacksAmount(racksAmount);
+        dump.setRacksType(racksType);
         dump.setDestination(destination);
         dump.setStatus(Waybill.Status.UNRESOLVED);
-      }
-      else {session.store(pooledWaybill);
-        pooledWaybill.setRacks(tmp);
+      } else {
+        session.store(pooledWaybill);
+        //pooledWaybill.setRacks(racks);
+        pooledWaybill.setRacksAmount(racksAmount);
+        pooledWaybill.setRacksType(racksType);
         pooledWaybill.setDestination(destination);
-        pooledWaybill.setStatus(Waybill.Status.UNRESOLVED);}
-    for (Rack rack : racks) {
-      rack.setStatus(Rack.Status.WAITING);
-      tmp.add(rack.getId());
-
-    }
+        pooledWaybill.setStatus(Waybill.Status.UNRESOLVED);
+      }
       session.saveChanges();
+    }
   }
 }

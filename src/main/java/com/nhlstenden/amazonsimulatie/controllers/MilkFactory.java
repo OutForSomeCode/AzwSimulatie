@@ -8,6 +8,7 @@ import com.nhlstenden.amazonsimulatie.models.generated.Waybill;
 import net.ravendb.client.documents.BulkInsertOperation;
 import net.ravendb.client.documents.session.IDocumentSession;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -38,37 +39,22 @@ public class MilkFactory extends CreateWaybill implements Factory {
   @Override
   public void sendWaybill() {
     int numberOfRacks = ran.nextInt(5) + 5;
-    try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      List<Rack> pooledRacks = session.query(Rack.class)
-        .whereEquals("status", Rack.Status.POOLED)
-        .take(numberOfRacks).toList();
-      if (pooledRacks.size() <= numberOfRacks) {
-        numberOfRacks -= pooledRacks.size();
+    /*List<String> tmp = new ArrayList<>();
+    for (int i = 0; i < 10; i++) {
+      tmp.add("kaas");
+    }*/
+    this.createWaybill(numberOfRacks,"kaas", Waybill.Destination.WAREHOUSE);
 
-        try (BulkInsertOperation bulkInsert = DocumentStoreHolder.getStore().bulkInsert()) {
-          for (int i = 0; i < numberOfRacks; i++) {
-            Rack rack = new Rack();
-            rack.setItem("kaas");
-            rack.setStatus(Rack.Status.WAITING);
-            bulkInsert.store(rack);
-            pooledRacks.add(rack);
-          }
-        }
-      }
-
-      this.createWaybill(pooledRacks, session, Waybill.Destination.WAREHOUSE);
-    }
   }
 
   @Override
   public void requestWaybill() {
     int numberOfRacks = ran.nextInt(5) + 5;
-    try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      List<Rack> storedRacks = session.query(Rack.class)
-        .whereEquals("status", Rack.Status.STORED)
-        .take(numberOfRacks).toList();
-
-      this.createWaybill(storedRacks, session, Waybill.Destination.MELKFACTORY);
-    }
+    /*List<String> tmp = new ArrayList<>();
+    for (int i = 0; i < 10; i++) {
+      tmp.add("kaas");
+    }*/
+    this.createWaybill(numberOfRacks,"kaas", Waybill.Destination.MELKFACTORY);
   }
 }
+

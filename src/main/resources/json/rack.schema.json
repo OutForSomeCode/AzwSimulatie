@@ -9,6 +9,10 @@
       "type": "string",
       "description": "this is the item that is laying on the rack"
     },
+    "wkt": {
+      "type": "string",
+      "description": "pos"
+    },
     "status": {
       "type": "string",
       "enum": [

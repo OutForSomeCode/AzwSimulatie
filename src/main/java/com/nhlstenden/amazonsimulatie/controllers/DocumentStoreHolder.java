@@ -14,4 +14,8 @@ public class DocumentStoreHolder {
   public static IDocumentStore getStore() {
     return store;
   }
+
+  public static String formatWtk(int x, int y) {
+    return String.format("POINT (53.%03d000 6.%03d000)", x, y);
+  }
 }

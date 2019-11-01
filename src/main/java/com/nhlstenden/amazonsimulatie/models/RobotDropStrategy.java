@@ -30,6 +30,7 @@ public class RobotDropStrategy implements RobotTaskStrategy {
       rack.setX(robotLogic.getX());
       rack.setY(robotLogic.getY());
       rack.setZ(0);
+      rack.setWkt(DocumentStoreHolder.formatWtk(robotLogic.getX(), robotLogic.getY()));
 
       MessageBroker.Instance().unparentObject(robotLogic.getId(), robotLogic.getRackUUID());
       MessageBroker.Instance().updateObject(rack);
