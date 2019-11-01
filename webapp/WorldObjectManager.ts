@@ -8,8 +8,10 @@ import {
   Group,
   Mesh,
   MeshStandardMaterial,
+  PointLightHelper,
   Renderer,
   Scene,
+  SpotLight,
   TextureLoader
 } from "three";
 import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
@@ -19,6 +21,7 @@ import "three-dat.gui";
 import axios from "axios";
 
 class WorldObjectManger {
+  textureCube;
   private worldObjects: Array<Group> = [];
   private preloadedModels: Record<string, Group> = {};
   private reqModels: Array<Array<string>> = [
@@ -33,14 +36,13 @@ class WorldObjectManger {
   private scene = new Scene();
   private truck;
   private objLoader = new OBJLoader();
-  textureCube;
-
 
   public loadModels(renderer: Renderer, callback: () => void) {
     const r = "https://threejs.org/examples/textures/cube/skyboxsun25deg/";
     const urls = [r + "px.jpg", r + "nx.jpg",
       r + "py.jpg", r + "ny.jpg",
       r + "pz.jpg", r + "nz.jpg"];
+
 
     this.textureCube = new CubeTextureLoader().load(urls);
 
@@ -70,26 +72,6 @@ class WorldObjectManger {
     Promise.all(promises).then(callback);
   }
 
-  private LoadObj(dat: Array<string>) {
-    return new Promise(resolve => {
-      this.objLoader.load(`assets/models/${dat[0]}.obj`, obj => {
-        obj.traverse(m => {
-          if (m instanceof Mesh)
-            m.material = new MeshStandardMaterial({
-              map: new TextureLoader().load(`assets/textures/${dat[1]}_BaseColor.png`),
-              normalMap: new TextureLoader().load(`assets/textures/${dat[1]}_Normal.png`),
-              metalnessMap: new TextureLoader().load(`assets/textures/${dat[1]}_Metallic.png`),
-              roughnessMap: new TextureLoader().load(`assets/textures/${dat[1]}_Roughness.png`),
-              bumpMap: new TextureLoader().load(`assets/textures/${dat[1]}_Height.png`),
-              envMap: this.textureCube
-            });
-        });
-        this.preloadedModels[dat[0]] = obj;
-        resolve();
-      });
-    });
-  }
-
   public initWorld() {
 
     var gui = new Dat.GUI();
@@ -97,16 +79,13 @@ class WorldObjectManger {
 
     axios.get(apiHost + "getNumberOfModules").then(e => {
       this.createWarehouse(e.data);
+      this.addLights(e.data);
     });
 
     const gridHelper = new GridHelper(42, 42);
     gridHelper.position.x = 21;
     gridHelper.position.z = 21;
     this.scene.add(gridHelper);
-
-    const light = new AmbientLight(0x404040);
-    light.intensity = 4;
-    this.scene.add(light);
 
     let obj = this.getModel("Table");
     obj.position.x = 21;
@@ -117,29 +96,6 @@ class WorldObjectManger {
     obj.scale.y = 20;
     obj.scale.z = 20;
     this.addScene(obj);
-
-    this.truck = this.getModel("Cone4D");
-    this.scene.add(this.truck);
-
-  }
-
-  private getModel(name: string) {
-    return this.preloadedModels[name].clone();
-  }
-
-  private createWarehouse(numberOfModules) {
-    for (let i = 0; i < numberOfModules; i++) {
-      let obj = this.getModel("Warehouse");
-      obj.rotation.y = Math.PI;
-      obj.position.x = 11.5;
-      obj.position.y = 0;
-      obj.position.z = 2.5 + (i * 6);
-      this.addScene(obj)
-    }
-  }
-
-  private addScene(obj) {
-    this.scene.add(obj);
   }
 
   public getWorldObjects(): Array<Group> {
@@ -226,6 +182,68 @@ class WorldObjectManger {
     let rack = this.worldObjects[objs[1]];
     rack.parent = null;
     rack.position.set(robot.position.x, robot.position.y, robot.position.z);
+  }
+
+  private LoadObj(dat: Array<string>) {
+    return new Promise(resolve => {
+      this.objLoader.load(`assets/models/${dat[0]}.obj`, obj => {
+        obj.traverse(m => {
+          if (m instanceof Mesh)
+            m.material = new MeshStandardMaterial({
+              map: new TextureLoader().load(`assets/textures/${dat[1]}_BaseColor.png`),
+              normalMap: new TextureLoader().load(`assets/textures/${dat[1]}_Normal.png`),
+              metalnessMap: new TextureLoader().load(`assets/textures/${dat[1]}_Metallic.png`),
+              roughnessMap: new TextureLoader().load(`assets/textures/${dat[1]}_Roughness.png`),
+              bumpMap: new TextureLoader().load(`assets/textures/${dat[1]}_Height.png`),
+              envMap: this.textureCube
+            });
+        });
+        this.preloadedModels[dat[0]] = obj;
+        resolve();
+      });
+    });
+  }
+
+  private addLights(numberofmodules): void {
+    const ambientlight = new AmbientLight(0xffffff, 0.2);
+    this.scene.add(ambientlight);
+    this.addPointLighters(6, numberofmodules);
+    this.addPointLighters(18, numberofmodules);
+  }
+
+  private addPointLighters(xcord, numberofmodules): void {
+    var modulemultiplier = 0;
+    for (var i = 0; i < numberofmodules; i++) {
+      const light = new SpotLight(0xffec80, 1.2, 17, 180, 2, 2);
+      light.position.set(xcord, 7, (0.5 + modulemultiplier));
+      light.castShadow = false; // turned off because other wise it will crash
+      light.shadow.camera.near = 1;
+      light.shadow.camera.far = 5;
+      modulemultiplier += 12;
+      var sphereSize = 1;
+      var pointLightHelper = new PointLightHelper(light, sphereSize);
+      this.scene.add(light);
+      this.scene.add(pointLightHelper);
+    }
+  }
+
+  private getModel(name: string) {
+    return this.preloadedModels[name].clone();
+  }
+
+  private createWarehouse(numberOfModules) {
+    for (let i = 0; i < numberOfModules; i++) {
+      let obj = this.getModel("Warehouse");
+      obj.rotation.y = Math.PI;
+      obj.position.x = 11.5;
+      obj.position.y = 0;
+      obj.position.z = 2.5 + (i * 6);
+      this.addScene(obj)
+    }
+  }
+
+  private addScene(obj) {
+    this.scene.add(obj);
   }
 }
 

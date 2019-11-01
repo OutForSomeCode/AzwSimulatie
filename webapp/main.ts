@@ -1,6 +1,6 @@
 import {SocketService} from './SocketService';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
-import {PerspectiveCamera, WebGLRenderer} from 'three';
+import {BasicShadowMap, PerspectiveCamera, WebGLRenderer} from 'three';
 import {WorldObjectManger} from "./WorldObjectManager";
 import TWEEN from '@tweenjs/tween.js';
 
@@ -32,6 +32,8 @@ function init() {
   renderer = new WebGLRenderer({antialias: true});
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight + 5);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = BasicShadowMap;
   document.body.appendChild(renderer.domElement);
 
   cameraControls = new OrbitControls(camera, renderer.domElement);
