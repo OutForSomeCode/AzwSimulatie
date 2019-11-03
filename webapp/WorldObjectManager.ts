@@ -2,11 +2,12 @@
 const apiHost = HOST;
 
 import {
-  AmbientLight,
+  AmbientLight, BoxGeometry,
+  BufferGeometry, Camera, CubeTexture,
   CubeTextureLoader,
   Group,
   Mesh,
-  MeshStandardMaterial,
+  MeshStandardMaterial, Object3D, PointLightHelper,
   Renderer,
   Scene,
   SpotLight,
@@ -254,33 +255,30 @@ class WorldObjectManger {
 
   /**
    * adds all lights
-   * @param numberofmodules the number of modules that the warehouse
+   * @param numberOfModules the number of modules that the warehouse
    */
-  private addLights(numberofmodules): void {
-    const ambientlight = new AmbientLight(0xffffff, 0.2);
-    this.scene.add(ambientlight);
-    this.addPointLighters(6, (numberofmodules / 2) + 1);
-    this.addPointLighters(18, (numberofmodules / 2) + 1);
+  private addLights(numberOfModules): void {
+    const ambientLight = new AmbientLight(0xffffff, 0.2);
+    this.scene.add(ambientLight);
+    this.addPointLighters(12, numberOfModules);
   }
 
   /**
    * adds the pointers lights in the warehouse
-   * @param xcord the x coordinates where the lights must be placed
-   * @param numberofmodules the number of modules that the warehouse
+   * @param xCord the x coordinates where the lights must be placed
+   * @param numberOfModules the number of modules that the warehouse
    */
-  private addPointLighters(xcord, numberofmodules): void {
-    var modulemultiplier = 0;
-    for (var i = 0; i < numberofmodules; i++) {
-      const light = new SpotLight(0xffec80, 1.2, 17, 180, 2, 2);
-      light.position.set(xcord, 7, (0.5 + modulemultiplier));
-      light.castShadow = false; // turned off because other wise it will crash
-      light.shadow.camera.near = 1;
-      light.shadow.camera.far = 5;
-      modulemultiplier += 12;
-      var sphereSize = 1;
-      this.scene.add(light);
-      // var pointLightHelper = new PointLightHelper(light, sphereSize);
-      // this.scene.add(pointLightHelper);
+  private addPointLighters(xCord, numberOfModules): void {
+    for (let i = 0; i <= numberOfModules; i++) {
+      if (i % 5 == 2){
+        const light = new SpotLight(0xffec80, 1.0, 30, 1.1, 2, 2);
+        light.position.set(xCord, 7, 2.5 + (i * 6));
+        light.target.position.set(xCord, 0, 2.5 + (i * 6));
+        this.scene.add(light);
+        this.scene.add(light.target);
+        // let pointLightHelper = new PointLightHelper(light, 1);
+        // this.scene.add(pointLightHelper);
+      }
     }
   }
 
