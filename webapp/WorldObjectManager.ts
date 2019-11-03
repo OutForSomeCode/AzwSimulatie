@@ -140,7 +140,7 @@ class WorldObjectManger {
           x: command.parameters.x,
           y: command.parameters.z,
           z: command.parameters.y
-        }, 500);
+        }, command.parameters.rotationZ);
       tween.autoDestroy = true;
       tween.start();
     } else if (command.parameters.type === 'cargocrane') {

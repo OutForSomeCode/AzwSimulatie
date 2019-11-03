@@ -19,7 +19,7 @@ public class CargoCrane extends Object3D {
   private ContainerData currentContainer;
   private int destination;
   private int tweenTime;
-  private ContainerData.Task placingContainer;
+  private ContainerData.Task containerTask;
   private WarehouseManager warehouseManager;
   private Queue<ContainerData> containers = new LinkedList<>();
 
@@ -32,14 +32,14 @@ public class CargoCrane extends Object3D {
   }
 
   // adds a container to the list of containers the crane has to handle
-  public void addContainer(ContainerData.Task placingContainer, String waybillId, int i) {
+  public void addContainer(ContainerData.Task placingContainer, String waybillId, int loadingBay) {
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
       // get the given waybill
       Waybill waybill = session.load(Waybill.class, waybillId);
       waybill.setStatus(Waybill.Status.MOVING);
-      waybill.setLoadingBay(i);
+      waybill.setLoadingBay(loadingBay);
       containers.add(new ContainerData(placingContainer, waybill));
-      if (!containers.isEmpty() && this.placingContainer == null)
+      if (!containers.isEmpty() && containerTask == null)
         setContainer();
 
       session.saveChanges();
@@ -51,7 +51,7 @@ public class CargoCrane extends Object3D {
     currentContainer = containers.remove();
     currentPos = this.getY();
     destination = (currentContainer.getWaybill().getLoadingBay() * 6);
-    placingContainer = currentContainer.isPlacingContainer();
+    containerTask = currentContainer.isPlacingContainer();
     tweenTime = Math.abs(currentPos - destination) * Data.tickRate;
     this.setRotationZ(tweenTime);
 
@@ -62,15 +62,14 @@ public class CargoCrane extends Object3D {
   // update the crane position and give the command to load/unload the container when destination is reached
   public void update() {
     if (currentPos != destination) {
-      //tweenTime -= 500;
       if (currentPos < destination)
         currentPos++;
       if (currentPos > destination)
         currentPos--;
     } else {
-      if (placingContainer != ContainerData.Task.MOVING && placingContainer != null) {
+      if (containerTask != ContainerData.Task.MOVING && containerTask != null) {
         warehouseManager.processWaybill(currentContainer.getWaybill().getId(), destination);
-        placingContainer = null;
+        containerTask = null;
         if (!containers.isEmpty()) {
           setContainer();
         }

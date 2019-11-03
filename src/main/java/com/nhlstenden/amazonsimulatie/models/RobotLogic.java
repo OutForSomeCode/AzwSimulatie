@@ -32,6 +32,7 @@ public class RobotLogic extends Object3D {
   private RobotLogic(String uuid, Grid grid) {
     this.setId(uuid);
     this.grid = grid;
+    this.setRotationZ(Data.tickRate);
     routingEngine = new RoutingEngine(this.grid);
   }
 
