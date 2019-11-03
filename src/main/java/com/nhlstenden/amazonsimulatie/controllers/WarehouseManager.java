@@ -140,7 +140,7 @@ public class WarehouseManager implements Warehouse {
 
     while (loadingBays[i]){
       i++;
-      if(i > loadingBays.length)
+      if(i >= loadingBays.length)
         break;
     }
 

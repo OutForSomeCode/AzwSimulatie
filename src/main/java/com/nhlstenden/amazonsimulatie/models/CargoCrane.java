@@ -39,7 +39,7 @@ public class CargoCrane extends Object3D {
       waybill.setStatus(Waybill.Status.MOVING);
       waybill.setLoadingBay(i);
       containers.add(new ContainerData(placingContainer, waybill));
-      if (!containers.isEmpty())
+      if (!containers.isEmpty() && this.placingContainer == null)
         setContainer();
 
       session.saveChanges();
@@ -62,7 +62,7 @@ public class CargoCrane extends Object3D {
   // update the crane position and give the command to load/unload the container when destination is reached
   public void update() {
     if (currentPos != destination) {
-      tweenTime -= 500;
+      //tweenTime -= 500;
       if (currentPos < destination)
         currentPos++;
       if (currentPos > destination)
@@ -70,7 +70,7 @@ public class CargoCrane extends Object3D {
     } else {
       if (placingContainer != ContainerData.Task.MOVING && placingContainer != null) {
         warehouseManager.processWaybill(currentContainer.getWaybill().getId(), destination);
-        placingContainer = ContainerData.Task.MOVING;
+        placingContainer = null;
         if (!containers.isEmpty()) {
           setContainer();
         }

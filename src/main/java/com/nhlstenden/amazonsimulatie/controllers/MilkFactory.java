@@ -20,7 +20,7 @@ public class MilkFactory extends CreateWaybill implements Factory {
   //creates waybills("vrachtbrieven") and sends them to the database
   public void update() {
     time++;
-    if (time < 10)
+    if (time < 20)
       return;
     flipFlop = !flipFlop;
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {

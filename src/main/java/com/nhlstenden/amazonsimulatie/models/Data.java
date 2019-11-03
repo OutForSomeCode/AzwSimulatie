@@ -10,7 +10,7 @@ public final class Data {
   public static final int cargoSize = 10;
 
   // must be dividable by 5
-  public static final int modules = 20;
+  public static final int modules = 5;
   public static final int moduleLength = 30;
 
   public static final int[] rackPositionsX = {3, 4, 7, 8, 11, 12, 15, 16, 19, 20};
