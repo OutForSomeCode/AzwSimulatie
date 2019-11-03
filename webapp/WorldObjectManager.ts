@@ -2,12 +2,11 @@
 const apiHost = HOST;
 
 import {
-  AmbientLight, BoxGeometry,
-  BufferGeometry, CubeTexture,
+  AmbientLight,
   CubeTextureLoader,
   Group,
   Mesh,
-  MeshStandardMaterial, Object3D,
+  MeshStandardMaterial,
   Renderer,
   Scene,
   SpotLight,
@@ -30,7 +29,9 @@ class WorldObjectManger {
     ["Box", "BoxMat"],
     ["Table", "TableMat"],
     ["Cone4D", "ConeMat"],
-    ["kaas", "CheeseMat"]
+    ["kaas", "CheeseMat"],
+    ["Crane", "Warehouse_Concrete"],
+    ["Container", "daf"]
   ];
   private scene = new Scene();
   private objLoader = new OBJLoader();
@@ -114,18 +115,17 @@ class WorldObjectManger {
       // Wanneer het object een robot is, wordt de code hieronder uitgevoerd.
       if (command.parameters.type === 'robotlogic') {
         this.createRobot(command);
-      }
-      if (command.parameters.type === 'rack') {
+      } else if (command.parameters.type === 'rack') {
         this.createRack(command);
-      }
-      if (command.parameters.type === 'cargocrane') {
+      } else if (command.parameters.type === 'cargocrane') {
         this.createCargoCrane(command);
+      } else if (command.parameters.type === 'waybill') {
+        this.createContainer(command);
       }
     }
     /*
    * Deze code wordt elke update uitgevoerd. Het update alle positiegegevens van het 3D object.
    */
-    //this.testCube.position.z += 0.005;
 
     const object = this.worldObjects[command.parameters.id];
 
@@ -133,9 +133,24 @@ class WorldObjectManger {
       return;
 
     if (command.parameters.type === 'robotlogic') {
-      this.tween(object, command);
+      object.lookAt(command.parameters.x, command.parameters.z, command.parameters.y);
+      var tween = new TWEEN.Tween(object.position)
+        .to({
+          x: command.parameters.x,
+          y: command.parameters.z,
+          z: command.parameters.y
+        }, 500);
+      tween.autoDestroy = true;
+      tween.start();
     } else if (command.parameters.type === 'cargocrane') {
-      this.tween(object, command, command.parameters.rotationZ)
+      var tween = new TWEEN.Tween(object.position)
+        .to({
+          x: 27.6,
+          y: 9.1,
+          z: command.parameters.y + 2.5
+        }, command.parameters.rotationZ);
+      tween.autoDestroy = true;
+      tween.start();
     } else {
       object.position.x = command.parameters.x;
       object.position.y = command.parameters.z;
@@ -143,24 +158,13 @@ class WorldObjectManger {
     }
   }
 
-  private tween(object: Object3D, command, tweenTime = 500): void {
-    object.lookAt(command.parameters.x, command.parameters.z, command.parameters.y);
-    var tween = new TWEEN.Tween(object.position)
-      .to({
-        x: command.parameters.x,
-        y: command.parameters.z,
-        z: command.parameters.y
-      }, tweenTime);
-    tween.autoDestroy = true;
-    tween.start();
-  }
 
   public createCargoCrane(command): void {
-    let cargoCrane = this.getModel("Box");
-    cargoCrane.position.set(command.parameters.x, command.parameters.z, command.parameters.y);
-    // cargoCrane.position.x = 27;
-    // cargoCrane.position.y = 8;
-    // cargoCrane.position.z = 0;
+    let cargoCrane = this.getModel("Crane");
+    cargoCrane.position.x = 27.6;
+    cargoCrane.position.y = 9.1;
+    cargoCrane.position.z = command.parameters.y + 2.5;
+
     this.scene.add(cargoCrane);
     this.worldObjects[command.parameters.id] = cargoCrane;
   }
@@ -309,6 +313,13 @@ class WorldObjectManger {
    */
   private addScene(obj) {
     this.scene.add(obj);
+  }
+
+  private createContainer(command) {
+    let container = this.getModel("Container");
+    container.position.set(command.parameters.x, command.parameters.z, command.parameters.y);
+    this.scene.add(container);
+    this.worldObjects[command.parameters.id] = container;
   }
 }
 

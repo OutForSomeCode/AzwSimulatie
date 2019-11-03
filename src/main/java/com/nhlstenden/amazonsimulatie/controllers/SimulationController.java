@@ -6,6 +6,7 @@ import com.nhlstenden.amazonsimulatie.models.ProxyObject3D;
 import com.nhlstenden.amazonsimulatie.models.ProxyRobot3D;
 import com.nhlstenden.amazonsimulatie.models.generated.Rack;
 import com.nhlstenden.amazonsimulatie.models.generated.Robot;
+import com.nhlstenden.amazonsimulatie.models.generated.Waybill;
 import com.nhlstenden.amazonsimulatie.views.View;
 import net.ravendb.client.documents.session.IDocumentSession;
 
@@ -70,6 +71,9 @@ public class SimulationController extends Controller {
      */
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
       this.getQueue().addCommandToQueue(MessageBroker.UPDATE_COMMAND, new ProxyObject3D(warehouseManager.cargoCrane));
+      for (Waybill waybill : session.query(Waybill.class).whereNotEquals("status", Waybill.Status.POOLED).toList()) {
+        this.getQueue().addCommandToQueue(MessageBroker.UPDATE_COMMAND, new ProxyObject3D(waybill));
+      }
       for (Rack rack : session.query(Rack.class).whereNotEquals("status", Rack.Status.POOLED).toList()) {
         this.getQueue().addCommandToQueue(MessageBroker.UPDATE_COMMAND, new ProxyObject3D(rack));
       }

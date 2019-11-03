@@ -3,6 +3,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "javaType": "com.nhlstenden.amazonsimulatie.models.generated.Waybill",
   "type": "object",
+  "extendsJavaClass": "Object3D",
   "properties": {
     "id": {
       "type": "string",

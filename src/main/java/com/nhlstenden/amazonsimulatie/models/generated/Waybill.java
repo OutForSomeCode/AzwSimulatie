@@ -26,7 +26,9 @@ import com.fasterxml.jackson.annotation.JsonValue;
     "todoList",
     "racks"
 })
-public class Waybill {
+public class Waybill
+    extends Object3D
+{
 
     /**
      * this is the id of the waybill
@@ -245,6 +247,20 @@ public class Waybill {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(Waybill.class.getName()).append('@').append(Integer.toHexString(System.identityHashCode(this))).append('[');
+        int baseLength = sb.length();
+        String superString = super.toString();
+        if (superString!= null) {
+            int contentStart = superString.indexOf('[');
+            int contentEnd = superString.lastIndexOf(']');
+            if ((contentStart >= 0)&&(contentEnd >contentStart)) {
+                sb.append(superString, (contentStart + 1), contentEnd);
+            } else {
+                sb.append(superString);
+            }
+        }
+        if (sb.length()>baseLength) {
+            sb.append(',');
+        }
         sb.append("id");
         sb.append('=');
         sb.append(((this.id == null)?"<null>":this.id));
@@ -301,6 +317,7 @@ public class Waybill {
         result = ((result* 31)+ this.loadingBay);
         result = ((result* 31)+((this.status == null)? 0 :this.status.hashCode()));
         result = ((result* 31)+ this.racksAmount);
+        result = ((result* 31)+ super.hashCode());
         return result;
     }
 
@@ -313,7 +330,7 @@ public class Waybill {
             return false;
         }
         Waybill rhs = ((Waybill) other);
-        return ((((((((((this.racksType == rhs.racksType)||((this.racksType!= null)&&this.racksType.equals(rhs.racksType)))&&((this.todoList == rhs.todoList)||((this.todoList!= null)&&this.todoList.equals(rhs.todoList))))&&((this.destination == rhs.destination)||((this.destination!= null)&&this.destination.equals(rhs.destination))))&&((this.racks == rhs.racks)||((this.racks!= null)&&this.racks.equals(rhs.racks))))&&((this.id == rhs.id)||((this.id!= null)&&this.id.equals(rhs.id))))&&((this.additionalProperties == rhs.additionalProperties)||((this.additionalProperties!= null)&&this.additionalProperties.equals(rhs.additionalProperties))))&&(this.loadingBay == rhs.loadingBay))&&((this.status == rhs.status)||((this.status!= null)&&this.status.equals(rhs.status))))&&(this.racksAmount == rhs.racksAmount));
+        return (((((((((super.equals(rhs)&&((this.racksType == rhs.racksType)||((this.racksType!= null)&&this.racksType.equals(rhs.racksType))))&&((this.todoList == rhs.todoList)||((this.todoList!= null)&&this.todoList.equals(rhs.todoList))))&&((this.destination == rhs.destination)||((this.destination!= null)&&this.destination.equals(rhs.destination))))&&((this.racks == rhs.racks)||((this.racks!= null)&&this.racks.equals(rhs.racks))))&&((this.id == rhs.id)||((this.id!= null)&&this.id.equals(rhs.id))))&&((this.additionalProperties == rhs.additionalProperties)||((this.additionalProperties!= null)&&this.additionalProperties.equals(rhs.additionalProperties))))&&(this.loadingBay == rhs.loadingBay))&&((this.status == rhs.status)||((this.status!= null)&&this.status.equals(rhs.status))))&&(this.racksAmount == rhs.racksAmount));
     }
 
     public enum Destination {

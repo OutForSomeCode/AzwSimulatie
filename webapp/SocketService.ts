@@ -37,7 +37,7 @@ class SocketService {
       // Hier wordt het commando dat vanuit de server wordt gegeven uit elkaar gehaald
       let commands = this.messagePack.decode(Buffer.from(e.data));
       //const data = decode(dat);
-      console.log(commands);
+      //console.log(commands);
       for (let com of commands) {
         //console.log(com);
         // Wanneer het commando is "object_update", dan wordt deze code uitgevoerd. Bekijk ook de servercode om dit goed te begrijpen.

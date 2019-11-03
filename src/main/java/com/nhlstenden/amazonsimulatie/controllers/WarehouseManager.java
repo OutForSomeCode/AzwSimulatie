@@ -157,6 +157,12 @@ public class WarehouseManager implements Warehouse {
       Waybill waybill = session.load(Waybill.class, waybillId);
       List<String> cargo = new ArrayList<>();//waybill.getRacks();
 
+      waybill.setX(containerPosX);
+      waybill.setY(containerPosY);
+      waybill.setZ(0);
+
+      MessageBroker.Instance().updateObject(waybill);
+
       int numberOfRacks = waybill.getRacksAmount();
       List<Rack> racks;
 
@@ -269,6 +275,10 @@ public class WarehouseManager implements Warehouse {
               MessageBroker.Instance().updateObject(rack);
             }
           }
+
+          waybill.setZ(-50);
+          MessageBroker.Instance().updateObject(waybill);
+
           // give the loading bay free and instead of removing the used waybill we recycle them in the database
           loadingBays[waybill.getLoadingBay()] = false;
           waybill.setStatus(Waybill.Status.POOLED);
