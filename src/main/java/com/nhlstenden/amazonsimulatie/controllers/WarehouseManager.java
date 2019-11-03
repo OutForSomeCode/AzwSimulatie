@@ -136,11 +136,14 @@ public class WarehouseManager implements Warehouse {
 
   // get an available loading bay
   private int assignLoadingBay() {
-//    Random random = new Random();
-    int i = 0; //= random.nextInt(loadingBays.length);
+    int i = 0;
 
-    while (loadingBays[i])
+    while (loadingBays[i]){
       i++;
+      if(i > loadingBays.length)
+        break;
+    }
+
 
     loadingBays[i] = true;
     return i;
