@@ -36,6 +36,7 @@ public class MessageBroker {
     controlerObserver.firePropertyChange(UPDATE_COMMAND, null, new ProxyObject3D(object));
   }
 
+  //to parent and unparent the rack to the robot for transport to its drop location
   public void parentObject(String uuid1, String uuid2) {
     controlerObserver.firePropertyChange(PARENT_COMMAND, null, String.format("%s|%s", uuid1, uuid2));
   }

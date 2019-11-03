@@ -5,6 +5,9 @@ import com.nhlstenden.amazonsimulatie.models.generated.Node;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+ * creates a grid filled with nodes containing x and y coordinates
+ */
 public class Grid {
   private final int[][] checkInts = {
     {0, 1},
@@ -12,7 +15,7 @@ public class Grid {
     {0, -1},
     {-1, 0}
   };
-  private int gridSizeX;//= 30;
+  private int gridSizeX;
   private int gridSizeY;
   private Node[][] grid;
 
@@ -35,6 +38,7 @@ public class Grid {
     }
   }
 
+  // returns all direct non diagonally neighboring nodes
   public List<Node> getNeighbours(Node node) {
     List<Node> neighbours = new ArrayList<>();
     for (int[] vec : checkInts) {
@@ -47,20 +51,24 @@ public class Grid {
     return neighbours;
   }
 
+  // sets a node to occupied
   public void addWall(int x, int y) {
     if (x < gridSizeX && y < gridSizeY) {
       getNode(x, y).setOccupied(true);
     }
   }
 
+  // returns x length of the grid
   public int getGridSizeX() {
     return gridSizeX;
   }
 
+  // returns y length of the grid
   public int getGridSizeY() {
     return gridSizeY;
   }
 
+  // returns the node on the given coordinates
   public Node getNode(int x, int y) {
     return grid[x][y];
   }

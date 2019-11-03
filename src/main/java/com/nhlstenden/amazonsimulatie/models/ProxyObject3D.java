@@ -18,14 +18,13 @@ import com.nhlstenden.amazonsimulatie.models.generated.Rack;
  * mogelijkheden kunnen zijn zodat de view toch bij de updatemethode van de robot kan komen. Deze mag
  * alleen de World class aanroepen, dus dat zou onveilige software betekenen.
  */
-public class ProxyObject3D extends Object3D {
+public class ProxyObject3D {
   private Object3D object;
 
   public ProxyObject3D(Object3D object) {
     this.object = object;
   }
 
-  @Override
   public String getId() {
     return this.object.getId();
   }
@@ -41,32 +40,26 @@ public class ProxyObject3D extends Object3D {
       return null;
   }
 
-  @Override
   public int getX() {
     return this.object.getX();
   }
 
-  @Override
   public int getY() {
     return this.object.getY();
   }
 
-  @Override
   public int getZ() {
     return this.object.getZ();
   }
 
-  @Override
   public int getRotationX() {
     return this.object.getRotationX();
   }
 
-  @Override
   public int getRotationY() {
     return this.object.getRotationY();
   }
 
-  @Override
   public int getRotationZ() {
     return this.object.getRotationZ();
   }

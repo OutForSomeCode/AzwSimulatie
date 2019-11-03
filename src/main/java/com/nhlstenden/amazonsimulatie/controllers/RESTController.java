@@ -26,6 +26,7 @@ public class RESTController {
     }
   }
 
+  //frontend can request number of modules from the Data class
   @RequestMapping("/getNumberOfModules")
   public int amountOfModules() {
     return Data.modules;

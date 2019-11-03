@@ -8,11 +8,15 @@
       "type": "string",
       "description": "this is the id of the waybill"
     },
+    "loadingBay": {
+      "type": "integer",
+      "description": "which loading bay the cargo needs to be dropped"
+    },
     "destination": {
       "type": "string",
       "enum": [
         "WAREHOUSE",
-        "MELKFACTORY"
+        "MILKFACTORY"
       ],
       "description": "this reference to the destination of the waybill , where do they need to go"
     },
@@ -20,6 +24,7 @@
       "type": "string",
       "enum": [
         "POOLED",
+        "MOVING",
         "UNRESOLVED",
         "RESOLVING",
         "RESOLVED"

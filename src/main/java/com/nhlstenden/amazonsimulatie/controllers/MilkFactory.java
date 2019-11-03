@@ -5,19 +5,19 @@ import com.nhlstenden.amazonsimulatie.models.Data;
 import com.nhlstenden.amazonsimulatie.models.Factory;
 import com.nhlstenden.amazonsimulatie.models.generated.Rack;
 import com.nhlstenden.amazonsimulatie.models.generated.Waybill;
-import net.ravendb.client.documents.BulkInsertOperation;
 import net.ravendb.client.documents.session.IDocumentSession;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
-
+/*
+ *a factory type class that sends or requests generated goods from the warehouse
+ */
 public class MilkFactory extends CreateWaybill implements Factory {
   private boolean flipFlop;
   private int time = 0;
-  private Random ran = new Random();
+  private Random random = new Random();
 
   @Override
+  //creates waybills("vrachtbrieven") and sends them to the database
   public void update() {
     time++;
     if (time < 30)
@@ -36,25 +36,19 @@ public class MilkFactory extends CreateWaybill implements Factory {
     time = 0;
   }
 
+  //sends goods to the warehouse
   @Override
   public void sendWaybill() {
-    int numberOfRacks = ran.nextInt(5) + 5;
-    /*List<String> tmp = new ArrayList<>();
-    for (int i = 0; i < 10; i++) {
-      tmp.add("kaas");
-    }*/
+    int numberOfRacks = random.nextInt(5) + 5;
     this.createWaybill(numberOfRacks,"kaas", Waybill.Destination.WAREHOUSE);
 
   }
 
+  //requests goods from the warehouse
   @Override
   public void requestWaybill() {
-    int numberOfRacks = ran.nextInt(5) + 5;
-    /*List<String> tmp = new ArrayList<>();
-    for (int i = 0; i < 10; i++) {
-      tmp.add("kaas");
-    }*/
-    this.createWaybill(numberOfRacks,"kaas", Waybill.Destination.MELKFACTORY);
+    int numberOfRacks = random.nextInt(5) + 5;
+    this.createWaybill(numberOfRacks,"kaas", Waybill.Destination.MILKFACTORY);
   }
 }
 

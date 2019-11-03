@@ -29,7 +29,7 @@ public class RobotLogic extends Object3D {
   private int py = 0;
   private Grid grid;
 
-  public RobotLogic(String uuid, Grid grid) {
+  private RobotLogic(String uuid, Grid grid) {
     this.setId(uuid);
     this.grid = grid;
     routingEngine = new RoutingEngine(this.grid);
@@ -61,10 +61,10 @@ public class RobotLogic extends Object3D {
 
   private void executeNextTask() {
     currentTask = taskQueue.remove();
-    Node n = new Node();
-    n.setGridX(getX());
-    n.setGridY(getY());
-    pathToTask = routingEngine.generateRoute(n, currentTask.getDestination());
+    Node node = new Node();
+    node.setGridX(getX());
+    node.setGridY(getY());
+    pathToTask = routingEngine.generateRoute(node, currentTask.getDestination());
   }
 
   public void taskDone(RobotTaskStrategy task) {

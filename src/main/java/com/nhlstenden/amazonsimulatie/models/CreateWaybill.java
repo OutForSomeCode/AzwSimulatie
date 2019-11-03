@@ -1,13 +1,13 @@
 package com.nhlstenden.amazonsimulatie.models;
 
 import com.nhlstenden.amazonsimulatie.controllers.DocumentStoreHolder;
-import com.nhlstenden.amazonsimulatie.models.generated.Rack;
 import com.nhlstenden.amazonsimulatie.models.generated.Waybill;
 import net.ravendb.client.documents.session.IDocumentSession;
 
-import java.util.ArrayList;
-import java.util.List;
 
+/*
+ * creates and fills a waybill with the given data and stores it in the database
+ */
 public abstract class CreateWaybill {
   protected void createWaybill(int racksAmount, String racksType, Waybill.Destination destination) {
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {

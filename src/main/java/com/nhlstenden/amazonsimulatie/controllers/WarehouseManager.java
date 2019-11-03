@@ -1,10 +1,7 @@
 package com.nhlstenden.amazonsimulatie.controllers;
 
 import com.nhlstenden.amazonsimulatie.models.*;
-import com.nhlstenden.amazonsimulatie.models.generated.Node;
-import com.nhlstenden.amazonsimulatie.models.generated.Rack;
-import com.nhlstenden.amazonsimulatie.models.generated.Robot;
-import com.nhlstenden.amazonsimulatie.models.generated.Waybill;
+import com.nhlstenden.amazonsimulatie.models.generated.*;
 import net.ravendb.client.documents.BulkInsertOperation;
 import net.ravendb.client.documents.indexes.spatial.SpatialRelation;
 import net.ravendb.client.documents.queries.spatial.WktField;
@@ -16,7 +13,7 @@ import java.util.Queue;
 import java.util.*;
 
 import static com.nhlstenden.amazonsimulatie.models.Data.rackSpawnPositions;
-import static com.nhlstenden.amazonsimulatie.models.generated.Waybill.Destination.MELKFACTORY;
+import static com.nhlstenden.amazonsimulatie.models.generated.Waybill.Destination.MILKFACTORY;
 import static com.nhlstenden.amazonsimulatie.models.generated.Waybill.Destination.WAREHOUSE;
 
 /*
@@ -26,29 +23,25 @@ import static com.nhlstenden.amazonsimulatie.models.generated.Waybill.Destinatio
  * in het model. Dit betekent dus de logica die het magazijn simuleert.
  */
 public class WarehouseManager implements Warehouse {
-  private int loadingBay = 99999;
-  /*
-   * De wereld bestaat uit objecten, vandaar de naam worldObjects. Dit is een lijst
-   * van alle objecten in de 3D wereld. Deze objecten zijn in deze voorbeeldcode alleen
-   * nog robots. Er zijn ook nog meer andere objecten die ook in de wereld voor kunnen komen.
-   * Deze objecten moeten uiteindelijk ook in de lijst passen (overerving). Daarom is dit
-   * een lijst van Object3D onderdelen. Deze kunnen in principe alles zijn. (Robots, vrachrtwagens, etc)
-   */
+  CargoCrane cargoCrane;
+  private boolean[] loadingBays;
   private HashMap<String, RobotLogic> robots = new HashMap<>();
   private Grid grid;
 
-  /*
-   * De wereld maakt een lege lijst voor worldObjects aan. Daarin wordt nu één robot gestopt.
-   * Deze methode moet uitgebreid worden zodat alle objecten van de 3D wereld hier worden gemaakt.
-   */
   public WarehouseManager() {
     grid = new Grid(Data.moduleLength, (6 * Data.modules));
     int numberOfRobots = Data.modules * 10;
     numberOfRobots -= (int) Math.ceil(Data.modules / 5.0) * 10;
 
+    cargoCrane = new CargoCrane(this);
+    loadingBays = new boolean[Data.modules];
+
+    // open connection to the database
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
+      //check how many robots are already in the database
       numberOfRobots -= session.query(Robot.class).count();
 
+      // add the robots needed to the database
       if (numberOfRobots > 0)
         try (BulkInsertOperation bulkInsert = DocumentStoreHolder.getStore().bulkInsert()) {
           for (int m = 0; m < Data.modules; m++) {
@@ -66,8 +59,6 @@ public class WarehouseManager implements Warehouse {
 
                     bulkInsert.store(robot);
 
-                    RobotLogic logic = new RobotLogic(session.advanced().getDocumentId(robot), grid, x, y + (m * 6));
-                    logic.registerWarehouse(this);
                     numberOfRobots -= 1;
                   }
                 }
@@ -76,6 +67,7 @@ public class WarehouseManager implements Warehouse {
           }
         }
 
+      // give the robot its logic and assign the warehouse
       for (Robot robot : session.query(Robot.class).toList()) {
         RobotLogic logic = new RobotLogic(robot.getId(), grid, robot.getX(), robot.getY());
         logic.registerWarehouse(this);
@@ -83,6 +75,7 @@ public class WarehouseManager implements Warehouse {
         grid.addWall(robot.getX(), robot.getY());
       }
 
+      // dont remove! is not used but without the database will give a error ....
       List<Robot> results = session
         .query(Robot.class)
         .spatial(
@@ -92,6 +85,7 @@ public class WarehouseManager implements Warehouse {
         .toList();
     }
 
+    // put invisible walls around the loading bays so the robots cant go there
     for (int y = 0; y < (6 * Data.modules); y++) {
       if (y % 6 == 0 || y % 6 == 1 || y % 6 == 4 || y % 6 == 5) {
         for (int x = 0; x < 6; x++) {
@@ -100,24 +94,30 @@ public class WarehouseManager implements Warehouse {
       }
     }
 
+    // get the waybills from the database that have not yet been resolved and create a cargo container for them
     String subscriptionName = DocumentStoreHolder.getStore().subscriptions().create(Waybill.class);
     SubscriptionWorker<Waybill> workerWBatch = DocumentStoreHolder.getStore().subscriptions().getSubscriptionWorker(Waybill.class, subscriptionName);
     workerWBatch.run(batch -> {
       for (SubscriptionBatch.Item<Waybill> item : batch.getItems()) {
-        if (item.getResult().getStatus() == Waybill.Status.UNRESOLVED)
-          processWaybill(item.getId());
+        if (item.getResult().getStatus() == Waybill.Status.UNRESOLVED) {
+          if (item.getResult().getDestination().equals(WAREHOUSE))
+            cargoCrane.addContainer(CargoCrane.ContainerData.Task.DROP, item.getId(), assignLoadingBay());
+          else
+            cargoCrane.addContainer(CargoCrane.ContainerData.Task.PICKUP, item.getId(), assignLoadingBay());
+        }
       }
     });
   }
 
+  // execute the update commands for robots and the cargo crane
   public void update() {
     for (Map.Entry<String, RobotLogic> logicEntry : robots.entrySet()) {
       logicEntry.getValue().update();
     }
+    cargoCrane.update();
   }
 
-
-
+  // give back an available node to drop a rack
   private Node rackDropLocation() {
     for (int m = 0; m < Data.modules; m++) {
       if (m % 5 != 2) {
@@ -134,21 +134,33 @@ public class WarehouseManager implements Warehouse {
     return null;
   }
 
-  private void processWaybill(String waybillId) {
+  // get an available loading bay
+  private int assignLoadingBay() {
+//    Random random = new Random();
+    int i = 0; //= random.nextInt(loadingBays.length);
+
+    while (loadingBays[i])
+      i++;
+
+    loadingBays[i] = true;
+    return i;
+  }
+
+  // after the cargo crane has set the container in a loading bay the corresponding waybill will be handled
+  public void processWaybill(String waybillId, int containerPosY) {
+    int containerPosX = 24;
+
+    // open a connection to the database
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
-      loadingBay++;
-      if (loadingBay >= Data.modules)
-        loadingBay = 0;
 
-      int truckPosX = 24,
-        truckPosY = (loadingBay * 6);
-
+      // get the given waybill
       Waybill waybill = session.load(Waybill.class, waybillId);
       List<String> cargo = new ArrayList<>();//waybill.getRacks();
 
       int numberOfRacks = waybill.getRacksAmount();
       List<Rack> racks;
 
+      // get racks that are not in use (not visible in the warehouse)
       if (waybill.getDestination() == WAREHOUSE) {
         racks = session.query(Rack.class)
           .whereEquals("status", Rack.Status.POOLED)
@@ -157,17 +169,19 @@ public class WarehouseManager implements Warehouse {
         if (racks.size() <= numberOfRacks) {
           numberOfRacks -= racks.size();
 
+          // create more racks if there are not enough in the database
           try (BulkInsertOperation bulkInsert = DocumentStoreHolder.getStore().bulkInsert()) {
             for (int i = 0; i < numberOfRacks; i++) {
               Rack rack = new Rack();
               rack.setItem("kaas");
-              rack.setWkt(DocumentStoreHolder.formatWtk(truckPosX, truckPosY));
+              rack.setWkt(DocumentStoreHolder.formatWtk(containerPosX, containerPosY));
               rack.setStatus(Rack.Status.WAITING);
               bulkInsert.store(rack);
               racks.add(rack);
             }
           }
 
+          // dont remove! is not used but without the database will give a error ....
           List<Rack> results = session
             .query(Rack.class)
             .spatial(
@@ -177,9 +191,10 @@ public class WarehouseManager implements Warehouse {
             .toList();
         }
       } else {
+        // get racks from the warehouse closest to where there needed
         racks = session.query(Rack.class)
           .whereEquals("status", Rack.Status.STORED)
-          .orderByDistance("wkt", DocumentStoreHolder.formatWtk(truckPosX, truckPosY))
+          .orderByDistance("wkt", DocumentStoreHolder.formatWtk(containerPosX, containerPosY))
           .take(numberOfRacks).toList();
       }
 
@@ -191,18 +206,20 @@ public class WarehouseManager implements Warehouse {
       waybill.setTodoList(cargo);
       waybill.getRacks().clear();
 
+      // get idle robots to transport racks
       List<Robot> idleRobots = session.query(Robot.class)
         .whereEquals("status", Robot.Status.IDLE)
-        .orderByDistance("wkt", DocumentStoreHolder.formatWtk(truckPosX, truckPosY))
+        .orderByDistance("wkt", DocumentStoreHolder.formatWtk(containerPosX, containerPosY))
         .take(cargo.size()).toList();
 
       for (int i = 0; i < idleRobots.size(); i++) {
         Robot idleRobot = idleRobots.get(i);
         RobotLogic robotLogic = robots.get(idleRobot.getId());
 
-        int x = rackSpawnPositions[i][1] + truckPosX,
-          y = (rackSpawnPositions[i][0] + truckPosY);
+        int x = rackSpawnPositions[i][1] + containerPosX,
+          y = (rackSpawnPositions[i][0] + containerPosY);
 
+        // create a queue with tasks for the robot to execute
         Queue<RobotTaskStrategy> tasks = new LinkedList<>();
         Rack rack = racks.get(i);//session.load(Rack.class, );//cargo.get(i)
         if (waybill.getDestination() == WAREHOUSE) {
@@ -230,6 +247,7 @@ public class WarehouseManager implements Warehouse {
     }
   }
 
+  // callback for when the robot has finished a task
   @Override
   public void robotFinishedTask(RobotLogic robotLogic, RobotTaskStrategy task) {
     if (task instanceof RobotDropStrategy) {
@@ -241,17 +259,20 @@ public class WarehouseManager implements Warehouse {
           waybill.getRacks().add(robotLogic.getRackUUID());
         }
 
+        // check if all racks that where requested where delivered
         if (waybill.getTodoList() == null || waybill.getTodoList().size() <= 0) {
-          if (waybill.getDestination() == MELKFACTORY)
+          if (waybill.getDestination() == MILKFACTORY) {
             for (String id : waybill.getRacks()) {
               Rack rack = session.load(Rack.class, id);
               rack.setZ(-10);
               rack.setStatus(Rack.Status.POOLED);
               MessageBroker.Instance().updateObject(rack);
             }
+          }
+          // give the loading bay free and instead of removing the used waybill we recycle them in the database
+          loadingBays[waybill.getLoadingBay()] = false;
           waybill.setStatus(Waybill.Status.POOLED);
         }
-
         session.saveChanges();
       }
     }

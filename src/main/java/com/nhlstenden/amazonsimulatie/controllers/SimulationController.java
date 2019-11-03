@@ -1,5 +1,7 @@
 package com.nhlstenden.amazonsimulatie.controllers;
 
+import com.nhlstenden.amazonsimulatie.models.CargoCrane;
+import com.nhlstenden.amazonsimulatie.models.Data;
 import com.nhlstenden.amazonsimulatie.models.ProxyObject3D;
 import com.nhlstenden.amazonsimulatie.models.ProxyRobot3D;
 import com.nhlstenden.amazonsimulatie.models.generated.Rack;
@@ -40,7 +42,7 @@ public class SimulationController extends Controller {
       this.warehouseManager.update();
       this.getQueue().flush(this.getViews());
       try {
-        Thread.sleep(500);
+        Thread.sleep(Data.tickRate);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
@@ -67,6 +69,7 @@ public class SimulationController extends Controller {
      * dat de view alleen objecten ziet die worden geupdate (bijvoorbeeld bewegen).
      */
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
+      this.getQueue().addCommandToQueue(MessageBroker.UPDATE_COMMAND, new ProxyObject3D(warehouseManager.cargoCrane));
       for (Rack rack : session.query(Rack.class).whereNotEquals("status", Rack.Status.POOLED).toList()) {
         this.getQueue().addCommandToQueue(MessageBroker.UPDATE_COMMAND, new ProxyObject3D(rack));
       }

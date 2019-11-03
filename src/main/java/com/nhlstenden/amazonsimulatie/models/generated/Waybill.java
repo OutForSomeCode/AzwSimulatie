@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
     "id",
+    "loadingBay",
     "destination",
     "status",
     "racksAmount",
@@ -34,6 +35,13 @@ public class Waybill {
     @JsonProperty("id")
     @JsonPropertyDescription("this is the id of the waybill")
     private String id;
+    /**
+     * which loading bay the cargo needs to be dropped
+     * 
+     */
+    @JsonProperty("loadingBay")
+    @JsonPropertyDescription("which loading bay the cargo needs to be dropped")
+    private int loadingBay;
     /**
      * this reference to the destination of the waybill , where do they need to go
      * 
@@ -95,6 +103,24 @@ public class Waybill {
     @JsonProperty("id")
     public void setId(String id) {
         this.id = id;
+    }
+
+    /**
+     * which loading bay the cargo needs to be dropped
+     * 
+     */
+    @JsonProperty("loadingBay")
+    public int getLoadingBay() {
+        return loadingBay;
+    }
+
+    /**
+     * which loading bay the cargo needs to be dropped
+     * 
+     */
+    @JsonProperty("loadingBay")
+    public void setLoadingBay(int loadingBay) {
+        this.loadingBay = loadingBay;
     }
 
     /**
@@ -223,6 +249,10 @@ public class Waybill {
         sb.append('=');
         sb.append(((this.id == null)?"<null>":this.id));
         sb.append(',');
+        sb.append("loadingBay");
+        sb.append('=');
+        sb.append(this.loadingBay);
+        sb.append(',');
         sb.append("destination");
         sb.append('=');
         sb.append(((this.destination == null)?"<null>":this.destination));
@@ -268,6 +298,7 @@ public class Waybill {
         result = ((result* 31)+((this.racks == null)? 0 :this.racks.hashCode()));
         result = ((result* 31)+((this.id == null)? 0 :this.id.hashCode()));
         result = ((result* 31)+((this.additionalProperties == null)? 0 :this.additionalProperties.hashCode()));
+        result = ((result* 31)+ this.loadingBay);
         result = ((result* 31)+((this.status == null)? 0 :this.status.hashCode()));
         result = ((result* 31)+ this.racksAmount);
         return result;
@@ -282,13 +313,13 @@ public class Waybill {
             return false;
         }
         Waybill rhs = ((Waybill) other);
-        return (((((((((this.racksType == rhs.racksType)||((this.racksType!= null)&&this.racksType.equals(rhs.racksType)))&&((this.todoList == rhs.todoList)||((this.todoList!= null)&&this.todoList.equals(rhs.todoList))))&&((this.destination == rhs.destination)||((this.destination!= null)&&this.destination.equals(rhs.destination))))&&((this.racks == rhs.racks)||((this.racks!= null)&&this.racks.equals(rhs.racks))))&&((this.id == rhs.id)||((this.id!= null)&&this.id.equals(rhs.id))))&&((this.additionalProperties == rhs.additionalProperties)||((this.additionalProperties!= null)&&this.additionalProperties.equals(rhs.additionalProperties))))&&((this.status == rhs.status)||((this.status!= null)&&this.status.equals(rhs.status))))&&(this.racksAmount == rhs.racksAmount));
+        return ((((((((((this.racksType == rhs.racksType)||((this.racksType!= null)&&this.racksType.equals(rhs.racksType)))&&((this.todoList == rhs.todoList)||((this.todoList!= null)&&this.todoList.equals(rhs.todoList))))&&((this.destination == rhs.destination)||((this.destination!= null)&&this.destination.equals(rhs.destination))))&&((this.racks == rhs.racks)||((this.racks!= null)&&this.racks.equals(rhs.racks))))&&((this.id == rhs.id)||((this.id!= null)&&this.id.equals(rhs.id))))&&((this.additionalProperties == rhs.additionalProperties)||((this.additionalProperties!= null)&&this.additionalProperties.equals(rhs.additionalProperties))))&&(this.loadingBay == rhs.loadingBay))&&((this.status == rhs.status)||((this.status!= null)&&this.status.equals(rhs.status))))&&(this.racksAmount == rhs.racksAmount));
     }
 
     public enum Destination {
 
         WAREHOUSE("WAREHOUSE"),
-        MELKFACTORY("MELKFACTORY");
+        MILKFACTORY("MILKFACTORY");
         private final String value;
         private final static Map<String, Waybill.Destination> CONSTANTS = new HashMap<String, Waybill.Destination>();
 
@@ -327,6 +358,7 @@ public class Waybill {
     public enum Status {
 
         POOLED("POOLED"),
+        MOVING("MOVING"),
         UNRESOLVED("UNRESOLVED"),
         RESOLVING("RESOLVING"),
         RESOLVED("RESOLVED");

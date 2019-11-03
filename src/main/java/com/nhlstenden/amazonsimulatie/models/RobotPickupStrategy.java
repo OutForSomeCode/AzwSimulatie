@@ -7,6 +7,9 @@ import com.nhlstenden.amazonsimulatie.models.generated.Rack;
 import com.nhlstenden.amazonsimulatie.models.generated.Robot;
 import net.ravendb.client.documents.session.IDocumentSession;
 
+/*
+ * pickup strategy for robots
+ */
 public class RobotPickupStrategy implements RobotTaskStrategy {
   private Node destination;
 
@@ -18,7 +21,7 @@ public class RobotPickupStrategy implements RobotTaskStrategy {
     return destination;
   }
 
-
+  // what the robot needs to do when this task gets executed
   @Override
   public void execute(RobotLogic robotLogic) {
     try (IDocumentSession session = DocumentStoreHolder.getStore().openSession()) {
@@ -27,13 +30,19 @@ public class RobotPickupStrategy implements RobotTaskStrategy {
 
       robotLogic.getGrid().getNode(rack.getX(), rack.getY()).setOccupied(false);
       robotP.setRack(rack);
+
+      // update carried rack status
       rack.setStatus(Rack.Status.MOVING);
       rack.setX(robotLogic.getX());
       rack.setY(robotLogic.getY());
       rack.setZ(-10);
+
+      // connect rack to the robot
       MessageBroker.Instance().parentObject(robotLogic.getId(), robotLogic.getRackUUID());
 
       session.saveChanges();
+
+      // callback that the task has been executed
       robotLogic.taskDone(this);
     }
   }
