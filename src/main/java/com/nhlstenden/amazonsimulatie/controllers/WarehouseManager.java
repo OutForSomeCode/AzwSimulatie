@@ -273,13 +273,13 @@ public class WarehouseManager implements Warehouse {
           if (waybill.getDestination() == MILKFACTORY) {
             for (String id : waybill.getRacks()) {
               Rack rack = session.load(Rack.class, id);
-              rack.setZ(-10);
+              rack.setZ(-5);
               rack.setStatus(Rack.Status.POOLED);
               MessageBroker.Instance().updateObject(rack);
             }
           }
 
-          waybill.setZ(-50);
+          waybill.setZ(-5);
           MessageBroker.Instance().updateObject(waybill);
 
           // give the loading bay free and instead of removing the used waybill we recycle them in the database
